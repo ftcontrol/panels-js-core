@@ -1,43 +1,36 @@
-<script>
-  import { onMount, onDestroy, tick } from "svelte"
+<script lang="ts">
+  import { embedMultiple } from "svelte-standalone"
+  import { onMount } from "svelte"
 
-  export let name = "Counter"
-  export let config = {}
+  const mountWidget = async (name, target, props = {}) => {
+    const url = `/build/${name}.js?cacheBust=${Date.now()}`
 
-  let component
-  let target
+    try {
+      const mod = await import(url)
 
-  $: if (name) {
-    loadComponent()
-      .then((f) => {})
-      .catch((x) => console.warn(x.message))
-  }
+      const instance = window.counter.start(
+        {
+          /* props */
+        },
+        "counter"
+      )
 
-  onMount(async function () {
-    console.log("svelte widget mounted")
-  })
-
-  onDestroy(cleanup)
-
-  async function cleanup() {
-    if (component) {
-      console.log("cleaning up svelte widget")
-      component.$destroy()
-      component = null
-      await tick()
+      return instance
+    } catch (err) {
+      console.error(`❌ Failed to load widget ${name}:`, err)
+      return null
     }
   }
 
-  async function loadComponent() {
-    await cleanup()
-    let url = `/build/${name}.js?${parseInt(Math.random() * 1000000)}`
-    let comp = await import(url)
-    component = new comp.default({
-      target: target,
-      props: config.props || {},
-    })
-    console.log("loading svelte widget component:", url)
-  }
+  onMount(async () => {
+    mountWidget("Counter", document.getElementById("counter"))
+  })
 </script>
 
-<div bind:this={target} class="svelte-widget-wrapper"></div>
+<div id="counter"></div>
+
+<style>
+  div {
+    background-color: red;
+  }
+</style>
