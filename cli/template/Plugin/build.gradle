@@ -78,3 +78,28 @@ tasks.register('copyMyLibraryJar', Copy) {
         println "Backed up as ${jarFileName} to .jar-stash/"
     }
 }
+
+tasks.register('buildWeb') {
+    doLast {
+        
+        def fixedDir = file('<REPLACE>RUN_DIR</REPLACE>').absoluteFile
+        def workDir = file('src/main/web').absolutePath
+
+        println "Running 'build dir=$workDir' inside directory: $fixedDir"
+
+        def processBuilder = new ProcessBuilder(<REPLACE>RUN_COMMAND</REPLACE>, "build", "dir=$workDir")
+                .directory(fixedDir)
+                .redirectErrorStream(true)
+
+        def process = processBuilder.start()
+
+        process.inputStream.eachLine { println it }
+
+        def exitCode = process.waitFor()
+        if (exitCode != 0) {
+            throw new GradleException("go run command failed with exit code $exitCode")
+        }
+    }
+}
+
+preBuild.dependsOn(buildWeb)

@@ -84,7 +84,33 @@ func buildProjectCommand(params map[string]string) {
 		fmt.Printf("Error walking through widgets directory: %v\n", err)
 	}
 
+	srcDist := filepath.Join(dir, "static", "dist", "standalone")
+	destAssets := filepath.Join(dir, "..", "assets", "web2")
+
+	err = os.RemoveAll(destAssets)
+	if err != nil {
+		fmt.Printf("Failed to clear assets web2 directory: %v\n", err)
+		return
+	}
+	err = os.MkdirAll(destAssets, 0755)
+	if err != nil {
+		fmt.Printf("Failed to recreate assets web2 directory: %v\n", err)
+		return
+	}
+
+	err = os.RemoveAll(filepath.Join(dir, "static", "dist"))
+	if err != nil {
+		fmt.Printf("Failed to clear assets web2 directory: %v\n", err)
+		return
+	}
+
 	bunExecute(dir, "standalone", "build", "--all")
+
+	err = copyDir(srcDist, destAssets)
+	if err != nil {
+		fmt.Printf("Failed to copy built files: %v\n", err)
+		return
+	}
 
 	fmt.Printf("✅ Project build at '%s'\n", dir)
 }
