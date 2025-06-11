@@ -26,6 +26,17 @@ func main() {
 	switch command {
 	case "help":
 		fmt.Println("helping you")
+	case "latest":
+		version := "0.6.5"
+
+		data, err := getLatest()
+		if err != nil {
+			fmt.Printf("❌ Failed to fetch latest version: %v\n", err)
+			fmt.Printf("⚠️ Fallback FTControl version: %s\n", version)
+		} else {
+			version = data.Version
+			fmt.Printf("✅ Latest FTControl version: %s 🚀\n", version)
+		}
 	case "new":
 		if !hasBun() {
 			return
@@ -100,6 +111,73 @@ func main() {
 			if strings.ToLower(confirm) == "y" {
 				installDependencies(dir)
 			}
+		}
+
+		isDev := strings.ToLower(params["dev"]) == "true"
+
+		version := "0.6.5"
+
+		data, err := getLatest()
+		if err != nil {
+			fmt.Printf("❌ Failed to fetch latest version: %v\n", err)
+			fmt.Printf("⚠️  Using fallback version: %s\n", version)
+		} else {
+			version = data.Version
+			fmt.Printf("✅ Fetched latest version: %s 🚀\n", version)
+		}
+
+		type Replacement struct {
+			File        string
+			Token       string
+			NormalValue string
+			DevValue    string
+		}
+
+		replacements := []Replacement{
+			{
+				File:        "/settings.gradle",
+				Token:       "{FTCONTROL_LINE1}",
+				NormalValue: "",
+				DevValue:    "include ':ftcontrol'",
+			},
+			{
+				File:        "/settings.gradle",
+				Token:       "{FTCONTROL_LINE2}",
+				NormalValue: "",
+				DevValue:    "project(':ftcontrol').projectDir = new File('D:/GitHub/ftcontrol/library/lazarkit')",
+			},
+			{
+				File:        "/build.dependencies.gradle",
+				Token:       "{FTCONTROL_LINE}",
+				NormalValue: fmt.Sprintf(`implementation "com.bylazar:ftcontrol:%s"`, version),
+				DevValue:    "implementation project(':ftcontrol')",
+			},
+		}
+
+		for _, rep := range replacements {
+			fullPath := filepath.Join(dir, rep.File)
+
+			content, err := os.ReadFile(fullPath)
+			if err != nil {
+				fmt.Printf("failed to read %s: %v", fullPath, err)
+				return
+			}
+
+			var newValue string
+			if isDev {
+				newValue = rep.DevValue
+			} else {
+				newValue = rep.NormalValue
+			}
+
+			newContent := strings.ReplaceAll(string(content), rep.Token, newValue)
+			err = os.WriteFile(fullPath, []byte(newContent), 0644)
+			if err != nil {
+				fmt.Printf("failed to write %s: %v", fullPath, err)
+				return
+			}
+
+			fmt.Printf("✅ Applied replacement in %s\n", fullPath)
 		}
 
 		fmt.Printf("✅ Project created at '%s'\n", dir)
