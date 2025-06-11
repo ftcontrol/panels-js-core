@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/svelte/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@widgets/*": ["widgets/*"]
+    },
+    "types": ["svelte"],
+    "strict": true,
+    "target": "es2020",
+    "moduleResolution": "node",
+    "module": "esnext"
+  },
+  "include": ["widgets/**/*.ts", "widgets/**/*.svelte"]
+}
