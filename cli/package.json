@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "scripts": {
+    "check": "svelte-check"
+  },
+  "dependencies": {
+    "svelte-check": "^4.2.1"
+  },
+  "devDependencies": {
+    "svelte-standalone": "^2.1.1"
+  }
+}
