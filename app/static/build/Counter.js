@@ -1,1 +1,704 @@
-(function(K){typeof define=="function"&&define.amd?define(K):K()})(function(){"use strict";var Ft;var Ct=Array.isArray,At=Array.prototype.indexOf,St=Array.from,Ot=Object.defineProperty,rt=Object.getOwnPropertyDescriptor,et=Object.isExtensible;function Rt(t){for(var n=0;n<t.length;n++)t[n]()}const R=2,lt=4,ut=8,It=16,C=32,I=64,G=128,A=256,q=512,E=1024,B=2048,M=4096,V=8192,z=16384,it=32768,Mt=65536,Lt=1<<19,Pt=1<<20,ot=1<<21;function qt(t){return t===this.v}function Bt(){throw new Error("https://svelte.dev/e/effect_update_depth_exceeded")}let J=!1,Bn=!1;function Vt(){J=!0}const Ht=2;let d=null;function at(t){d=t}function Ut(t,n=!1,r){var e=d={p:d,c:null,d:!1,e:null,m:!1,s:t,x:null,l:null};J&&!n&&(d.l={s:null,u:null,r1:[],r2:zt(!1)}),pt(()=>{e.d=!0})}function Yt(t){const n=d;if(n!==null){const o=n.e;if(o!==null){var r=v,e=p;n.e=null;try{for(var u=0;u<o.length;u++){var l=o[u];y(l.effect),x(l.reaction),rn(l.fn)}}finally{y(r),x(e)}}d=n.p,n.m=!0}return{}}function Wt(){return!J||d!==null&&d.l===null}function st(t){var n=t.effects;if(n!==null){t.effects=null;for(var r=0;r<n.length;r+=1)k(n[r])}}function jt(t){for(var n=t.parent;n!==null;){if((n.f&R)===0)return n;n=n.parent}return null}function $t(t){var n,r=v;y(jt(t));try{st(t),n=bt(t)}finally{y(r)}return n}function Kt(t){var n=$t(t);if(t.equals(n)||(t.v=n,t.wv=cn()),!X){var r=(F||(t.f&A)!==0)&&t.deps!==null?M:E;T(t,r)}}const Gt=new Map;function zt(t,n){var r={f:0,v:t,reactions:null,equals:qt,rv:0,wv:0};return r}var ft,_t,ct,vt;function Jt(){if(ft===void 0){ft=window,_t=/Firefox/.test(navigator.userAgent);var t=Element.prototype,n=Node.prototype,r=Text.prototype;ct=rt(n,"firstChild").get,vt=rt(n,"nextSibling").get,et(t)&&(t.__click=void 0,t.__className=void 0,t.__attributes=null,t.__style=void 0,t.__e=void 0),et(r)&&(r.__t=void 0)}}function Qt(t=""){return document.createTextNode(t)}function Xt(t){return ct.call(t)}function Zt(t){return vt.call(t)}function tn(t,n){var r=n.last;r===null?n.last=n.first=t:(r.next=t,t.prev=r,n.last=t)}function H(t,n,r,e=!0){var u=v,l={ctx:d,deps:null,nodes_start:null,nodes_end:null,f:t|B,first:null,fn:n,last:null,next:null,parent:u,prev:null,teardown:null,transitions:null,wv:0};if(r)try{tt(l),l.f|=it}catch(c){throw k(l),c}else n!==null&&kt(l);var o=r&&l.deps===null&&l.first===null&&l.nodes_start===null&&l.teardown===null&&(l.f&(Pt|G))===0;if(!o&&e&&(u!==null&&tn(l,u),p!==null&&(p.f&R)!==0)){var s=p;(s.effects??(s.effects=[])).push(l)}return l}function pt(t){const n=H(ut,null,!1);return T(n,E),n.teardown=t,n}function nn(t){const n=H(I,t,!0);return(r={})=>new Promise(e=>{r.outro?on(n,()=>{k(n),e(void 0)}):(k(n),e(void 0))})}function rn(t){return H(lt,t,!1)}function en(t,n=!0){return H(ut|C,t,!0,n)}function dt(t){var n=t.teardown;if(n!==null){const r=X,e=p;mt(!0),x(null);try{n.call(null)}finally{mt(r),x(e)}}}function ht(t,n=!1){var r=t.first;for(t.first=t.last=null;r!==null;){var e=r.next;(r.f&I)!==0?r.parent=null:k(r,n),r=e}}function ln(t){for(var n=t.first;n!==null;){var r=n.next;(n.f&C)===0&&k(n),n=r}}function k(t,n=!0){var r=!1;(n||(t.f&Lt)!==0)&&t.nodes_start!==null&&t.nodes_end!==null&&(un(t.nodes_start,t.nodes_end),r=!0),ht(t,n&&!r),j(t,0),T(t,z);var e=t.transitions;if(e!==null)for(const l of e)l.stop();dt(t);var u=t.parent;u!==null&&u.first!==null&&gt(t),t.next=t.prev=t.teardown=t.ctx=t.deps=t.fn=t.nodes_start=t.nodes_end=null}function un(t,n){for(;t!==null;){var r=t===n?null:Zt(t);t.remove(),t=r}}function gt(t){var n=t.parent,r=t.prev,e=t.next;r!==null&&(r.next=e),e!==null&&(e.prev=r),n!==null&&(n.first===t&&(n.first=e),n.last===t&&(n.last=r))}function on(t,n){var r=[];wt(t,r,!0),an(r,()=>{k(t),n&&n()})}function an(t,n){var r=t.length;if(r>0){var e=()=>--r||n();for(var u of t)u.out(e)}else n()}function wt(t,n,r){if((t.f&V)===0){if(t.f^=V,t.transitions!==null)for(const o of t.transitions)(o.is_global||r)&&n.push(o);for(var e=t.first;e!==null;){var u=e.next,l=(e.f&Mt)!==0||(e.f&C)!==0;wt(e,n,l?r:!1),e=u}}}let U=[];function sn(){var t=U;U=[],Rt(t)}function fn(t){U.length===0&&queueMicrotask(sn),U.push(t)}function _n(t){var n=v;if((n.f&it)===0){if((n.f&G)===0)throw t;n.fn(t)}else Et(t,n)}function Et(t,n){for(;n!==null;){if((n.f&G)!==0)try{n.fn(t);return}catch{}n=n.parent}throw t}let Q=!1,Y=null,D=!1,X=!1;function mt(t){X=t}let W=[],Vn=[],p=null,L=!1;function x(t){p=t}let v=null;function y(t){v=t}let S=null,w=null,h=0,m=null,xt=1,yt=0,F=!1;function cn(){return++xt}function Z(t){var a;var n=t.f;if((n&B)!==0)return!0;if((n&M)!==0){var r=t.deps,e=(n&A)!==0;if(r!==null){var u,l,o=(n&q)!==0,s=e&&v!==null&&!F,c=r.length;if(o||s){var _=t,b=_.parent;for(u=0;u<c;u++)l=r[u],(o||!((a=l==null?void 0:l.reactions)!=null&&a.includes(_)))&&(l.reactions??(l.reactions=[])).push(_);o&&(_.f^=q),s&&b!==null&&(b.f&A)===0&&(_.f^=A)}for(u=0;u<c;u++)if(l=r[u],Z(l)&&Kt(l),l.wv>t.wv)return!0}(!e||v!==null&&!F)&&T(t,E)}return!1}function Tt(t,n,r=!0){var e=t.reactions;if(e!==null)for(var u=0;u<e.length;u++){var l=e[u];S!=null&&S.includes(t)||((l.f&R)!==0?Tt(l,n,!1):n===l&&(r?T(l,B):(l.f&E)!==0&&T(l,M),kt(l)))}}function bt(t){var f;var n=w,r=h,e=m,u=p,l=F,o=S,s=d,c=L,_=t.f;w=null,h=0,m=null,F=(_&A)!==0&&(L||!D||p===null),p=(_&(C|I))===0?t:null,S=null,at(t.ctx),L=!1,yt++,t.f|=ot;try{var b=(0,t.fn)(),a=t.deps;if(w!==null){var i;if(j(t,h),a!==null&&h>0)for(a.length=h+w.length,i=0;i<w.length;i++)a[h+i]=w[i];else t.deps=a=w;if(!F)for(i=h;i<a.length;i++)((f=a[i]).reactions??(f.reactions=[])).push(t)}else a!==null&&h<a.length&&(j(t,h),a.length=h);if(Wt()&&m!==null&&!L&&a!==null&&(t.f&(R|M|B))===0)for(i=0;i<m.length;i++)Tt(m[i],t);return u!==null&&u!==t&&(yt++,m!==null&&(e===null?e=m:e.push(...m))),b}catch(g){_n(g)}finally{w=n,h=r,m=e,p=u,F=l,S=o,at(s),L=c,t.f^=ot}}function vn(t,n){let r=n.reactions;if(r!==null){var e=At.call(r,t);if(e!==-1){var u=r.length-1;u===0?r=n.reactions=null:(r[e]=r[u],r.pop())}}r===null&&(n.f&R)!==0&&(w===null||!w.includes(n))&&(T(n,M),(n.f&(A|q))===0&&(n.f^=q),st(n),j(n,0))}function j(t,n){var r=t.deps;if(r!==null)for(var e=n;e<r.length;e++)vn(t,r[e])}function tt(t){var n=t.f;if((n&z)===0){T(t,E);var r=v,e=D;v=t,D=!0;try{(n&It)!==0?ln(t):ht(t),dt(t);var u=bt(t);t.teardown=typeof u=="function"?u:null,t.wv=xt;var l=t.deps,o}finally{D=e,v=r}}}function pn(){try{Bt()}catch(t){if(Y!==null)Et(t,Y);else throw t}}function dn(){var t=D;try{var n=0;for(D=!0;W.length>0;){n++>1e3&&pn();var r=W,e=r.length;W=[];for(var u=0;u<e;u++){var l=gn(r[u]);hn(l)}Gt.clear()}}finally{Q=!1,D=t,Y=null}}function hn(t){var n=t.length;if(n!==0)for(var r=0;r<n;r++){var e=t[r];(e.f&(z|V))===0&&Z(e)&&(tt(e),e.deps===null&&e.first===null&&e.nodes_start===null&&(e.teardown===null?gt(e):e.fn=null))}}function kt(t){Q||(Q=!0,queueMicrotask(dn));for(var n=Y=t;n.parent!==null;){n=n.parent;var r=n.f;if((r&(I|C))!==0){if((r&E)===0)return;n.f^=E}}W.push(n)}function gn(t){for(var n=[],r=t;r!==null;){var e=r.f,u=(e&(C|I))!==0,l=u&&(e&E)!==0;if(!l&&(e&V)===0){(e&lt)!==0?n.push(r):u?r.f^=E:Z(r)&&tt(r);var o=r.first;if(o!==null){r=o;continue}}var s=r.parent;for(r=r.next;r===null&&s!==null;)r=s.next,s=s.parent}return n}const wn=-7169;function T(t,n){t.f=t.f&wn|n}const En=["touchstart","touchmove"];function mn(t){return En.includes(t)}function xn(t){var n=p,r=v;x(null),y(null);try{return t()}finally{x(n),y(r)}}const yn=new Set,Dt=new Set;function Tn(t,n,r,e={}){function u(l){if(e.capture||P.call(n,l),!l.cancelBubble)return xn(()=>r==null?void 0:r.call(this,l))}return t.startsWith("pointer")||t.startsWith("touch")||t==="wheel"?fn(()=>{n.addEventListener(t,u,e)}):n.addEventListener(t,u,e),u}function bn(t,n,r,e,u){var l={capture:e,passive:u},o=Tn(t,n,r,l);(n===document.body||n===window||n===document||n instanceof HTMLMediaElement)&&pt(()=>{n.removeEventListener(t,o,l)})}function P(t){var Nt;var n=this,r=n.ownerDocument,e=t.type,u=((Nt=t.composedPath)==null?void 0:Nt.call(t))||[],l=u[0]||t.target,o=0,s=t.__root;if(s){var c=u.indexOf(s);if(c!==-1&&(n===document||n===window)){t.__root=n;return}var _=u.indexOf(n);if(_===-1)return;c<=_&&(o=c)}if(l=u[o]||t.target,l!==n){Ot(t,"currentTarget",{configurable:!0,get(){return l||r}});var b=p,a=v;x(null),y(null);try{for(var i,f=[];l!==null;){var g=l.assignedSlot||l.parentNode||l.host||null;try{var N=l["__"+e];if(N!=null&&(!l.disabled||t.target===l))if(Ct(N)){var[Pn,...qn]=N;Pn.apply(l,[t,...qn])}else N.call(l,t)}catch($){i?f.push($):i=$}if(t.cancelBubble||g===n||g===null)break;l=g}if(i){for(let $ of f)queueMicrotask(()=>{throw $});throw i}}finally{t.__root=n,delete t.currentTarget,x(b),y(a)}}}function kn(t){var n=document.createElement("template");return n.innerHTML=t.replaceAll("<!>","<!---->"),n.content}function Dn(t,n){var r=v;r.nodes_start===null&&(r.nodes_start=t,r.nodes_end=n)}function Fn(t,n){var r=(n&Ht)!==0,e,u=!t.startsWith("<!>");return()=>{e===void 0&&(e=kn(u?t:"<!>"+t),e=Xt(e));var l=r||_t?document.importNode(e,!0):e.cloneNode(!0);return Dn(l,l),l}}function Nn(t,n){t!==null&&t.before(n)}function Cn(t,n){return An(t,n)}const O=new Map;function An(t,{target:n,anchor:r,props:e={},events:u,context:l,intro:o=!0}){Jt();var s=new Set,c=a=>{for(var i=0;i<a.length;i++){var f=a[i];if(!s.has(f)){s.add(f);var g=mn(f);n.addEventListener(f,P,{passive:g});var N=O.get(f);N===void 0?(document.addEventListener(f,P,{passive:g}),O.set(f,1)):O.set(f,N+1)}}};c(St(yn)),Dt.add(c);var _=void 0,b=nn(()=>{var a=r??n.appendChild(Qt());return en(()=>{if(l){Ut({});var i=d;i.c=l}u&&(e.$$events=u),_=t(a,e)||{},l&&Yt()}),()=>{var g;for(var i of s){n.removeEventListener(i,P);var f=O.get(i);--f===0?(document.removeEventListener(i,P),O.delete(i)):O.set(i,f)}Dt.delete(c),a!==r&&((g=a.parentNode)==null||g.removeChild(a))}});return nt.set(_,b),_}let nt=new WeakMap;function Sn(t,n){const r=nt.get(t);return r?(nt.delete(t),r(n)):Promise.resolve()}function On(t){return function(...n){var r=n[0];return r.preventDefault(),t==null?void 0:t.apply(this,n)}}function Rn(t,n){window[n]={start:(r,e)=>{const u=Cn(t,{target:document.getElementById(e)??document.body,props:r});return{stop:()=>Sn(u)}}}}const In="5";typeof window<"u"&&((Ft=window.__svelte??(window.__svelte={})).v??(Ft.v=new Set)).add(In),Vt();var Mn=Fn('<button class="btn s-counter">Hello world</button>');function Ln(t){const n=()=>{alert("thank you for using svelte-standalone!")};var r=Mn();bn("click",r,On(n)),Nn(t,r)}Rn(Ln,"counter")});
+;(function (K) {
+  typeof define == "function" && define.amd ? define(K) : K()
+})(function () {
+  "use strict"
+  var Tt
+  var bt = Array.isArray,
+    Dt = Array.prototype.indexOf,
+    Ft = Array.from,
+    Nt = Object.defineProperty,
+    tt = Object.getOwnPropertyDescriptor,
+    nt = Object.isExtensible
+  const R = 2,
+    rt = 4,
+    et = 8,
+    Ct = 16,
+    N = 32,
+    I = 64,
+    W = 128,
+    C = 256,
+    U = 512,
+    E = 1024,
+    $ = 2048,
+    M = 4096,
+    V = 8192,
+    G = 16384,
+    lt = 32768,
+    kt = 65536,
+    At = 1 << 19,
+    St = 1 << 20,
+    ut = 1 << 21
+  function Ot() {
+    throw new Error("https://svelte.dev/e/effect_update_depth_exceeded")
+  }
+  let En = !1,
+    m = null
+  function ot(t) {
+    m = t
+  }
+  function Rt(t, n = !1, r) {
+    var e = (m = {
+      p: m,
+      c: null,
+      d: !1,
+      e: null,
+      m: !1,
+      s: t,
+      x: null,
+      l: null,
+    })
+    jt(() => {
+      e.d = !0
+    })
+  }
+  function It(t) {
+    const n = m
+    if (n !== null) {
+      const s = n.e
+      if (s !== null) {
+        var r = p,
+          e = v
+        n.e = null
+        try {
+          for (var u = 0; u < s.length; u++) {
+            var l = s[u]
+            A(l.effect), k(l.reaction), Kt(l.fn)
+          }
+        } finally {
+          A(r), k(e)
+        }
+      }
+      ;(m = n.p), (n.m = !0)
+    }
+    return {}
+  }
+  function Mt() {
+    return !0
+  }
+  function it(t) {
+    var n = t.effects
+    if (n !== null) {
+      t.effects = null
+      for (var r = 0; r < n.length; r += 1) y(n[r])
+    }
+  }
+  function Pt(t) {
+    for (var n = t.parent; n !== null; ) {
+      if ((n.f & R) === 0) return n
+      n = n.parent
+    }
+    return null
+  }
+  function Ut(t) {
+    var n,
+      r = p
+    A(Pt(t))
+    try {
+      it(t), (n = wt(t))
+    } finally {
+      A(r)
+    }
+    return n
+  }
+  function $t(t) {
+    var n = Ut(t)
+    if ((t.equals(n) || ((t.v = n), (t.wv = Zt())), !J)) {
+      var r = (D || (t.f & C) !== 0) && t.deps !== null ? M : E
+      x(t, r)
+    }
+  }
+  const Vt = new Map()
+  var st, at
+  function qt() {
+    if (st === void 0) {
+      st = window
+      var t = Element.prototype,
+        n = Node.prototype,
+        r = Text.prototype
+      tt(n, "firstChild").get,
+        (at = tt(n, "nextSibling").get),
+        nt(t) &&
+          ((t.__click = void 0),
+          (t.__className = void 0),
+          (t.__attributes = null),
+          (t.__style = void 0),
+          (t.__e = void 0)),
+        nt(r) && (r.__t = void 0)
+    }
+  }
+  function Bt(t = "") {
+    return document.createTextNode(t)
+  }
+  function Lt(t) {
+    return at.call(t)
+  }
+  function Yt(t, n) {
+    var r = n.last
+    r === null
+      ? (n.last = n.first = t)
+      : ((r.next = t), (t.prev = r), (n.last = t))
+  }
+  function q(t, n, r, e = !0) {
+    var u = p,
+      l = {
+        ctx: m,
+        deps: null,
+        nodes_start: null,
+        nodes_end: null,
+        f: t | $,
+        first: null,
+        fn: n,
+        last: null,
+        next: null,
+        parent: u,
+        prev: null,
+        teardown: null,
+        transitions: null,
+        wv: 0,
+      }
+    if (r)
+      try {
+        X(l), (l.f |= lt)
+      } catch (c) {
+        throw (y(l), c)
+      }
+    else n !== null && mt(l)
+    var s =
+      r &&
+      l.deps === null &&
+      l.first === null &&
+      l.nodes_start === null &&
+      l.teardown === null &&
+      (l.f & (St | W)) === 0
+    if (!s && e && (u !== null && Yt(l, u), v !== null && (v.f & R) !== 0)) {
+      var a = v
+      ;(a.effects ?? (a.effects = [])).push(l)
+    }
+    return l
+  }
+  function jt(t) {
+    const n = q(et, null, !1)
+    return x(n, E), (n.teardown = t), n
+  }
+  function Ht(t) {
+    const n = q(I, t, !0)
+    return (r = {}) =>
+      new Promise((e) => {
+        r.outro
+          ? Jt(n, () => {
+              y(n), e(void 0)
+            })
+          : (y(n), e(void 0))
+      })
+  }
+  function Kt(t) {
+    return q(rt, t, !1)
+  }
+  function Wt(t, n = !0) {
+    return q(et | N, t, !0, n)
+  }
+  function ft(t) {
+    var n = t.teardown
+    if (n !== null) {
+      const r = J,
+        e = v
+      dt(!0), k(null)
+      try {
+        n.call(null)
+      } finally {
+        dt(r), k(e)
+      }
+    }
+  }
+  function _t(t, n = !1) {
+    var r = t.first
+    for (t.first = t.last = null; r !== null; ) {
+      var e = r.next
+      ;(r.f & I) !== 0 ? (r.parent = null) : y(r, n), (r = e)
+    }
+  }
+  function Gt(t) {
+    for (var n = t.first; n !== null; ) {
+      var r = n.next
+      ;(n.f & N) === 0 && y(n), (n = r)
+    }
+  }
+  function y(t, n = !0) {
+    var r = !1
+    ;(n || (t.f & At) !== 0) &&
+      t.nodes_start !== null &&
+      t.nodes_end !== null &&
+      (zt(t.nodes_start, t.nodes_end), (r = !0)),
+      _t(t, n && !r),
+      Y(t, 0),
+      x(t, G)
+    var e = t.transitions
+    if (e !== null) for (const l of e) l.stop()
+    ft(t)
+    var u = t.parent
+    u !== null && u.first !== null && ct(t),
+      (t.next =
+        t.prev =
+        t.teardown =
+        t.ctx =
+        t.deps =
+        t.fn =
+        t.nodes_start =
+        t.nodes_end =
+          null)
+  }
+  function zt(t, n) {
+    for (; t !== null; ) {
+      var r = t === n ? null : Lt(t)
+      t.remove(), (t = r)
+    }
+  }
+  function ct(t) {
+    var n = t.parent,
+      r = t.prev,
+      e = t.next
+    r !== null && (r.next = e),
+      e !== null && (e.prev = r),
+      n !== null &&
+        (n.first === t && (n.first = e), n.last === t && (n.last = r))
+  }
+  function Jt(t, n) {
+    var r = []
+    vt(t, r, !0),
+      Qt(r, () => {
+        y(t), n && n()
+      })
+  }
+  function Qt(t, n) {
+    var r = t.length
+    if (r > 0) {
+      var e = () => --r || n()
+      for (var u of t) u.out(e)
+    } else n()
+  }
+  function vt(t, n, r) {
+    if ((t.f & V) === 0) {
+      if (((t.f ^= V), t.transitions !== null))
+        for (const s of t.transitions) (s.is_global || r) && n.push(s)
+      for (var e = t.first; e !== null; ) {
+        var u = e.next,
+          l = (e.f & kt) !== 0 || (e.f & N) !== 0
+        vt(e, n, l ? r : !1), (e = u)
+      }
+    }
+  }
+  function Xt(t) {
+    var n = p
+    if ((n.f & lt) === 0) {
+      if ((n.f & W) === 0) throw t
+      n.fn(t)
+    } else pt(t, n)
+  }
+  function pt(t, n) {
+    for (; n !== null; ) {
+      if ((n.f & W) !== 0)
+        try {
+          n.fn(t)
+          return
+        } catch {}
+      n = n.parent
+    }
+    throw t
+  }
+  let z = !1,
+    B = null,
+    b = !1,
+    J = !1
+  function dt(t) {
+    J = t
+  }
+  let L = [],
+    wn = [],
+    v = null,
+    P = !1
+  function k(t) {
+    v = t
+  }
+  let p = null
+  function A(t) {
+    p = t
+  }
+  let S = null,
+    g = null,
+    d = 0,
+    w = null,
+    ht = 1,
+    gt = 0,
+    D = !1
+  function Zt() {
+    return ++ht
+  }
+  function Q(t) {
+    var i
+    var n = t.f
+    if ((n & $) !== 0) return !0
+    if ((n & M) !== 0) {
+      var r = t.deps,
+        e = (n & C) !== 0
+      if (r !== null) {
+        var u,
+          l,
+          s = (n & U) !== 0,
+          a = e && p !== null && !D,
+          c = r.length
+        if (s || a) {
+          var _ = t,
+            T = _.parent
+          for (u = 0; u < c; u++)
+            (l = r[u]),
+              (s ||
+                !(
+                  (i = l == null ? void 0 : l.reactions) != null &&
+                  i.includes(_)
+                )) &&
+                (l.reactions ?? (l.reactions = [])).push(_)
+          s && (_.f ^= U), a && T !== null && (T.f & C) === 0 && (_.f ^= C)
+        }
+        for (u = 0; u < c; u++)
+          if (((l = r[u]), Q(l) && $t(l), l.wv > t.wv)) return !0
+      }
+      ;(!e || (p !== null && !D)) && x(t, E)
+    }
+    return !1
+  }
+  function Et(t, n, r = !0) {
+    var e = t.reactions
+    if (e !== null)
+      for (var u = 0; u < e.length; u++) {
+        var l = e[u]
+        ;(S != null && S.includes(t)) ||
+          ((l.f & R) !== 0
+            ? Et(l, n, !1)
+            : n === l && (r ? x(l, $) : (l.f & E) !== 0 && x(l, M), mt(l)))
+      }
+  }
+  function wt(t) {
+    var f
+    var n = g,
+      r = d,
+      e = w,
+      u = v,
+      l = D,
+      s = S,
+      a = m,
+      c = P,
+      _ = t.f
+    ;(g = null),
+      (d = 0),
+      (w = null),
+      (D = (_ & C) !== 0 && (P || !b || v === null)),
+      (v = (_ & (N | I)) === 0 ? t : null),
+      (S = null),
+      ot(t.ctx),
+      (P = !1),
+      gt++,
+      (t.f |= ut)
+    try {
+      var T = (0, t.fn)(),
+        i = t.deps
+      if (g !== null) {
+        var o
+        if ((Y(t, d), i !== null && d > 0))
+          for (i.length = d + g.length, o = 0; o < g.length; o++)
+            i[d + o] = g[o]
+        else t.deps = i = g
+        if (!D)
+          for (o = d; o < i.length; o++)
+            ((f = i[o]).reactions ?? (f.reactions = [])).push(t)
+      } else i !== null && d < i.length && (Y(t, d), (i.length = d))
+      if (Mt() && w !== null && !P && i !== null && (t.f & (R | M | $)) === 0)
+        for (o = 0; o < w.length; o++) Et(w[o], t)
+      return (
+        u !== null &&
+          u !== t &&
+          (gt++, w !== null && (e === null ? (e = w) : e.push(...w))),
+        T
+      )
+    } catch (h) {
+      Xt(h)
+    } finally {
+      ;(g = n),
+        (d = r),
+        (w = e),
+        (v = u),
+        (D = l),
+        (S = s),
+        ot(a),
+        (P = c),
+        (t.f ^= ut)
+    }
+  }
+  function tn(t, n) {
+    let r = n.reactions
+    if (r !== null) {
+      var e = Dt.call(r, t)
+      if (e !== -1) {
+        var u = r.length - 1
+        u === 0 ? (r = n.reactions = null) : ((r[e] = r[u]), r.pop())
+      }
+    }
+    r === null &&
+      (n.f & R) !== 0 &&
+      (g === null || !g.includes(n)) &&
+      (x(n, M), (n.f & (C | U)) === 0 && (n.f ^= U), it(n), Y(n, 0))
+  }
+  function Y(t, n) {
+    var r = t.deps
+    if (r !== null) for (var e = n; e < r.length; e++) tn(t, r[e])
+  }
+  function X(t) {
+    var n = t.f
+    if ((n & G) === 0) {
+      x(t, E)
+      var r = p,
+        e = b
+      ;(p = t), (b = !0)
+      try {
+        ;(n & Ct) !== 0 ? Gt(t) : _t(t), ft(t)
+        var u = wt(t)
+        ;(t.teardown = typeof u == "function" ? u : null), (t.wv = ht)
+        var l = t.deps,
+          s
+      } finally {
+        ;(b = e), (p = r)
+      }
+    }
+  }
+  function nn() {
+    try {
+      Ot()
+    } catch (t) {
+      if (B !== null) pt(t, B)
+      else throw t
+    }
+  }
+  function rn() {
+    var t = b
+    try {
+      var n = 0
+      for (b = !0; L.length > 0; ) {
+        n++ > 1e3 && nn()
+        var r = L,
+          e = r.length
+        L = []
+        for (var u = 0; u < e; u++) {
+          var l = ln(r[u])
+          en(l)
+        }
+        Vt.clear()
+      }
+    } finally {
+      ;(z = !1), (b = t), (B = null)
+    }
+  }
+  function en(t) {
+    var n = t.length
+    if (n !== 0)
+      for (var r = 0; r < n; r++) {
+        var e = t[r]
+        ;(e.f & (G | V)) === 0 &&
+          Q(e) &&
+          (X(e),
+          e.deps === null &&
+            e.first === null &&
+            e.nodes_start === null &&
+            (e.teardown === null ? ct(e) : (e.fn = null)))
+      }
+  }
+  function mt(t) {
+    z || ((z = !0), queueMicrotask(rn))
+    for (var n = (B = t); n.parent !== null; ) {
+      n = n.parent
+      var r = n.f
+      if ((r & (I | N)) !== 0) {
+        if ((r & E) === 0) return
+        n.f ^= E
+      }
+    }
+    L.push(n)
+  }
+  function ln(t) {
+    for (var n = [], r = t; r !== null; ) {
+      var e = r.f,
+        u = (e & (N | I)) !== 0,
+        l = u && (e & E) !== 0
+      if (!l && (e & V) === 0) {
+        ;(e & rt) !== 0 ? n.push(r) : u ? (r.f ^= E) : Q(r) && X(r)
+        var s = r.first
+        if (s !== null) {
+          r = s
+          continue
+        }
+      }
+      var a = r.parent
+      for (r = r.next; r === null && a !== null; ) (r = a.next), (a = a.parent)
+    }
+    return n
+  }
+  const un = -7169
+  function x(t, n) {
+    t.f = (t.f & un) | n
+  }
+  const on = ["touchstart", "touchmove"]
+  function sn(t) {
+    return on.includes(t)
+  }
+  const an = new Set(),
+    xt = new Set()
+  function j(t) {
+    var yt
+    var n = this,
+      r = n.ownerDocument,
+      e = t.type,
+      u = ((yt = t.composedPath) == null ? void 0 : yt.call(t)) || [],
+      l = u[0] || t.target,
+      s = 0,
+      a = t.__root
+    if (a) {
+      var c = u.indexOf(a)
+      if (c !== -1 && (n === document || n === window)) {
+        t.__root = n
+        return
+      }
+      var _ = u.indexOf(n)
+      if (_ === -1) return
+      c <= _ && (s = c)
+    }
+    if (((l = u[s] || t.target), l !== n)) {
+      Nt(t, "currentTarget", {
+        configurable: !0,
+        get() {
+          return l || r
+        },
+      })
+      var T = v,
+        i = p
+      k(null), A(null)
+      try {
+        for (var o, f = []; l !== null; ) {
+          var h = l.assignedSlot || l.parentNode || l.host || null
+          try {
+            var F = l["__" + e]
+            if (F != null && (!l.disabled || t.target === l))
+              if (bt(F)) {
+                var [hn, ...gn] = F
+                hn.apply(l, [t, ...gn])
+              } else F.call(l, t)
+          } catch (H) {
+            o ? f.push(H) : (o = H)
+          }
+          if (t.cancelBubble || h === n || h === null) break
+          l = h
+        }
+        if (o) {
+          for (let H of f)
+            queueMicrotask(() => {
+              throw H
+            })
+          throw o
+        }
+      } finally {
+        ;(t.__root = n), delete t.currentTarget, k(T), A(i)
+      }
+    }
+  }
+  function fn(t, n) {
+    return _n(t, n)
+  }
+  const O = new Map()
+  function _n(
+    t,
+    {
+      target: n,
+      anchor: r,
+      props: e = {},
+      events: u,
+      context: l,
+      intro: s = !0,
+    }
+  ) {
+    qt()
+    var a = new Set(),
+      c = (i) => {
+        for (var o = 0; o < i.length; o++) {
+          var f = i[o]
+          if (!a.has(f)) {
+            a.add(f)
+            var h = sn(f)
+            n.addEventListener(f, j, { passive: h })
+            var F = O.get(f)
+            F === void 0
+              ? (document.addEventListener(f, j, { passive: h }), O.set(f, 1))
+              : O.set(f, F + 1)
+          }
+        }
+      }
+    c(Ft(an)), xt.add(c)
+    var _ = void 0,
+      T = Ht(() => {
+        var i = r ?? n.appendChild(Bt())
+        return (
+          Wt(() => {
+            if (l) {
+              Rt({})
+              var o = m
+              o.c = l
+            }
+            u && (e.$$events = u), (_ = t(i, e) || {}), l && It()
+          }),
+          () => {
+            var h
+            for (var o of a) {
+              n.removeEventListener(o, j)
+              var f = O.get(o)
+              --f === 0
+                ? (document.removeEventListener(o, j), O.delete(o))
+                : O.set(o, f)
+            }
+            xt.delete(c),
+              i !== r && ((h = i.parentNode) == null || h.removeChild(i))
+          }
+        )
+      })
+    return Z.set(_, T), _
+  }
+  let Z = new WeakMap()
+  function cn(t, n) {
+    const r = Z.get(t)
+    return r ? (Z.delete(t), r(n)) : Promise.resolve()
+  }
+  function vn(t, n) {
+    window[n] = {
+      start: (r, e) => {
+        const u = fn(t, {
+          target: document.getElementById(e) ?? document.body,
+          props: r,
+        })
+        return { stop: () => cn(u) }
+      },
+    }
+  }
+  const pn = Object.assign({})
+  function dn(t) {
+    return `${t}-${Math.random().toString(36).substring(2, 9)}`
+  }
+  for (const [t, n] of Object.entries(pn))
+    try {
+      const r =
+          ((Tt = t.split("/").pop()) == null
+            ? void 0
+            : Tt.replace(".svelte", "")) || "component",
+        e = n.default
+      if (e) {
+        const u = dn(r)
+        vn(e, u), console.log(`Embedded component: ${r} with UUID: ${u}`)
+      }
+    } catch (r) {
+      console.error(`Error embedding component from ${t}:`, r)
+    }
+})

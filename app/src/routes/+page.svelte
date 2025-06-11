@@ -7,8 +7,9 @@
 
     try {
       const mod = await import(url)
+      console.log(window)
 
-      const instance = window.counter.start(
+      const instance = window.test.start(
         {
           /* props */
         },
