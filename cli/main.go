@@ -64,11 +64,11 @@ func main() {
 			return
 		}
 
-		err := fs.WalkDir(exampleFiles, "example", func(path string, d fs.DirEntry, err error) error {
+		err := fs.WalkDir(templateFiles, "template", func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
-			relPath, err := filepath.Rel("example", path)
+			relPath, err := filepath.Rel("template", path)
 			if err != nil {
 				return err
 			}
@@ -76,7 +76,7 @@ func main() {
 			if d.IsDir() {
 				return os.MkdirAll(targetPath, 0755)
 			}
-			data, err := exampleFiles.ReadFile(path)
+			data, err := templateFiles.ReadFile(path)
 			if err != nil {
 				return err
 			}
@@ -88,7 +88,7 @@ func main() {
 		})
 
 		if err != nil {
-			fmt.Printf("❌ Failed to copy example files: %v\n", err)
+			fmt.Printf("❌ Failed to copy template files: %v\n", err)
 			return
 		}
 
