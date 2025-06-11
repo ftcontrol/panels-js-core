@@ -32,7 +32,6 @@ android {
 }
 
 dependencies {
-    implementation project(':ftcontrol')
 }
 
 //TODO: Change this
