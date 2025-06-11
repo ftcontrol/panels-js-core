@@ -1,4 +1,4 @@
-package com.bylazar.mylibrary
+package <REPLACE>VERSION</REPLACE>
 
 import com.bylazar.ftcontrol.panels.plugins.BasePluginConfig
 import com.bylazar.ftcontrol.panels.plugins.ModContext
@@ -67,7 +67,7 @@ class MyClass : PanelsPlugin<MyConfig>(MyConfig()) {
         </style>
     """.trimIndent()
 
-    override var id: String = "com.bylazar.myplugin"
+    override var id: String = "<REPLACE>VERSION</REPLACE>"
     override val name: String = "Lazar's Example Plugin"
     override fun onRegister(context: ModContext) {
         println("DASH: ran internal plugin register")

@@ -1,4 +1,4 @@
-package com.bylazar.mylibrary
+package <REPLACE>VERSION</REPLACE>
 
 class Something {
 }

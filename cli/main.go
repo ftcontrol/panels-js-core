@@ -116,6 +116,32 @@ func main() {
 			fmt.Printf("✅ Fetched latest version: %s 🚀\n", version)
 		}
 
+		packageName, ok := params["package"]
+		pkg := ""
+		if isDev {
+			packageName = "com.bylazar.mylibrary"
+			pkg = packageName
+		} else {
+			if !ok || strings.TrimSpace(dir) == "" {
+				packageName = prompt("Enter package name for the new project, something like `com.bylazar.myplugin`")
+			}
+
+			const maxLen = 50
+			pkg = strings.TrimSpace(packageName)
+			parts := strings.Split(pkg, ".")
+
+			if len(parts) != 3 {
+				fmt.Println("Package name must have exactly two dots (like: 'com.example.myplugin')")
+				return
+			} else if len(pkg) > maxLen {
+				fmt.Printf("Package name must be shorter than %d characters\n", maxLen)
+				return
+			} else if strings.HasPrefix(pkg, "com.bylazar") {
+				fmt.Println("Hey! ‘com.bylazar’ is my domain, so please pick a different package prefix.")
+				return
+			}
+		}
+
 		type Replacement struct {
 			File        string
 			Token       string
@@ -126,21 +152,45 @@ func main() {
 		replacements := []Replacement{
 			{
 				File:        "/settings.gradle",
-				Token:       "{FTCONTROL_LINE1}",
+				Token:       "<REPLACE>FTCONTROL_LINE1</REPLACE>",
 				NormalValue: "",
 				DevValue:    "include ':ftcontrol'",
 			},
 			{
 				File:        "/settings.gradle",
-				Token:       "{FTCONTROL_LINE2}",
+				Token:       "<REPLACE>FTCONTROL_LINE2</REPLACE>",
 				NormalValue: "",
 				DevValue:    "project(':ftcontrol').projectDir = new File('D:/GitHub/ftcontrol/library/lazarkit')",
 			},
 			{
 				File:        "/build.dependencies.gradle",
-				Token:       "{FTCONTROL_LINE}",
+				Token:       "<REPLACE>FTCONTROL_LINE</REPLACE>",
 				NormalValue: fmt.Sprintf(`implementation "com.bylazar:ftcontrol:%s"`, version),
 				DevValue:    "implementation project(':ftcontrol')",
+			},
+			{
+				File:        "/Plugin/src/main/java/com/bylazar/mylibrary/MyClass.kt",
+				Token:       "<REPLACE>VERSION</REPLACE>",
+				NormalValue: pkg,
+				DevValue:    pkg,
+			},
+			{
+				File:        "/Plugin/src/main/java/com/bylazar/mylibrary/Something.kt",
+				Token:       "<REPLACE>VERSION</REPLACE>",
+				NormalValue: pkg,
+				DevValue:    pkg,
+			},
+			{
+				File:        "/Plugin/build.gradle",
+				Token:       "<REPLACE>VERSION</REPLACE>",
+				NormalValue: pkg,
+				DevValue:    pkg,
+			},
+			{
+				File:        "/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/configs/Configs.kt",
+				Token:       "<REPLACE>VERSION</REPLACE>",
+				NormalValue: pkg,
+				DevValue:    pkg,
 			},
 		}
 
@@ -169,6 +219,32 @@ func main() {
 
 			fmt.Printf("✅ Applied replacement in %s\n", fullPath)
 		}
+
+		pkgs := strings.Split(pkg, ".")
+
+		oldPath := filepath.Join(dir, "Plugin", "src", "main", "java", "com")
+		newPkgPath := filepath.Join(dir, "Plugin", "src", "main", "java", pkgs[0])
+		err = os.Rename(oldPath, newPkgPath)
+		if err != nil {
+			fmt.Printf("Failed to rename folder: %v\n", err)
+			return
+		}
+		oldPath = filepath.Join(dir, "Plugin", "src", "main", "java", pkgs[0], "bylazar")
+		newPkgPath = filepath.Join(dir, "Plugin", "src", "main", "java", pkgs[0], pkgs[1])
+		err = os.Rename(oldPath, newPkgPath)
+		if err != nil {
+			fmt.Printf("Failed to rename folder: %v\n", err)
+			return
+		}
+		oldPath = filepath.Join(dir, "Plugin", "src", "main", "java", pkgs[0], pkgs[1], "mylibrary")
+		newPkgPath = filepath.Join(dir, "Plugin", "src", "main", "java", pkgs[0], pkgs[1], pkgs[2])
+		err = os.Rename(oldPath, newPkgPath)
+		if err != nil {
+			fmt.Printf("Failed to rename folder: %v\n", err)
+			return
+		}
+
+		fmt.Printf("Renamed folder to %s\n", newPkgPath)
 
 		installPath := filepath.Join(dir, "Plugin", "src", "main", "web")
 		if strings.ToLower(params["autoinstall"]) == "true" {
