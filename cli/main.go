@@ -103,16 +103,6 @@ func main() {
 			return
 		}
 
-		if strings.ToLower(params["autoinstall"]) == "true" {
-			installDependencies(dir)
-		} else if strings.ToLower(params["autoinstall"]) != "true" {
-			confirm := prompt("Do you want to install dependencies? (y/N)")
-
-			if strings.ToLower(confirm) == "y" {
-				installDependencies(dir)
-			}
-		}
-
 		isDev := strings.ToLower(params["dev"]) == "true"
 
 		version := "0.6.5"
@@ -178,6 +168,17 @@ func main() {
 			}
 
 			fmt.Printf("✅ Applied replacement in %s\n", fullPath)
+		}
+
+		installPath := filepath.Join(dir, "Plugin", "src", "main", "web")
+		if strings.ToLower(params["autoinstall"]) == "true" {
+			installDependencies(installPath)
+		} else if strings.ToLower(params["autoinstall"]) != "true" {
+			confirm := prompt("Do you want to install dependencies? (y/N)")
+
+			if strings.ToLower(confirm) == "y" {
+				installDependencies(installPath)
+			}
 		}
 
 		fmt.Printf("✅ Project created at '%s'\n", dir)
