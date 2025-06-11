@@ -36,3 +36,23 @@ func installDependencies(appDir string) {
 
 	fmt.Println("✅ Dependencies installed successfully.")
 }
+
+func bunExecute(appDir string, customParams ...string) {
+	fmt.Printf("📦 Running `bunx %v` in %s\n", customParams, appDir)
+	if _, err := os.Stat(appDir); os.IsNotExist(err) {
+		fmt.Printf("❌ Directory does not exist: %s\n", appDir)
+		return
+	}
+
+	cmd := exec.Command("bunx", customParams...)
+	cmd.Dir = appDir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("❌ bunx command failed: %v\n", err)
+		return
+	}
+
+	fmt.Println("✅ bunx command ran successfully.")
+}
