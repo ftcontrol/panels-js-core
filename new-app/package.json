@@ -1,19 +1,21 @@
 {
-  "name": "svelte-widgets",
-  "version": "1.0.0",
-  "description": "Standalone Svelte widget components",
+  "name": "panels-plugin",
+  "version": "0.0.1",
+  "description": "An example of a Panles Plugin",
   "type": "module",
   "scripts": {
-    "build": "bun run build.js",
-    "dev": "bun run build.js --watch",
-    "clean": "rm -rf dist temp"
+    "build": "rollup -c",
+    "build:prod": "rollup -c --environment NODE_ENV:production",
+    "preview": "deno run --allow-net --allow-read jsr:@std/http/file-server ."
   },
   "devDependencies": {
-    "svelte": "^5.34.1",
-    "rollup": "^4.9.2",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
-    "rollup-plugin-svelte": "^7.1.6"
+    "@std/text": "npm:@jsr/std__text@^1.0.12",
+    "rollup": "^4.40.0",
+    "rollup-plugin-css-only": "^4.5.2",
+    "rollup-plugin-svelte": "^7.2.2",
+    "svelte": "^5.27.3",
+    "svelte-preprocess": "^6.0.3"
   }
 }
