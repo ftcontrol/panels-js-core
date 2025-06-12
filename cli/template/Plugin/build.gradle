@@ -79,27 +79,36 @@ tasks.register('copyMyLibraryJar', Copy) {
     }
 }
 
-tasks.register('buildWeb') {
-    doLast {
-        
-        def fixedDir = file('<REPLACE>RUN_DIR</REPLACE>').absoluteFile
-        def workDir = file('src/main/web').absolutePath
 
-        println "Running 'build dir=$workDir' inside directory: $fixedDir"
+tasks.register('installSvelteApp', Exec) {
+    workingDir 'src/main/web'
 
-        def processBuilder = new ProcessBuilder(<REPLACE>RUN_COMMAND</REPLACE>, "build", "dir=$workDir")
-                .directory(fixedDir)
-                .redirectErrorStream(true)
-
-        def process = processBuilder.start()
-
-        process.inputStream.eachLine { println it }
-
-        def exitCode = process.waitFor()
-        if (exitCode != 0) {
-            throw new GradleException("go run command failed with exit code $exitCode")
-        }
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        commandLine 'cmd', '/c', 'bun', 'install'
+    } else {
+        commandLine 'sh', '-c', 'bun install'
     }
 }
 
-preBuild.dependsOn(buildWeb)
+tasks.register('buildSvelteApp', Exec) {
+    dependsOn installSvelteApp
+    workingDir 'src/main/web'
+
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        commandLine 'cmd', '/c', 'bun', 'run', 'build'
+    } else {
+        commandLine 'sh', '-c', 'bun run build'
+    }
+}
+
+tasks.register('clearAssets', Delete) {
+    delete 'src/main/assets/web2/*'
+}
+
+tasks.register('copySvelteToAssets', Copy) {
+    dependsOn buildSvelteApp
+    from 'src/main/web/dist'
+    into 'src/main/assets/web2'
+}
+
+preBuild.dependsOn(clearAssets, copySvelteToAssets)

@@ -39,11 +39,6 @@ func main() {
 			return
 		}
 		newProjectCommand(params)
-	case "build":
-		if !hasBun() {
-			return
-		}
-		buildProjectCommand(params)
 	default:
 		fmt.Printf("❌ Unknown command: %s\n", command)
 	}

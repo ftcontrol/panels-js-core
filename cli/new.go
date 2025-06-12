@@ -154,20 +154,6 @@ func newProjectCommand(params map[string]string) {
 			NormalValue: pkg,
 			DevValue:    pkg,
 		},
-
-		{
-			File:        "/Plugin/build.gradle",
-			Token:       "<REPLACE>RUN_DIR</REPLACE>",
-			NormalValue: "src/main/web",
-			DevValue:    "D:/GitHub/ftcontrol-plugins/cli",
-		},
-		{
-			File:        "/Plugin/build.gradle",
-			Token:       "<REPLACE>RUN_COMMAND</REPLACE>",
-			NormalValue: `"panels-cli"`,
-			DevValue:    `"go", "run", "."`,
-		},
-
 		{
 			File:        "/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/configs/Configs.kt",
 			Token:       "<REPLACE>VERSION</REPLACE>",
