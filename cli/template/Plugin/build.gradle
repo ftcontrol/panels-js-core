@@ -44,7 +44,7 @@ tasks.register('copyMyLibraryJar', Copy) {
 
     def libsDir = file("${rootProject.projectDir}/TeamCode/libs")
     def stashDir = file("${rootProject.projectDir}/TeamCode/.lib-versions")
-    def aarPath = layout.buildDirectory.file("outputs/aar/MyLibrary-release.aar").get().asFile
+    def aarPath = layout.buildDirectory.file("outputs/aar/Plugin-release.aar").get().asFile
 
     doFirst {
         libsDir.mkdirs()
