@@ -2,12 +2,9 @@ package main
 
 import (
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/google/uuid"
 )
 
 func buildProjectCommand(params map[string]string) {
@@ -25,69 +22,10 @@ func buildProjectCommand(params map[string]string) {
 
 	installDependencies(dir)
 
-	standaloneDir := filepath.Join(dir, "src", "_standalone")
-	err := os.RemoveAll(standaloneDir)
-	if err != nil {
-		fmt.Printf("Failed to clear _standalone directory: %v\n", err)
-		return
-	}
-	err = os.MkdirAll(standaloneDir, 0755)
-	if err != nil {
-		fmt.Printf("Failed to create _standalone directory: %v\n", err)
-		return
-	}
-
-	widgetsDir := filepath.Join(dir, "src", "widgets")
-	fmt.Printf("Listing all .svelte files in %s:\n", widgetsDir)
-
-	err = filepath.WalkDir(widgetsDir, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if !d.IsDir() && strings.HasSuffix(d.Name(), ".svelte") {
-			fmt.Println(path)
-
-			uuidFolder := filepath.Join(standaloneDir, uuid.New().String())
-			err := os.MkdirAll(uuidFolder, 0755)
-			if err != nil {
-				return fmt.Errorf("failed to create uuid folder: %w", err)
-			}
-			svelteContent, err := os.ReadFile(path)
-			if err != nil {
-				return fmt.Errorf("failed to read svelte file: %w", err)
-			}
-			indexSveltePath := filepath.Join(uuidFolder, "index.svelte")
-			err = os.WriteFile(indexSveltePath, svelteContent, 0644)
-			if err != nil {
-				return fmt.Errorf("failed to write index.svelte: %w", err)
-			}
-
-			componentName := strings.TrimSuffix(d.Name(), ".svelte")
-			embedTsContent := fmt.Sprintf(`
-				import { embedMultiple } from 'svelte-standalone'
-				import %s from './index.svelte'
-				embedMultiple(%s, '%s')
-			`, componentName, componentName, strings.ToLower(componentName))
-
-			embedTsPath := filepath.Join(uuidFolder, "embed.ts")
-			err = os.WriteFile(embedTsPath, []byte(embedTsContent), 0644)
-			if err != nil {
-				return fmt.Errorf("failed to write embed.ts: %w", err)
-			}
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		fmt.Printf("Error walking through widgets directory: %v\n", err)
-	}
-
-	srcDist := filepath.Join(dir, "static", "dist", "standalone")
+	srcDist := filepath.Join(dir, "dist")
 	destAssets := filepath.Join(dir, "..", "assets", "web2")
 
-	err = os.RemoveAll(destAssets)
+	err := os.RemoveAll(destAssets)
 	if err != nil {
 		fmt.Printf("Failed to clear assets web2 directory: %v\n", err)
 		return
@@ -98,13 +36,13 @@ func buildProjectCommand(params map[string]string) {
 		return
 	}
 
-	err = os.RemoveAll(filepath.Join(dir, "static", "dist"))
+	err = os.RemoveAll(filepath.Join(srcDist))
 	if err != nil {
 		fmt.Printf("Failed to clear assets web2 directory: %v\n", err)
 		return
 	}
 
-	bunExecute(dir, "standalone", "build", "--all")
+	buildApp(dir)
 
 	err = copyDir(srcDist, destAssets)
 	if err != nil {
