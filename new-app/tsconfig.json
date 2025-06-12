@@ -8,7 +8,8 @@
     "noEmit": true,
     "skipLibCheck": true,
     "outDir": "./dist",
-    "types": ["svelte"]
+    "types": ["svelte"],
+    "verbatimModuleSyntax": true
   },
   "include": ["src/lib/*"]
 }
