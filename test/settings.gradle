@@ -1,8 +1,0 @@
-include ':FtcRobotController'
-include ':TeamCode'
-
-<REPLACE>FTCONTROL_LINE1</REPLACE>
-<REPLACE>FTCONTROL_LINE2</REPLACE>
-
-include ':Plugin'
-//TODO: add here all plugins / modules
