@@ -1,0 +1,15 @@
+{
+  "name": "panels-cli",
+  "module": "index.ts",
+  "type": "module",
+  "version": "0.1.0",
+  "bin": {
+    "panels-cli": "index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
