@@ -1,15 +1,30 @@
 {
   "name": "panels-cli",
-  "module": "index.ts",
+  "module": "src/index.ts",
+  "description": "CLI tool for interacting with Panels' plugin system.",
+  "author": {
+    "name": "Lazar",
+    "email": "hi@bylazar.com",
+    "url": "https://bylazar.com"
+  },
   "type": "module",
   "version": "0.1.0",
   "bin": {
-    "panels-cli": "index.ts"
+    "panels-cli": "src/index.ts",
+    "create-panels-plugin": "./src/create.ts"
   },
+  "files": [
+    "src",
+    "template"
+  ],
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "fs-extra": "^11.3.0"
   }
 }
