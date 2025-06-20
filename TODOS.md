@@ -1,5 +1,5 @@
 - ask for pgin id like com.bylazar.myplugin
-
+check for bun or npm
 
 telnet localhost 5554
 auth TOKEN

@@ -290,7 +290,7 @@ const createProject = async (options: CreateOptions): Promise<void> => {
           "Plugin/build.gradle",
           "TeamCode/src/main/java/org/firstinspires/ftc/teamcode/configs/Configs.kt",
         ],
-        from: "<REPLACE>VERSION</REPLACE>",
+        from: "/<REPLACE>VERSION</REPLACE>/g",
         to: packageName,
       },
     ]

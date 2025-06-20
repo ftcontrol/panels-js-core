@@ -102,13 +102,13 @@ tasks.register('buildSvelteApp', Exec) {
 }
 
 tasks.register('clearAssets', Delete) {
-    delete 'src/main/assets/web2/*'
+    delete 'src/main/assets/<REPLACE>VERSION</REPLACE>/*'
 }
 
 tasks.register('copySvelteToAssets', Copy) {
     dependsOn buildSvelteApp
     from 'src/main/web/dist'
-    into 'src/main/assets/web2'
+    into 'src/main/assets/<REPLACE>VERSION</REPLACE>'
 }
 
 preBuild.dependsOn(clearAssets, copySvelteToAssets)
