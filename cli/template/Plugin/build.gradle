@@ -111,4 +111,10 @@ tasks.register('copySvelteToAssets', Copy) {
     into 'src/main/assets/<REPLACE>VERSION</REPLACE>'
 }
 
-preBuild.dependsOn(clearAssets, copySvelteToAssets)
+tasks.register('copyConfigToAssets', Copy) {
+    dependsOn buildSvelteApp
+    from 'config.json'
+    into 'src/main/assets/<REPLACE>VERSION</REPLACE>/config.json'
+}
+
+preBuild.dependsOn(clearAssets, copySvelteToAssets, copyConfigToAssets)

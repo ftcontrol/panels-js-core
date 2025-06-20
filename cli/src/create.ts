@@ -289,9 +289,15 @@ const createProject = async (options: CreateOptions): Promise<void> => {
           "Plugin/src/main/java/com/bylazar/mylibrary/Something.kt",
           "Plugin/build.gradle",
           "TeamCode/src/main/java/org/firstinspires/ftc/teamcode/configs/Configs.kt",
+          "config.json",
         ],
         from: "/<REPLACE>VERSION</REPLACE>/g",
         to: packageName,
+      },
+      {
+        files: ["config.json"],
+        from: "<REPLACE>PANELS</REPLACE>",
+        to: version,
       },
     ]
 

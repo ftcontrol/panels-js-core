@@ -8,7 +8,7 @@
     "url": "https://bylazar.com"
   },
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "bin": {
     "panels-cli": "src/index.ts",
     "create-panels-plugin": "./src/create.ts"
