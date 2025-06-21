@@ -1,4 +1,4 @@
-import { readdirSync } from "node:fs"
+import { readdirSync, writeFileSync } from "node:fs"
 import { sveltePreprocess } from "svelte-preprocess"
 import { toKebabCase } from "@std/text/to-kebab-case"
 import css from "rollup-plugin-css-only"
@@ -12,6 +12,20 @@ const isProd = process.env.NODE_ENV === "production"
 const components = readdirSync("src/lib")
   .filter((file) => file.endsWith(".svelte"))
   .map((file) => file.replace(".svelte", ""))
+
+const widgets = readdirSync("src/lib/widgets")
+  .filter((file) => file.endsWith(".svelte"))
+  .map((file) => file.replace(".svelte", ""))
+
+const widgetData = {
+  widgets: widgets.map((name) => ({
+    name,
+    kebabCase: toKebabCase(name),
+    file: `${toKebabCase(name)}.js`,
+  })),
+}
+
+writeFileSync("dist/data.json", JSON.stringify(widgetData, null, 2))
 
 export default [
   {

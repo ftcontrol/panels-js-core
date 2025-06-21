@@ -1,0 +1,14 @@
+{
+  "widgets": [
+    {
+      "name": "Counter",
+      "kebabCase": "counter",
+      "file": "counter.js"
+    },
+    {
+      "name": "LoadingIndicator",
+      "kebabCase": "loading-indicator",
+      "file": "loading-indicator.js"
+    }
+  ]
+}

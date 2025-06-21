@@ -11,5 +11,5 @@
     "types": ["svelte"],
     "verbatimModuleSyntax": true
   },
-  "include": ["src/lib/*"]
+  "include": ["src/lib/*", "src/lib/*/*"]
 }
