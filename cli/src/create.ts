@@ -7,6 +7,7 @@ import inquirer from "inquirer"
 import { execa } from "execa" // Default import
 import { replaceInFile } from "replace-in-file" // Use named importimport fetch from "node-fetch"
 import { Command } from "commander"
+import { DOMParser } from "xmldom"
 
 // ======================
 // Type Definitions
@@ -36,10 +37,10 @@ type PromptType = "input" | "confirm"
 // ======================
 // Config Constants
 // ======================
-const DEFAULT_VERSION: string = "0.6.5"
+const DEFAULT_VERSION: string = "0.6.8"
 const MAX_PACKAGE_LENGTH: number = 50
 const MAVEN_API_URL: string =
-  "https://mymaven.bylazar.com/api/maven/latest/version/releases/com/bylazar/ftcontrol"
+  "https://raw.githubusercontent.com/lazarcloud/ftcontrol-maven/refs/heads/main/releases/com/bylazar/ftcontrol/maven-metadata-local.xml"
 const RESERVED_DOMAIN: string = "com.bylazar"
 
 // ======================
@@ -96,9 +97,14 @@ const getLatestVersion = async (): Promise<string> => {
     const response = await fetch(MAVEN_API_URL)
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
-    const data: MavenVersion = (await response.json()) as MavenVersion
-    return data.version || DEFAULT_VERSION
-  } catch (error: unknown) {
+    const xmlText = await response.text()
+    const parser = new DOMParser()
+    const xmlDoc = parser.parseFromString(xmlText, "application/xml")
+
+    const latestVersion = xmlDoc.querySelector("latest")?.textContent
+    console.log(latestVersion)
+    return latestVersion || DEFAULT_VERSION
+  } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error"
     console.warn(
       chalk.yellow(
