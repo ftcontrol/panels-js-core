@@ -1,7 +1,7 @@
 {
   "name": "panels-plugin",
   "version": "0.0.1",
-  "description": "An example of a Panles Plugin",
+  "description": "An example of a Panels Plugin",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
