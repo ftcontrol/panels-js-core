@@ -29,11 +29,19 @@ const DESTROYED = 1 << 14;
 const EFFECT_RAN = 1 << 15;
 /** 'Transparent' effects do not create a transition boundary */
 const EFFECT_TRANSPARENT = 1 << 16;
-const HEAD_EFFECT = 1 << 19;
-const EFFECT_HAS_DERIVED = 1 << 20;
-const EFFECT_IS_UPDATING = 1 << 21;
+const INSPECT_EFFECT = 1 << 17;
+const HEAD_EFFECT = 1 << 18;
+const EFFECT_PRESERVED = 1 << 19;
+const EFFECT_IS_UPDATING = 1 << 20;
+const USER_EFFECT = 1 << 21;
 
 const STATE_SYMBOL = Symbol('$state');
+
+/** allow users to ignore aborted signal errors if `reason.name === 'StaleReactionError` */
+const STALE_REACTION = new (class StaleReactionError extends Error {
+	name = 'StaleReactionError';
+	message = 'The reaction that called `getAbortSignal()` was re-run or destroyed';
+})();
 
 /** @import { Equals } from '#client' */
 
@@ -76,7 +84,7 @@ function state_prototype_fixed() {
 }
 
 /**
- * Updating state inside a derived or a template expression is forbidden. If the value should not be reactive, declare it without `$state`
+ * Updating state inside `$derived(...)`, `$inspect(...)` or a template expression is forbidden. If the value should not be reactive, declare it without `$state`
  * @returns {never}
  */
 function state_unsafe_mutation() {
@@ -91,7 +99,7 @@ const TEMPLATE_USE_IMPORT_NODE = 1 << 1;
 
 const UNINITIALIZED = Symbol();
 
-/** @import { ComponentContext } from '#client' */
+/** @import { ComponentContext, DevStackEntry } from '#client' */
 
 
 /** @type {ComponentContext | null} */
@@ -143,7 +151,7 @@ function pop(component) {
 					var component_effect = component_effects[i];
 					set_active_effect(component_effect.effect);
 					set_active_reaction(component_effect.reaction);
-					effect(component_effect.fn);
+					create_user_effect(component_effect.fn);
 				}
 			} finally {
 				set_active_effect(previous_effect);
@@ -189,6 +197,7 @@ function proxy(value) {
 	var reaction = active_reaction;
 
 	/**
+	 * Executes the proxy in the context of the reaction it was originally created in, if any
 	 * @template T
 	 * @param {() => T} fn
 	 */
@@ -223,17 +232,16 @@ function proxy(value) {
 				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy/getOwnPropertyDescriptor#invariants
 				state_descriptors_fixed();
 			}
-
-			with_parent(() => {
-				var s = sources.get(prop);
-
-				if (s === undefined) {
-					s = state(descriptor.value);
+			var s = sources.get(prop);
+			if (s === undefined) {
+				s = with_parent(() => {
+					var s = state(descriptor.value);
 					sources.set(prop, s);
-				} else {
-					set(s, descriptor.value, true);
-				}
-			});
+					return s;
+				});
+			} else {
+				set(s, descriptor.value, true);
+			}
 
 			return true;
 		},
@@ -374,11 +382,8 @@ function proxy(value) {
 			// object property before writing to that property.
 			if (s === undefined) {
 				if (!has || get_descriptor(target, prop)?.writable) {
-					s = with_parent(() => {
-						var s = state(undefined);
-						set(s, proxy(value));
-						return s;
-					});
+					s = with_parent(() => state(undefined));
+					set(s, proxy(value));
 
 					sources.set(prop, s);
 				}
@@ -467,7 +472,7 @@ function derived(fn) {
 	} else {
 		// Since deriveds are evaluated lazily, any effects created inside them are
 		// created too late to ensure that the parent effect is added to the tree
-		active_effect.f |= EFFECT_HAS_DERIVED;
+		active_effect.f |= EFFECT_PRESERVED;
 	}
 
 	/** @type {Derived<V>} */
@@ -482,7 +487,8 @@ function derived(fn) {
 		rv: 0,
 		v: /** @type {V} */ (null),
 		wv: 0,
-		parent: parent_derived ?? active_effect
+		parent: parent_derived ?? active_effect,
+		ac: null
 	};
 
 	return signal;
@@ -614,10 +620,12 @@ function state(v, stack) {
 function set(source, value, should_proxy = false) {
 	if (
 		active_reaction !== null &&
-		!untracking &&
+		// since we are untracking the function inside `$inspect.with` we need to add this check
+		// to ensure we error if state is set inside an inspect effect
+		(!untracking || (active_reaction.f & INSPECT_EFFECT) !== 0) &&
 		is_runes() &&
-		(active_reaction.f & (DERIVED | BLOCK_EFFECT)) !== 0 &&
-		!reaction_sources?.includes(source)
+		(active_reaction.f & (DERIVED | BLOCK_EFFECT | INSPECT_EFFECT)) !== 0 &&
+		!(source_ownership?.reaction === active_reaction && source_ownership.sources.includes(source))
 	) {
 		state_unsafe_mutation();
 	}
@@ -879,10 +887,12 @@ function create_effect(type, fn, sync, push = true) {
 		last: null,
 		next: null,
 		parent,
+		b: parent && parent.b,
 		prev: null,
 		teardown: null,
 		transitions: null,
-		wv: 0
+		wv: 0,
+		ac: null
 	};
 
 	if (sync) {
@@ -905,7 +915,7 @@ function create_effect(type, fn, sync, push = true) {
 		effect.first === null &&
 		effect.nodes_start === null &&
 		effect.teardown === null &&
-		(effect.f & (EFFECT_HAS_DERIVED | BOUNDARY_EFFECT)) === 0;
+		(effect.f & (EFFECT_PRESERVED | BOUNDARY_EFFECT)) === 0;
 
 	if (!inert && push) {
 		if (parent !== null) {
@@ -933,6 +943,13 @@ function teardown(fn) {
 }
 
 /**
+ * @param {() => void | (() => void)} fn
+ */
+function create_user_effect(fn) {
+	return create_effect(EFFECT | USER_EFFECT, fn, false);
+}
+
+/**
  * An effect root whose children can transition out
  * @param {() => void} fn
  * @returns {(options?: { outro?: boolean }) => Promise<void>}
@@ -956,16 +973,9 @@ function component_root(fn) {
 }
 
 /**
- * @param {() => void | (() => void)} fn
- * @returns {Effect}
- */
-function effect(fn) {
-	return create_effect(EFFECT, fn, false);
-}
-
-/**
  * @param {(...expressions: any) => void | (() => void)} fn
  * @param {Array<() => any>} thunks
+ * @param {<T>(fn: () => T) => Derived<T>} d
  * @returns {Effect}
  */
 function template_effect(fn, thunks = [], d = derived) {
@@ -979,7 +989,8 @@ function template_effect(fn, thunks = [], d = derived) {
  * @param {number} flags
  */
 function block(fn, flags = 0) {
-	return create_effect(RENDER_EFFECT | BLOCK_EFFECT | flags, fn, true);
+	var effect = create_effect(RENDER_EFFECT | BLOCK_EFFECT | flags, fn, true);
+	return effect;
 }
 
 /**
@@ -1019,6 +1030,8 @@ function destroy_effect_children(signal, remove_dom = false) {
 	signal.first = signal.last = null;
 
 	while (effect !== null) {
+		effect.ac?.abort(STALE_REACTION);
+
 		var next = effect.next;
 
 		if ((effect.f & ROOT_EFFECT) !== 0) {
@@ -1096,6 +1109,7 @@ function destroy_effect(effect, remove_dom = true) {
 		effect.fn =
 		effect.nodes_start =
 		effect.nodes_end =
+		effect.ac =
 			null;
 }
 
@@ -1201,6 +1215,7 @@ function pause_children(effect, transitions, local) {
 }
 
 /** @import { Effect } from '#client' */
+/** @import { Boundary } from './dom/blocks/boundary.js' */
 
 /**
  * @param {unknown} error
@@ -1231,8 +1246,7 @@ function invoke_error_boundary(error, effect) {
 	while (effect !== null) {
 		if ((effect.f & BOUNDARY_EFFECT) !== 0) {
 			try {
-				// @ts-expect-error
-				effect.fn(error);
+				/** @type {Boundary} */ (effect.b).error(error);
 				return;
 			} catch {}
 		}
@@ -1288,18 +1302,18 @@ function set_active_effect(effect) {
 
 /**
  * When sources are created within a reaction, reading and writing
- * them should not cause a re-run
- * @type {null | Source[]}
+ * them within that reaction should not cause a re-run
+ * @type {null | { reaction: Reaction, sources: Source[] }}
  */
-let reaction_sources = null;
+let source_ownership = null;
 
 /** @param {Value} value */
 function push_reaction_value(value) {
 	if (active_reaction !== null && active_reaction.f & EFFECT_IS_UPDATING) {
-		if (reaction_sources === null) {
-			reaction_sources = [value];
+		if (source_ownership === null) {
+			source_ownership = { reaction: active_reaction, sources: [value] };
 		} else {
-			reaction_sources.push(value);
+			source_ownership.sources.push(value);
 		}
 	}
 }
@@ -1430,7 +1444,12 @@ function schedule_possible_effect_self_invalidation(signal, effect, root = true)
 	for (var i = 0; i < reactions.length; i++) {
 		var reaction = reactions[i];
 
-		if (reaction_sources?.includes(signal)) continue;
+		if (
+			source_ownership?.reaction === active_reaction &&
+			source_ownership.sources.includes(signal)
+		) {
+			continue;
+		}
 
 		if ((reaction.f & DERIVED) !== 0) {
 			schedule_possible_effect_self_invalidation(/** @type {Derived} */ (reaction), effect, false);
@@ -1452,7 +1471,7 @@ function update_reaction(reaction) {
 	var previous_untracked_writes = untracked_writes;
 	var previous_reaction = active_reaction;
 	var previous_skip_reaction = skip_reaction;
-	var previous_reaction_sources = reaction_sources;
+	var previous_reaction_sources = source_ownership;
 	var previous_component_context = component_context;
 	var previous_untracking = untracking;
 
@@ -1465,12 +1484,17 @@ function update_reaction(reaction) {
 		(flags & UNOWNED) !== 0 && (untracking || !is_updating_effect || active_reaction === null);
 	active_reaction = (flags & (BRANCH_EFFECT | ROOT_EFFECT)) === 0 ? reaction : null;
 
-	reaction_sources = null;
+	source_ownership = null;
 	set_component_context(reaction.ctx);
 	untracking = false;
 	read_version++;
 
 	reaction.f |= EFFECT_IS_UPDATING;
+
+	if (reaction.ac !== null) {
+		reaction.ac.abort(STALE_REACTION);
+		reaction.ac = null;
+	}
 
 	try {
 		var result = /** @type {Function} */ (0, reaction.fn)();
@@ -1490,7 +1514,12 @@ function update_reaction(reaction) {
 				reaction.deps = deps = new_deps;
 			}
 
-			if (!skip_reaction) {
+			if (
+				!skip_reaction ||
+				// Deriveds that already have reactions can cleanup, so we still add them as reactions
+				((flags & DERIVED) !== 0 &&
+					/** @type {import('#client').Derived} */ (reaction).reactions !== null)
+			) {
 				for (i = skipped_deps; i < deps.length; i++) {
 					(deps[i].reactions ??= []).push(reaction);
 				}
@@ -1543,7 +1572,7 @@ function update_reaction(reaction) {
 		untracked_writes = previous_untracked_writes;
 		active_reaction = previous_reaction;
 		skip_reaction = previous_skip_reaction;
-		reaction_sources = previous_reaction_sources;
+		source_ownership = previous_reaction_sources;
 		set_component_context(previous_component_context);
 		untracking = previous_untracking;
 
@@ -1710,6 +1739,8 @@ function flush_queued_effects(effects) {
 
 		if ((effect.f & (DESTROYED | INERT)) === 0) {
 			if (check_dirtiness(effect)) {
+				var wv = write_version;
+
 				update_effect(effect);
 
 				// Effects with no dependencies or teardown do not get added to the effect tree.
@@ -1726,8 +1757,18 @@ function flush_queued_effects(effects) {
 						effect.fn = null;
 					}
 				}
+
+				// if state is written in a user effect, abort and re-schedule, lest we run
+				// effects that should be removed as a result of the state change
+				if (write_version > wv && (effect.f & USER_EFFECT) !== 0) {
+					break;
+				}
 			}
 		}
+	}
+
+	for (; i < length; i += 1) {
+		schedule_effect(effects[i]);
 	}
 }
 
@@ -1821,7 +1862,10 @@ function get(signal) {
 
 	// Register the dependency on the current reaction signal.
 	if (active_reaction !== null && !untracking) {
-		if (!reaction_sources?.includes(signal)) {
+		if (
+			source_ownership?.reaction !== active_reaction ||
+			!source_ownership?.sources.includes(signal)
+		) {
 			var deps = active_reaction.deps;
 			if (signal.rv < read_version) {
 				signal.rv = read_version;
@@ -2291,6 +2335,8 @@ function increment(n) {
     return n + 1;
 }
 
+const testVariable = "lazar";
+
 var on_click = (_, count) => {
 	set(count, increment(get(count)), true);
 };
@@ -2313,7 +2359,9 @@ function Counter($$anchor, $$props) {
 
 	template_effect(
 		($0) => {
-			set_text(text, `${$0 ?? ''} `);
+			set_text(text, `${testVariable}
+${$0 ?? ''} `);
+
 			set_text(text_1, get(count));
 		},
 		[() => JSON.stringify($$props.global)]

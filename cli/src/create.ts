@@ -187,18 +187,28 @@ const renamePackageDirs = async (
   console.log(chalk.green(`✓ Package structure created for ${packageName}`))
 }
 
-const installDependencies = async (projectDir: string): Promise<void> => {
-  const webPath: string = path.join(projectDir, "Plugin", "src", "main", "web")
+const installDependencies = async (
+  projectDir: string,
+  isDevMode: boolean
+): Promise<void> => {
+  const webPath: string = path.join(projectDir, "Plugin", "web")
 
   try {
     console.log(chalk.blue("Installing dependencies..."))
-    // Remove ExecaChildProcess type annotation
-    const child = execa("bun", ["install"], {
+    await execa("bun", ["install"], {
       cwd: webPath,
       stdio: "inherit",
     })
 
-    await child
+    var p = "ftc-panels"
+
+    if (isDevMode) p = "link:ftc-panels"
+
+    await execa("bun", ["add", p], {
+      cwd: webPath,
+      stdio: "inherit",
+    })
+
     console.log(chalk.green("✓ Dependencies installed"))
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error"
@@ -295,13 +305,13 @@ const createProject = async (options: CreateOptions): Promise<void> => {
           "Plugin/src/main/java/com/bylazar/mylibrary/Something.kt",
           "Plugin/build.gradle",
           "TeamCode/src/main/java/org/firstinspires/ftc/teamcode/configs/Configs.kt",
-          "Plugin/config.json",
+          "Plugin/web/config.ts",
         ],
         from: "/<REPLACE>VERSION</REPLACE>/g",
         to: packageName,
       },
       {
-        files: ["Plugin/config.json"],
+        files: ["Plugin/web/config.ts"],
         from: "<REPLACE>PANELS</REPLACE>",
         to: version,
       },
@@ -314,13 +324,8 @@ const createProject = async (options: CreateOptions): Promise<void> => {
     if (!isDevMode) await renamePackageDirs(targetDir, packageName)
 
     // Handle dependencies installation
-    const shouldInstall: boolean = options.autoinstall
-      ? true
-      : await prompt<boolean>("Install dependencies?", "confirm")
 
-    if (shouldInstall) {
-      await installDependencies(targetDir)
-    }
+    await installDependencies(targetDir, isDevMode)
 
     // Success message
     console.log(chalk.green.bold("\n✔ Project created successfully!"))

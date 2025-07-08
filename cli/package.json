@@ -1,7 +1,7 @@
 {
-  "name": "panels-cli",
+  "name": "ftc-panels",
   "module": "src/index.ts",
-  "description": "CLI tool for interacting with Panels' plugin system.",
+  "description": "Library for Panels' plugin system.",
   "author": {
     "name": "Lazar",
     "email": "hi@bylazar.com",

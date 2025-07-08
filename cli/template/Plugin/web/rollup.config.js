@@ -32,23 +32,8 @@ if (!existsSync("dist")) {
 writeFileSync("dist/data.json", JSON.stringify(widgetData, null, 2))
 
 export default [
-  {
-    input: "src/svelte.js",
-    output: {
-      file: "dist/svelte.js",
-      format: "es",
-      sourcemap: true,
-    },
-    plugins: [
-      resolve({
-        browser: true,
-      }),
-      isProd && terser(),
-    ],
-  },
   ...components.map((name) => ({
-    input: `src/lib/widgets/${name}.svelte`,
-    external: ["svelte", "svelte/internal/client"],
+    input: `src/lib/widgets/${name}.ts`,
     output: {
       dir: "dist",
       entryFileNames: `${toKebabCase(name)}.js`,

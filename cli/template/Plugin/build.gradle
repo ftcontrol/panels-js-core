@@ -81,7 +81,7 @@ tasks.register('copyMyLibraryJar', Copy) {
 
 
 tasks.register('installSvelteApp', Exec) {
-    workingDir 'src/main/web'
+    workingDir 'web'
 
     if (System.getProperty('os.name').toLowerCase().contains('windows')) {
         commandLine 'cmd', '/c', 'bun', 'install'
@@ -92,7 +92,7 @@ tasks.register('installSvelteApp', Exec) {
 
 tasks.register('buildSvelteApp', Exec) {
     dependsOn installSvelteApp
-    workingDir 'src/main/web'
+    workingDir 'web'
 
     if (System.getProperty('os.name').toLowerCase().contains('windows')) {
         commandLine 'cmd', '/c', 'bun', 'run', 'build'
@@ -107,7 +107,7 @@ tasks.register('clearAssets', Delete) {
 
 tasks.register('copySvelteToAssets', Copy) {
     dependsOn buildSvelteApp
-    from 'src/main/web/dist'
+    from 'web/dist'
     into 'src/main/assets/<REPLACE>VERSION</REPLACE>'
 }
 
