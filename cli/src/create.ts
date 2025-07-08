@@ -286,9 +286,9 @@ const createProject = async (options: CreateOptions): Promise<void> => {
         files: ["settings.gradle"],
         from: "<REPLACE>FTCONTROL_LINE1</REPLACE>",
         to: isDevMode
-          ? `include ':ftcontrol'\nproject(':ftcontrol').projectDir = new File('${
+          ? `include ':Panels'\nproject(':Panels').projectDir = new File('${
               options.sdkPath ||
-              "C:/Users/lazar/Documents/GitHub/ftcontrol/library/lazarkit"
+              "C:/Users/lazar/Documents/GitHub/ftcontrol-panels/library/Panels"
             }')`
           : "",
       },
@@ -296,8 +296,8 @@ const createProject = async (options: CreateOptions): Promise<void> => {
         files: ["build.dependencies.gradle"],
         from: "<REPLACE>FTCONTROL_LINE</REPLACE>",
         to: isDevMode
-          ? "implementation project(':ftcontrol')"
-          : `implementation "com.bylazar:ftcontrol:${version}"`,
+          ? "implementation project(':Panels')"
+          : `implementation "com.bylazar:panels:${version}"`,
       },
       {
         files: [
