@@ -33,18 +33,23 @@
     return module
   }
 
+  import { GlobalSocket } from "ftc-panels/src/core/socket/global"
+  import { PluginSocket } from "ftc-panels/src/core/socket/plugin"
+
+  var globalSocket = new GlobalSocket()
+
   onMount(async () => {
-    const { default: load } = await importFromSource("/build/counter.js")
+    globalSocket.init()
+    var pluginsSocket = new PluginSocket("core", globalSocket)
+    const { default: load } = await importFromSource("/build/opmodes.js")
 
     const shadow2 = counterHost.attachShadow({ mode: "open" })
     const target2 = document.createElement("div")
     shadow2.appendChild(target2)
-    injectCSS(shadow2, "/build/counter.css")
+    injectCSS(shadow2, "/build/op-modes.css")
 
     counterInstance = load(target2, {
-      global: {
-        var: "lazar",
-      },
+      socket: pluginsSocket,
     })
 
     return () => {
