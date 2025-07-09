@@ -11,6 +11,7 @@ export type PluginConfig = {
 export type PanelsWidget = {
   name: string
   filepath: string
+  textContent: string
 }
 
 export type PluginInfo = {

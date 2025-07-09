@@ -6,23 +6,20 @@
   let {
     isDev = false,
     globalSocket,
+    textContent,
     id,
-    file,
   }: {
     isDev: boolean
     globalSocket: GlobalSocket
+    textContent: string
     id: string
-    file: string
   } = $props()
 
   let host: HTMLDivElement
   let instance: any
 
-  async function importFromSource(url: string) {
-    const response = await fetch(url)
-    if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`)
-    const source = await response.text()
-    const blob = new Blob([source], { type: "text/javascript" })
+  async function importFromSource(textContent: string) {
+    const blob = new Blob([textContent], { type: "text/javascript" })
     const blobUrl = URL.createObjectURL(blob)
     const module = await import(blobUrl)
     URL.revokeObjectURL(blobUrl)
@@ -31,11 +28,7 @@
 
   onMount(async () => {
     var pluginsSocket = new PluginSocket(id, globalSocket)
-    const { default: load } = await importFromSource(
-      isDev
-        ? `http://localhost:8001/plugins/${id}/widgets/${file}.js`
-        : `/plugins/${id}/widgets/${file}.js`
-    )
+    const { default: load } = await importFromSource(textContent)
 
     const shadow = host.attachShadow({ mode: "open" })
     const target = document.createElement("div")
