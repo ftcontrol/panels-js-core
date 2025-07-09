@@ -9,5 +9,6 @@ export type PluginConfig = {
 }
 
 export type PanelsWidget = {
+  name: string
   filepath: string
 }

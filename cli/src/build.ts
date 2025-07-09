@@ -2,12 +2,21 @@ import { build } from "vite"
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import fs from "fs"
 import path from "path"
+import type { PluginConfig } from "./core/types"
 
-export function buildPanelsPlugin(dir: string) {
+export async function buildPanelsPlugin(dir: string) {
   const widgetsDir = path.resolve(dir, "src/widgets")
   const generatedDir = path.resolve(widgetsDir, "__generated__")
   const distDir = path.resolve(dir, "dist")
   const distWidgetsDir = path.resolve(dir, "dist/widgets")
+
+  const configPath = path.resolve(dir, "config.ts")
+
+  const module = await import(configPath)
+
+  const config = module.config as PluginConfig
+
+  console.log(config)
 
   function clearDist() {
     if (fs.existsSync(distDir)) {
@@ -83,19 +92,15 @@ export function buildPanelsPlugin(dir: string) {
   }
 
   // Find all .svelte files
-  const svelteFiles = fs
-    .readdirSync(widgetsDir)
-    .filter((f) => f.endsWith(".svelte"))
+  const widgets = config.widgets
 
   // Generate wrappers
-  svelteFiles.forEach((file) => {
-    const name = file.replace(/\.svelte$/, "")
-    const sveltePath = `../${file}`
+  widgets.forEach(({ name, filepath }) => {
     const tsFilename = `${name}.ts`
     const tsFilePath = path.resolve(generatedDir, tsFilename)
 
     const tsContent = `import { mount } from "svelte"
-import ${name} from "${sveltePath}"
+import ${name} from "${path.relative(generatedDir, path.resolve(dir, filepath)).replace(/\\/g, "/")}"
 
 export default function load(target: HTMLElement, props: any) {
   return mount(${name}, {
@@ -107,7 +112,7 @@ export default function load(target: HTMLElement, props: any) {
     fs.writeFileSync(tsFilePath, tsContent, "utf-8")
   })
 
-  buildAllWidgets(svelteFiles)
+  buildAllWidgets(widgets.map((w) => w.name))
     .then(() => console.log("All widgets built!"))
     .catch((err) => {
       console.error(err)
