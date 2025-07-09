@@ -6,7 +6,7 @@ import type { PluginConfig } from "./core/types"
 
 export async function buildPanelsPlugin(dir: string) {
   const widgetsDir = path.resolve(dir, "src/widgets")
-  const generatedDir = path.resolve(widgetsDir, "__generated__")
+  const generatedDir = path.resolve(dir, ".panels")
   const distDir = path.resolve(dir, "dist")
   const distWidgetsDir = path.resolve(dir, "dist/widgets")
 
@@ -17,6 +17,17 @@ export async function buildPanelsPlugin(dir: string) {
   const config = module.config as PluginConfig
 
   console.log(config)
+
+  const widgetNames = config.widgets.map((w) => w.name)
+  const duplicates = widgetNames.filter(
+    (name, i, arr) => arr.indexOf(name) !== i
+  )
+
+  if (duplicates.length > 0) {
+    throw new Error(
+      `Duplicate widget names found in config: ${[...new Set(duplicates)].join(", ")}`
+    )
+  }
 
   function clearDist() {
     if (fs.existsSync(distDir)) {
@@ -91,10 +102,8 @@ export async function buildPanelsPlugin(dir: string) {
     fs.mkdirSync(generatedDir)
   }
 
-  // Find all .svelte files
   const widgets = config.widgets
 
-  // Generate wrappers
   widgets.forEach(({ name, filepath }) => {
     const tsFilename = `${name}.ts`
     const tsFilePath = path.resolve(generatedDir, tsFilename)
