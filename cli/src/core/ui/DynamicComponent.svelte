@@ -30,7 +30,7 @@
   onMount(async () => {
     var pluginsSocket = new PluginSocket(id, globalSocket)
     const { default: load } = await importFromSource(
-      `/plugins/${id}/${file}.js`
+      `/plugins/${id}/widgets/${file}.js`
     )
 
     const shadow = host.attachShadow({ mode: "open" })

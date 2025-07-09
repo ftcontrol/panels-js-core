@@ -41,9 +41,7 @@
   onMount(async () => {
     globalSocket.init()
     var pluginsSocket = new PluginSocket("core", globalSocket)
-    const { default: load } = await importFromSource(
-      "http://localhost:8001/plugins/com.bylazar.opmodecontrol/opmodes.js"
-    )
+    const { default: load } = await importFromSource("/build/counter2.js")
 
     const shadow2 = counterHost.attachShadow({ mode: "open" })
     const target2 = document.createElement("div")
