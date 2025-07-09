@@ -29,6 +29,15 @@ export async function buildPanelsPlugin(dir: string) {
     )
   }
 
+  function writeConfigJsonToDist(config: PluginConfig) {
+    if (!fs.existsSync(distDir)) {
+      fs.mkdirSync(distDir, { recursive: true })
+    }
+
+    const jsonPath = path.resolve(distDir, "config.json")
+    fs.writeFileSync(jsonPath, JSON.stringify(config, null, 2), "utf-8")
+  }
+
   function clearDist() {
     if (fs.existsSync(distDir)) {
       fs.readdirSync(distDir).forEach((file) => {
@@ -58,6 +67,7 @@ export async function buildPanelsPlugin(dir: string) {
 
   async function buildAllWidgets(svelteFiles: string[]) {
     clearDist()
+    writeConfigJsonToDist(config)
 
     for (const file of svelteFiles) {
       const name = file.replace(/\.svelte$/, "")
