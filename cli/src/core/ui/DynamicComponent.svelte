@@ -4,10 +4,12 @@
   import type { GlobalSocket } from "../socket/global"
   import { PluginSocket } from "../socket/plugin"
   let {
+    isDev = false,
     globalSocket,
     id,
     file,
   }: {
+    isDev: boolean
     globalSocket: GlobalSocket
     id: string
     file: string
@@ -30,7 +32,9 @@
   onMount(async () => {
     var pluginsSocket = new PluginSocket(id, globalSocket)
     const { default: load } = await importFromSource(
-      `/plugins/${id}/widgets/${file}.js`
+      isDev
+        ? `http://localhost:8001/plugins/${id}/widgets/${file}.js`
+        : `/plugins/${id}/widgets/${file}.js`
     )
 
     const shadow = host.attachShadow({ mode: "open" })

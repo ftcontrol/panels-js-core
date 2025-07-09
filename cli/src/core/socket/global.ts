@@ -23,7 +23,7 @@ export class GlobalSocket {
       console.log(event.data)
 
       const data = JSON.parse(event.data)
-      this.handleMessage(data.pluginID, data.messageID, data)
+      this.handleMessage(data.pluginID, data.messageID, data.data)
     }
 
     this.socket.onerror = (error) => {
