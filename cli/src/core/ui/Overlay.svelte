@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { onMount, onDestroy, tick, type Snippet } from "svelte"
-
+  import { onMount, onDestroy, tick } from "svelte"
+  type Snippet<Props = any> = (props: Props) => any
   let {
     trigger,
     overlay,
   }: {
-    trigger: Snippet
-    overlay: Snippet
+    trigger: Snippet<{ isOpen: boolean }>
+    overlay: Snippet<{ close: () => void }>
   } = $props()
 
   let isOpen = $state(false)
@@ -76,12 +76,12 @@
 </script>
 
 <button bind:this={triggerButton} onclick={toggle}>
-  {@render trigger()}
+  {@render trigger({ isOpen })}
 </button>
 
 {#if isOpen}
   <div bind:this={container} class="overlay">
-    {@render overlay()}
+    {@render overlay({ close })}
   </div>
 {/if}
 

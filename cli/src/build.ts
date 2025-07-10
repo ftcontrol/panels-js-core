@@ -154,10 +154,10 @@ export async function buildPanelsPlugin(dir: string) {
     const tsFilePath = path.resolve(generatedDir, tsFilename)
 
     const tsContent = `import { mount } from "svelte"
-import ${name} from "${path.relative(generatedDir, path.resolve(dir, filepath)).replace(/\\/g, "/")}"
+import ${name.replace(" ", "_")} from "${path.relative(generatedDir, path.resolve(dir, filepath)).replace(/\\/g, "/")}"
 
 export default function load(target: HTMLElement, props: any) {
-  return mount(${name}, {
+  return mount(${name.replace(" ", "_")}, {
     target: target,
     props: props,
   })
