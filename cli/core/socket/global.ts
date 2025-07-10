@@ -23,6 +23,16 @@ export class GlobalSocket {
     const socket = new WebSocket(wsUrl)
     this.socket = socket
 
+    plugins.forEach(async (it) => {
+      const { default: Manager } = await importFromSource(
+        it.details.manager.textContent || ""
+      )
+
+      this.pluginManagers[it.details.id] = new Manager(
+        new PluginSocket(it.details.id, this)
+      )
+    })
+
     await new Promise<void>((resolve, reject) => {
       if (socket == null) reject("Socket is null")
       socket.onopen = () => {
@@ -33,16 +43,6 @@ export class GlobalSocket {
         console.error("WebSocket error:", error)
         reject(error)
       }
-    })
-
-    plugins.forEach(async (it) => {
-      const { default: Manager } = await importFromSource(
-        it.details.manager.textContent || ""
-      )
-
-      this.pluginManagers[it.details.id] = new Manager(
-        new PluginSocket(it.details.id, this)
-      )
     })
 
     socket.onopen = () => {
