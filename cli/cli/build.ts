@@ -2,7 +2,7 @@ import { build } from "vite"
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import fs from "fs"
 import path from "path"
-import type { PluginConfig } from "./core/types"
+import type { PluginConfig } from "../src/types"
 
 export async function buildPanelsPlugin(dir: string) {
   const widgetsDir = path.resolve(dir, "src/widgets")
@@ -12,7 +12,7 @@ export async function buildPanelsPlugin(dir: string) {
 
   const configPath = path.resolve(dir, "config.ts")
 
-  const module = await import(configPath)
+  const module = await import(/* @vite-ignore */ configPath)
 
   const config = module.config as PluginConfig
 

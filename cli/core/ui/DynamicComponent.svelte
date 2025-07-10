@@ -2,9 +2,7 @@
   import { onMount } from "svelte"
   import { unmount } from "svelte"
   import type { GlobalSocket } from "../socket/global"
-  import { PluginSocket } from "../socket/plugin"
-  import { PluginManager } from "../socket/manager"
-  import { importFromSource } from ".."
+  import { importFromSource } from "../socket/source"
   let {
     globalSocket,
     textContent,

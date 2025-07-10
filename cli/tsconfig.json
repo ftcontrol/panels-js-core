@@ -1,5 +1,11 @@
 {
-  "include": ["src"],
+  "include": [
+    "src",
+    "src/index.tsx.tssrc/index.tsindex.ts",
+    "cli",
+    "index.ts",
+    "index.ts"
+  ],
   "exclude": ["template", "test", "dist", "node_modules"],
   "compilerOptions": {
     // Environment setup & latest features

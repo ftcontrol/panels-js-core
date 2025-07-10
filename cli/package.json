@@ -1,6 +1,5 @@
 {
   "name": "ftc-panels",
-  "module": "src/index.ts",
   "description": "Library for Panels' plugin system.",
   "author": {
     "name": "Lazar",
@@ -10,12 +9,15 @@
   "type": "module",
   "version": "0.1.2",
   "bin": {
-    "panels-cli": "src/index.ts",
-    "create-panels-plugin": "./src/create.ts",
-    "build-panels-plugin": "src/build.ts"
+    "create-panels-plugin": "./cli/bin/create.ts"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./cli": "./cli/index.ts"
   },
   "files": [
     "src",
+    "cli",
     "template"
   ],
   "devDependencies": {
@@ -35,6 +37,7 @@
     "inquirer": "^12.6.3",
     "node-fetch": "^3.3.2",
     "replace-in-file": "^8.3.0",
+    "svelte": "^5.35.5",
     "vite": "^7.0.3",
     "xmldom": "^0.6.0"
   }
