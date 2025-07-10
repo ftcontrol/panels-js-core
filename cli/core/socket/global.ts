@@ -16,11 +16,24 @@ export class GlobalSocket {
 
   private maxLogSize: number = 100
 
-  init(plugins: PluginInfo[]) {
+  async init(plugins: PluginInfo[]) {
     this.log = []
     const host = window.location.hostname
     const wsUrl = `ws://${host}:8002`
-    this.socket = new WebSocket(wsUrl)
+    const socket = new WebSocket(wsUrl)
+    this.socket = socket
+
+    await new Promise<void>((resolve, reject) => {
+      if (socket == null) reject("Socket is null")
+      socket.onopen = () => {
+        console.log("WebSocket connection opened:", wsUrl)
+        resolve()
+      }
+      socket.onerror = (error) => {
+        console.error("WebSocket error:", error)
+        reject(error)
+      }
+    })
 
     plugins.forEach(async (it) => {
       const { default: Manager } = await importFromSource(
@@ -32,11 +45,11 @@ export class GlobalSocket {
       )
     })
 
-    this.socket.onopen = () => {
+    socket.onopen = () => {
       console.log("WebSocket connection opened:", wsUrl)
     }
 
-    this.socket.onmessage = (event) => {
+    socket.onmessage = (event) => {
       this.log = [...this.log, event.data].slice(-this.maxLogSize)
 
       const data = JSON.parse(event.data)
@@ -45,11 +58,11 @@ export class GlobalSocket {
       this.handleMessage(data.pluginID, data.messageID, data.data)
     }
 
-    this.socket.onerror = (error) => {
+    socket.onerror = (error) => {
       console.error("WebSocket error:", error)
     }
 
-    this.socket.onclose = () => {
+    socket.onclose = () => {
       console.log("WebSocket connection closed")
     }
   }
