@@ -14,6 +14,14 @@ export class PluginSocket {
     this.socket.addMessageHandler(this.id, messageID, handler)
   }
 
+  sendMessage(messageID: string, data: any) {
+    this.socket.sendMessage({
+      pluginID: this.id,
+      messageID: messageID,
+      data: data,
+    })
+  }
+
   public removeMessageHandler(messageID: string, handler: Handler) {
     this.socket.removeMessageHandler(this.id, messageID)
   }

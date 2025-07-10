@@ -79,6 +79,14 @@ export class GlobalSocket {
     this.messageHandlers[`${pluginID}-${messageID}`] = handler
   }
 
+  sendMessage(message: GenericData) {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify(message))
+    } else {
+      console.warn("WebSocket not open.")
+    }
+  }
+
   public removeMessageHandler(pluginID: string, messageID: string) {
     delete this.messageHandlers[`${pluginID}-${messageID}`]
   }
