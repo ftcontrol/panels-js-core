@@ -114,6 +114,11 @@ export async function buildPanelsPlugin(dir: string) {
 
     const managerEntry = config.manager
     await build({
+      plugins: [
+        svelte({
+          emitCss: false,
+        }),
+      ],
       build: {
         lib: {
           entry: managerEntry.filepath,

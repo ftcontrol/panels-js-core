@@ -35,9 +35,10 @@ export class GlobalSocket {
 
     this.socket.onmessage = (event) => {
       this.log = [...this.log, event.data].slice(-this.maxLogSize)
-      console.log(event.data)
 
       const data = JSON.parse(event.data)
+      console.log(data.pluginID, data.messageID, data.data)
+
       this.handleMessage(data.pluginID, data.messageID, data.data)
     }
 
