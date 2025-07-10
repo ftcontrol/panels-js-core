@@ -5,6 +5,7 @@ export type PluginConfig = {
   description: string
   version: string
   panelsVersion: string
+  pluginsCoreVersion: string
   author: string
   widgets: PanelsWidget[]
   manager: PanelsWidget

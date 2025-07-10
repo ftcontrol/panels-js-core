@@ -32,19 +32,22 @@
   }
 
   function positionOverlay() {
+    if (!triggerButton || !container) return
+
+    const triggerRect = triggerButton.getBoundingClientRect()
     const overlayRect = container.getBoundingClientRect()
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
 
-    let left = mouseX
-    let top = mouseY
+    let left = triggerRect.left
+    let top = triggerRect.bottom + 8
 
     if (left + overlayRect.width > viewportWidth) {
       left = viewportWidth - overlayRect.width - 10
     }
 
     if (top + overlayRect.height > viewportHeight) {
-      top = viewportHeight - overlayRect.height - 10
+      top = triggerRect.top - overlayRect.height
     }
 
     left = Math.max(10, left)
