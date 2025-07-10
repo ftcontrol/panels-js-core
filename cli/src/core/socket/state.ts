@@ -47,6 +47,7 @@ export class StateManager {
   updatePluginValue(id: string, key: string, newValue: any) {
     const entry = this.ensureExists(id, key)
     entry.value = newValue
+    console.log(`Plugin ${id} changed ${key} to ${newValue}`)
     entry.callbacks.forEach((callback) => callback(newValue))
   }
 
@@ -58,6 +59,7 @@ export class StateManager {
   onChange(id: string, key: string, callback: Callback) {
     const entry = this.ensureExists(id, key)
     entry.callbacks.push(callback)
+    if (entry.value == null) return
     callback(entry.value)
   }
 }
