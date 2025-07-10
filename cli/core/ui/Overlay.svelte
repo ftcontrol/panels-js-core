@@ -38,20 +38,22 @@
     const overlayRect = container.getBoundingClientRect()
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
+    const scrollX = window.scrollX
+    const scrollY = window.scrollY
 
-    let left = triggerRect.left
-    let top = triggerRect.bottom + 8
+    let left = triggerRect.left + scrollX
+    let top = triggerRect.bottom + scrollY + 8 // 8px gap
 
-    if (left + overlayRect.width > viewportWidth) {
-      left = viewportWidth - overlayRect.width - 10
+    if (left + overlayRect.width > scrollX + viewportWidth) {
+      left = scrollX + viewportWidth - overlayRect.width - 10
     }
 
-    if (top + overlayRect.height > viewportHeight) {
-      top = triggerRect.top - overlayRect.height
+    if (top + overlayRect.height > scrollY + viewportHeight) {
+      top = triggerRect.top + scrollY - overlayRect.height
     }
 
-    left = Math.max(10, left)
-    top = Math.max(10, top)
+    left = Math.max(scrollX + 10, left)
+    top = Math.max(scrollY + 10, top)
 
     container.style.left = `${left}px`
     container.style.top = `${top}px`
