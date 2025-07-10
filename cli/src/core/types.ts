@@ -1,6 +1,7 @@
 export type PluginConfig = {
   id: string
   name: string
+  letterName: string
   description: string
   version: string
   panelsVersion: string

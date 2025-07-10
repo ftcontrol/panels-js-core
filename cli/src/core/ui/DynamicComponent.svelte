@@ -39,7 +39,7 @@
 <style>
   .shadow-container {
     margin-bottom: 1rem;
-    border: 1px solid #ccc;
+    background-color: var(--bgMedium);
     padding: 1rem;
   }
 </style>
