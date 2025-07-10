@@ -36,8 +36,6 @@
 
 <style>
   .shadow-container {
-    margin-bottom: 1rem;
-    background-color: var(--bgMedium);
-    padding: 1rem;
+    background-color: transparent;
   }
 </style>
