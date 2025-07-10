@@ -1,18 +1,33 @@
+import { PluginSocket } from "./plugin"
+import { PluginManager } from "./manager"
 import type { GenericData, Handler } from "./types"
+import type { PluginInfo } from "../types"
+import { importFromSource } from ".."
 
 export class GlobalSocket {
   socket: WebSocket | null = null
   private readonly messageHandlers: Record<string, Handler> = {}
+  pluginManagers: Record<string, PluginManager> = {}
 
   log: string[] = []
 
   private maxLogSize: number = 100
 
-  init() {
+  init(plugins: PluginInfo[]) {
     this.log = []
     const host = window.location.hostname
     const wsUrl = `ws://${host}:8002`
     this.socket = new WebSocket(wsUrl)
+
+    plugins.forEach(async (it) => {
+      const { default: Manager } = await importFromSource(
+        it.details.manager.textContent || ""
+      )
+
+      this.pluginManagers[it.details.id] = new Manager(
+        new PluginSocket(it.details.id, this)
+      )
+    })
 
     this.socket.onopen = () => {
       console.log("WebSocket connection opened:", wsUrl)

@@ -63,6 +63,18 @@ export async function buildPanelsPlugin(dir: string) {
         }
       })
     }
+
+    if (fs.existsSync(distDir)) {
+      fs.readdirSync(distDir).forEach((file) => {
+        const filePath = path.join(distDir, file)
+        if (
+          !fs.lstatSync(filePath).isDirectory() &&
+          file.endsWith(".umd.cjs")
+        ) {
+          fs.unlinkSync(filePath)
+        }
+      })
+    }
   }
 
   async function buildAllWidgets(svelteFiles: string[]) {
@@ -99,6 +111,24 @@ export async function buildPanelsPlugin(dir: string) {
         },
       })
     }
+
+    const managerEntry = config.manager
+    await build({
+      build: {
+        lib: {
+          entry: managerEntry.filepath,
+          name: "Manager",
+          fileName: `${managerEntry.name}`,
+        },
+        rollupOptions: {
+          external: [],
+          output: {
+            globals: {},
+          },
+        },
+        emptyOutDir: false,
+      },
+    })
 
     fs.readdirSync(generatedDir).forEach((file) => {
       fs.unlinkSync(path.resolve(generatedDir, file))

@@ -6,12 +6,13 @@ export type PluginConfig = {
   panelsVersion: string
   author: string
   widgets: PanelsWidget[]
+  manager: PanelsWidget
 }
 
 export type PanelsWidget = {
   name: string
   filepath: string
-  textContent: string
+  textContent?: string
 }
 
 export type PluginInfo = {

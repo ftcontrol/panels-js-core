@@ -3,13 +3,13 @@
   import { unmount } from "svelte"
   import type { GlobalSocket } from "../socket/global"
   import { PluginSocket } from "../socket/plugin"
+  import { PluginManager } from "../socket/manager"
+  import { importFromSource } from ".."
   let {
-    isDev = false,
     globalSocket,
     textContent,
     id,
   }: {
-    isDev: boolean
     globalSocket: GlobalSocket
     textContent: string
     id: string
@@ -18,23 +18,14 @@
   let host: HTMLDivElement
   let instance: any
 
-  async function importFromSource(textContent: string) {
-    const blob = new Blob([textContent], { type: "text/javascript" })
-    const blobUrl = URL.createObjectURL(blob)
-    const module = await import(blobUrl)
-    URL.revokeObjectURL(blobUrl)
-    return module
-  }
-
   onMount(async () => {
-    var pluginsSocket = new PluginSocket(id, globalSocket)
     const { default: load } = await importFromSource(textContent)
 
     const shadow = host.attachShadow({ mode: "open" })
     const target = document.createElement("div")
     shadow.appendChild(target)
     instance = load(target, {
-      socket: pluginsSocket,
+      manager: globalSocket.pluginManagers[id],
     })
 
     return () => {
