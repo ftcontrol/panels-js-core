@@ -36,24 +36,37 @@
 
     const triggerRect = triggerButton.getBoundingClientRect()
     const overlayRect = container.getBoundingClientRect()
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
+
+    const containerStyle = getComputedStyle(container)
+    const positionType = containerStyle.position
+
     const scrollX = window.scrollX
     const scrollY = window.scrollY
+    const viewportWidth = document.documentElement.clientWidth
+    const viewportHeight = document.documentElement.clientHeight
 
     let left = triggerRect.left + scrollX
-    let top = triggerRect.bottom + scrollY + 8 // 8px gap
+    let top = triggerRect.bottom + scrollY + 8
 
     if (left + overlayRect.width > scrollX + viewportWidth) {
       left = scrollX + viewportWidth - overlayRect.width - 10
     }
 
     if (top + overlayRect.height > scrollY + viewportHeight) {
-      top = triggerRect.top + scrollY - overlayRect.height
+      top = triggerRect.top + scrollY - overlayRect.height - 8
     }
 
     left = Math.max(scrollX + 10, left)
     top = Math.max(scrollY + 10, top)
+
+    if (
+      positionType === "absolute" &&
+      container.offsetParent instanceof HTMLElement
+    ) {
+      const parentRect = container.offsetParent.getBoundingClientRect()
+      left -= parentRect.left + scrollX
+      top -= parentRect.top + scrollY
+    }
 
     container.style.left = `${left}px`
     container.style.top = `${top}px`
