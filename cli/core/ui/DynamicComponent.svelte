@@ -19,10 +19,7 @@
   onMount(async () => {
     const { default: load } = await importFromSource(textContent)
 
-    const shadow = host.attachShadow({ mode: "open" })
-    const target = document.createElement("div")
-    shadow.appendChild(target)
-    instance = load(target, {
+    instance = load(host, {
       manager: globalSocket.pluginManagers[id],
     })
 
@@ -32,11 +29,13 @@
   })
 </script>
 
-<div bind:this={host} class="shadow-container"></div>
+<div bind:this={host}></div>
 
 <style>
-  .shadow-container {
+  div {
     background-color: transparent;
-    padding: 1rem;
+    min-width: 100%;
+    display: inline-block;
+    max-height: 100%;
   }
 </style>

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onMount, onDestroy, tick } from "svelte"
+  import { onMount, tick } from "svelte"
+  import Portal from "svelte-portal"
   type Snippet<Props = any> = (props: Props) => any
   let {
     trigger,
@@ -109,18 +110,20 @@
   {@render trigger({ isOpen })}
 </div>
 
-{#if isOpen}
-  <div bind:this={container} class="overlay">
-    {@render overlay({ close })}
-  </div>
-{/if}
+<Portal>
+  {#if isOpen}
+    <div bind:this={container} class="overlay">
+      {@render overlay({ close })}
+    </div>
+  {/if}
+</Portal>
 
 <style>
   .overlay {
-    border: 1px solid red;
+    border: 1px solid var(--bgLight);
     width: fit-content;
     position: absolute;
-    background-color: var(--bgDark);
+    background-color: var(--bgMedium);
     z-index: 999;
     padding: 0.5rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
