@@ -1,4 +1,4 @@
-export type Handler = (data: GenericData) => void
+export type Handler = (data: any) => void
 
 export type GenericData = {
   pluginID: string

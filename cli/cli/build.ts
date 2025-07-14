@@ -2,7 +2,7 @@ import { build } from "vite"
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import fs from "fs"
 import path from "path"
-import type { PluginConfig } from "../src/types"
+import type { PluginConfig } from "../core/types"
 
 export async function buildPanelsPlugin(dir: string) {
   const widgetsDir = path.resolve(dir, "src/widgets")

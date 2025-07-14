@@ -25,3 +25,8 @@ export type PluginInfo = {
     [key: string]: unknown
   }
 }
+
+export type DevPluginEntry = {
+  pluginID: string
+  devURL: string
+}
