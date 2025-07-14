@@ -144,6 +144,10 @@
     z-index: 999;
     padding: 0.5rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+    max-height: 80vh;
+    max-width: 80vw;
+    overflow: auto;
   }
   .trigger {
     display: inline-block;
