@@ -15,7 +15,7 @@
   let mouseY = $state(0)
 
   let container: HTMLElement
-  let triggerButton: HTMLButtonElement
+  let triggerButton: HTMLElement
 
   function toggle(event?: MouseEvent) {
     if (event) {
@@ -93,9 +93,21 @@
   })
 </script>
 
-<button bind:this={triggerButton} onclick={toggle}>
+<div
+  bind:this={triggerButton}
+  class="trigger"
+  onclick={toggle}
+  role="button"
+  tabindex="0"
+  onkeydown={(e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault()
+      toggle()
+    }
+  }}
+>
   {@render trigger({ isOpen })}
-</button>
+</div>
 
 {#if isOpen}
   <div bind:this={container} class="overlay">
@@ -112,5 +124,9 @@
     z-index: 999;
     padding: 0.5rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  .trigger {
+    display: inline-block;
+    cursor: pointer;
   }
 </style>

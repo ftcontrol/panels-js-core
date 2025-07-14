@@ -3,31 +3,41 @@
 
   let {
     disabled = false,
+    transparent = false,
     onclick = () => {},
     children,
   }: {
-    disabled?: boolean | null | undefined
+    disabled: boolean
+    transparent: boolean
     onclick?: () => void
     children: Snippet
   } = $props()
 </script>
 
-<button {disabled} {onclick}>
+<button {disabled} class:transparent {onclick}>
   {@render children()}
 </button>
 
 <style>
   button {
     border: none;
-    background-color: transparent;
     margin: 0;
     background-color: var(--bgLight);
     color: var(--text);
     padding: 1em 2em;
-    flex-grow: 1;
     border-radius: 10px;
     cursor: pointer;
-    text-wrap: nowrap;
+    flex-grow: 1;
+
+    justify-content: center;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+  button.transparent {
+    background-color: transparent;
+    padding: 0;
   }
   button:disabled {
     opacity: 0.5;

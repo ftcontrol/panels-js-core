@@ -37,5 +37,6 @@
 <style>
   .shadow-container {
     background-color: transparent;
+    padding: 1rem;
   }
 </style>
