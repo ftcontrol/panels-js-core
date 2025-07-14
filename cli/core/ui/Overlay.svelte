@@ -88,8 +88,25 @@
 
   onMount(() => {
     window.addEventListener("click", onClickOutside, true)
+
+    const updatePosition = () => {
+      if (isOpen) positionOverlay()
+    }
+
+    let observer = new MutationObserver(updatePosition)
+    if (triggerButton)
+      observer.observe(triggerButton, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      })
+
+    window.addEventListener("resize", updatePosition)
+
     return () => {
       window.removeEventListener("click", onClickOutside, true)
+      window.removeEventListener("resize", updatePosition)
+      observer.disconnect()
     }
   })
 </script>
