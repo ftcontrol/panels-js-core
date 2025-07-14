@@ -31,6 +31,8 @@ export class GlobalSocket {
       this.pluginManagers[it.details.id] = new Manager(
         new PluginSocket(it.details.id, this)
       )
+
+      this.pluginManagers[it.details.id]?.onInit()
     })
 
     await new Promise<void>((resolve, reject) => {

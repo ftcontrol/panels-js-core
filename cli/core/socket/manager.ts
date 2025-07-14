@@ -11,7 +11,6 @@ export abstract class PluginManager {
       pluginSocket.id,
       pluginSocket.socket.state
     )
-    this.onInit()
   }
 
   abstract onInit(): void
