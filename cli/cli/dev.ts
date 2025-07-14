@@ -24,6 +24,19 @@ export function devServer(
     if (!server) {
       const serve = sirv(outDir, { dev: true })
       server = http.createServer((req, res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*")
+        res.setHeader(
+          "Access-Control-Allow-Methods",
+          "GET,HEAD,PUT,PATCH,POST,DELETE"
+        )
+        res.setHeader("Access-Control-Allow-Headers", "*")
+
+        if (req.method === "OPTIONS") {
+          res.writeHead(204)
+          res.end()
+          return
+        }
+
         serve(req, res)
       })
 
