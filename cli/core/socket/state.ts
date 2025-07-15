@@ -1,4 +1,5 @@
 export type Callback = (newValue: any) => void
+export type MutateCallback = (currentValue: any) => any
 
 interface PluginValue {
   value: any
@@ -22,7 +23,11 @@ export class PluginStateManager {
   }
 
   onChange(key: string, callback: Callback) {
-    this.globalState.onChange(this.id, key, callback)
+    this.globalState.onPluginValueChange(this.id, key, callback)
+  }
+
+  mutate(key: string, callback: MutateCallback) {
+    this.globalState.mutatePluginValue(this.id, key, callback)
   }
 }
 
@@ -56,10 +61,16 @@ export class StateManager {
     return entry.value
   }
 
-  onChange(id: string, key: string, callback: Callback) {
+  onPluginValueChange(id: string, key: string, callback: Callback) {
     const entry = this.ensureExists(id, key)
     entry.callbacks.push(callback)
     if (entry.value == null) return
     callback(entry.value)
+  }
+
+  mutatePluginValue(id: string, key: string, callback: MutateCallback) {
+    const entry = this.ensureExists(id, key)
+    const newValue = callback(entry.value)
+    this.updatePluginValue(id, key, newValue)
   }
 }
