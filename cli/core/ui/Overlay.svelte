@@ -22,6 +22,7 @@
     if (event) {
       mouseX = event.clientX
       mouseY = event.clientY
+      event.preventDefault()
     }
     isOpen = !isOpen
 
@@ -80,6 +81,8 @@
   function onClickOutside(event: MouseEvent) {
     if (!isOpen || !container) return
 
+    event.preventDefault()
+
     const path = event.composedPath()
     if (path.includes(container) || path.includes(triggerButton)) return
 
@@ -115,6 +118,11 @@
   bind:this={triggerButton}
   class="trigger"
   onclick={toggle}
+  onmousedown={(event: MouseEvent) => {
+    if (event.detail > 1) {
+      event.preventDefault()
+    }
+  }}
   role="button"
   tabindex="0"
   onkeydown={(e) => {
@@ -150,7 +158,7 @@
     overflow: auto;
   }
   .trigger {
-    display: inline-block;
+    display: block;
     cursor: pointer;
   }
 </style>
