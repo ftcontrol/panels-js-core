@@ -5,9 +5,11 @@
   let {
     trigger,
     overlay,
+    disablePadding = false,
   }: {
     trigger: Snippet<{ isOpen: boolean }>
     overlay: Snippet<{ close: () => void }>
+    disablePadding?: boolean
   } = $props()
 
   let isOpen = $state(false)
@@ -137,7 +139,7 @@
 
 <Portal>
   {#if isOpen}
-    <div bind:this={container} class="overlay">
+    <div bind:this={container} class="overlay" class:padding={disablePadding}>
       {@render overlay({ close })}
     </div>
   {/if}
@@ -150,12 +152,14 @@
     position: absolute;
     background-color: var(--bgMedium);
     z-index: 999;
-    padding: 0.5rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
     max-height: 80vh;
     max-width: 80vw;
     overflow: auto;
+  }
+  .overlay.padding {
+    padding: 0.5rem;
   }
   .trigger {
     display: block;
