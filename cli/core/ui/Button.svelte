@@ -7,8 +7,8 @@
     onclick = () => {},
     children,
   }: {
-    disabled: boolean
-    transparent: boolean
+    disabled?: boolean
+    transparent?: boolean
     onclick?: () => void
     children: Snippet
   } = $props()
