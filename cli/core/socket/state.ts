@@ -1,7 +1,7 @@
 export type Callback = (newValue: any) => void
 export type MutateCallback = (currentValue: any) => any
 
-interface PluginValue {
+export interface PluginValue {
   value: any
   callbacks: Callback[]
 }

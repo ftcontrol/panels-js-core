@@ -5,8 +5,10 @@ import DynamicComponent from "./core/ui/DynamicComponent.svelte"
 import Overlay from "./core/ui/Overlay.svelte"
 import Toggle from "./core/ui/Toggle.svelte"
 import type { PluginConfig, PluginInfo, DevPluginEntry } from "./core/types"
+import type { PluginValue } from "./core/socket/state"
+import { PluginStateManager } from "./core/socket/state"
 
-export type { PluginConfig, PluginInfo, DevPluginEntry }
+export type { PluginConfig, PluginInfo, DevPluginEntry, PluginValue }
 export {
   PluginManager,
   Button,
@@ -14,4 +16,5 @@ export {
   Overlay,
   GlobalSocket,
   Toggle,
+  PluginStateManager,
 }
