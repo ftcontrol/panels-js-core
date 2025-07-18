@@ -7,10 +7,7 @@ export abstract class PluginManager {
 
   constructor(pluginSocket: PluginSocket) {
     this.socket = pluginSocket
-    this.state = new PluginStateManager(
-      pluginSocket.id,
-      pluginSocket.socket.state
-    )
+    this.state = new PluginStateManager(pluginSocket.id)
   }
 
   abstract onInit(): void

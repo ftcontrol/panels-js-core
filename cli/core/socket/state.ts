@@ -7,70 +7,48 @@ interface PluginValue {
 }
 
 export class PluginStateManager {
+  data: Record<string, PluginValue> = {}
+
   id: string
-  globalState: StateManager
-  constructor(id: string, globalState: StateManager) {
+
+  constructor(id: string) {
     this.id = id
-    this.globalState = globalState
+    this.data = {}
   }
 
-  update(key: string, newValue: any) {
-    this.globalState.updatePluginValue(this.id, key, newValue)
-  }
-
-  get(key: string) {
-    return this.globalState.getPluginValue(this.id, key)
-  }
-
-  onChange(key: string, callback: Callback) {
-    this.globalState.onPluginValueChange(this.id, key, callback)
-  }
-
-  mutate(key: string, callback: MutateCallback) {
-    this.globalState.mutatePluginValue(this.id, key, callback)
-  }
-}
-
-export class StateManager {
-  private data: Record<string, Record<string, PluginValue>> = {}
-
-  private ensureExists(id: string, key: string): PluginValue {
-    if (!this.data[id]) {
-      this.data[id] = {}
-    }
-
-    if (!this.data[id][key]) {
-      this.data[id][key] = {
+  private ensureExists(key: string): PluginValue {
+    if (!this.data[key]) {
+      this.data[key] = {
         value: null,
         callbacks: [],
       }
     }
 
-    return this.data[id][key]
+    return this.data[key]
   }
 
-  updatePluginValue(id: string, key: string, newValue: any) {
-    const entry = this.ensureExists(id, key)
+  update(key: string, newValue: any) {
+    const entry = this.ensureExists(key)
     entry.value = newValue
-    console.log(`Plugin ${id} changed ${key} to ${newValue}`)
+    console.log(`Plugin ${this.id} changed ${key} to ${newValue}`)
     entry.callbacks.forEach((callback) => callback(newValue))
   }
 
-  getPluginValue(id: string, key: string) {
-    const entry = this.ensureExists(id, key)
+  get(key: string) {
+    const entry = this.ensureExists(key)
     return entry.value
   }
 
-  onPluginValueChange(id: string, key: string, callback: Callback) {
-    const entry = this.ensureExists(id, key)
+  onChange(key: string, callback: Callback) {
+    const entry = this.ensureExists(key)
     entry.callbacks.push(callback)
     if (entry.value == null) return
     callback(entry.value)
   }
 
-  mutatePluginValue(id: string, key: string, callback: MutateCallback) {
-    const entry = this.ensureExists(id, key)
+  mutate(key: string, callback: MutateCallback) {
+    const entry = this.ensureExists(key)
     const newValue = callback(entry.value)
-    this.updatePluginValue(id, key, newValue)
+    this.update(key, newValue)
   }
 }

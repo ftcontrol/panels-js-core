@@ -2,15 +2,12 @@ import { PluginSocket } from "./plugin"
 import { PluginManager } from "./manager"
 import type { GenericData, Handler } from "./types"
 import type { PluginInfo } from "../types"
-import { StateManager } from "./state"
 import { importFromSource } from "./source"
 
 export class GlobalSocket {
   socket: WebSocket | null = null
   private readonly messageHandlers: Record<string, Handler> = {}
   pluginManagers: Record<string, PluginManager> = {}
-
-  state = new StateManager()
 
   log: string[] = []
 
