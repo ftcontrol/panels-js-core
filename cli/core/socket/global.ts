@@ -13,7 +13,7 @@ export class GlobalSocket {
 
   private maxLogSize: number = 100
 
-  async init(plugins: PluginInfo[]) {
+  async init(plugins: PluginInfo[], onclose: () => void) {
     this.log = []
     const host = window.location.hostname
     const wsUrl = `ws://${host}:8002`
@@ -40,6 +40,7 @@ export class GlobalSocket {
       }
       socket.onerror = (error) => {
         console.error("WebSocket error:", error)
+        onclose()
         reject(error)
       }
     })
@@ -59,10 +60,12 @@ export class GlobalSocket {
 
     socket.onerror = (error) => {
       console.error("WebSocket error:", error)
+      onclose()
     }
 
     socket.onclose = () => {
       console.log("WebSocket connection closed")
+      onclose()
     }
   }
 
