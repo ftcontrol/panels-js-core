@@ -80,16 +80,31 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
     }
   }
 
-  async function buildAllWidgets(svelteFiles: string[]) {
-    clearDist()
-    writeConfigJsonToDist(config)
+  function createTsWrapper(name: string, filepath: string) {
+    const tsFilename = `${name}.ts`
+    const tsFilePath = path.resolve(generatedDir, tsFilename)
+    const sanitizedName = name.replace(/ /g, "_")
 
-    for (const file of svelteFiles) {
-      const name = file.replace(/\.svelte$/, "")
+    const tsContent = `import { mount } from "svelte"
+import ${sanitizedName} from "${path
+      .relative(generatedDir, path.resolve(dir, filepath))
+      .replace(/\\/g, "/")}"
+
+export default function load(target: HTMLElement, props: any) {
+  return mount(${sanitizedName}, {
+    target: target,
+    props: props,
+  })
+}
+`
+    fs.writeFileSync(tsFilePath, tsContent, "utf-8")
+  }
+
+  async function buildAllComponents(names: string[]) {
+    for (const name of names) {
       const entryPath = path.resolve(generatedDir, `${name}.ts`)
 
-      console.log(`Building widget: ${name}`)
-
+      console.log(`Building component: ${name}`)
       console.log(entryPath)
 
       await build({
@@ -114,6 +129,38 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
           emptyOutDir: false,
         },
       })
+    }
+  }
+
+  config.widgets.forEach(({ name, filepath }) => {
+    createTsWrapper(name, filepath)
+  })
+
+  if (config.docs?.homepage) {
+    createTsWrapper(config.docs.homepage.name, config.docs.homepage.filepath)
+  }
+
+  if (Array.isArray(config.docs?.chapters)) {
+    config.docs.chapters.forEach(({ name, filepath }) => {
+      createTsWrapper(name, filepath)
+    })
+  }
+
+  try {
+    clearDist()
+    writeConfigJsonToDist(config)
+
+    await buildAllComponents(config.widgets.map((w) => w.name))
+
+    if (config.docs?.homepage) {
+      await buildAllComponents([config.docs.homepage.name])
+    }
+
+    if (
+      Array.isArray(config.docs?.chapters) &&
+      config.docs.chapters.length > 0
+    ) {
+      await buildAllComponents(config.docs.chapters.map((c) => c.name))
     }
 
     const managerEntry = config.manager
@@ -144,30 +191,8 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
     })
 
     clearUdmDist()
-  }
 
-  const widgets = config.widgets
-
-  widgets.forEach(({ name, filepath }) => {
-    const tsFilename = `${name}.ts`
-    const tsFilePath = path.resolve(generatedDir, tsFilename)
-
-    const tsContent = `import { mount } from "svelte"
-import ${name.replace(" ", "_")} from "${path.relative(generatedDir, path.resolve(dir, filepath)).replace(/\\/g, "/")}"
-
-export default function load(target: HTMLElement, props: any) {
-  return mount(${name.replace(" ", "_")}, {
-    target: target,
-    props: props,
-  })
-}
-`
-    fs.writeFileSync(tsFilePath, tsContent, "utf-8")
-  })
-
-  try {
-    await buildAllWidgets(widgets.map((w) => w.name))
-    console.log("All widgets built!")
+    console.log("All components built!")
   } catch (err) {
     console.error(err)
     throw err

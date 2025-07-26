@@ -9,6 +9,12 @@ export type PluginConfig = {
   author: string
   widgets: PanelsWidget[]
   manager: PanelsWidget
+  docs: PluginDocs
+}
+
+export type PluginDocs = {
+  homepage: PanelsWidget
+  chapters: PanelsWidget[]
 }
 
 export type PanelsWidget = {
