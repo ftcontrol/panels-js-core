@@ -107,6 +107,7 @@ export async function buildPanelsPlugin(dir: string) {
               globals: {},
             },
           },
+          minify: false,
           emptyOutDir: false,
         },
       })
