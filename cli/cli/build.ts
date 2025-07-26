@@ -4,11 +4,14 @@ import fs from "fs"
 import path from "path"
 import type { PluginConfig } from "../core/types"
 
-export async function buildPanelsPlugin(dir: string) {
-  const widgetsDir = path.resolve(dir, "src/widgets")
+export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
   const generatedDir = path.resolve(dir, ".panels")
   const distDir = path.resolve(dir, "dist")
   const distWidgetsDir = path.resolve(dir, "dist/widgets")
+
+  if (!fs.existsSync(generatedDir)) {
+    fs.mkdirSync(generatedDir)
+  }
 
   const configPath = path.resolve(dir, "config.ts")
 
@@ -139,13 +142,8 @@ export async function buildPanelsPlugin(dir: string) {
     fs.readdirSync(generatedDir).forEach((file) => {
       fs.unlinkSync(path.resolve(generatedDir, file))
     })
-    fs.rmdirSync(generatedDir)
 
     clearUdmDist()
-  }
-
-  if (!fs.existsSync(generatedDir)) {
-    fs.mkdirSync(generatedDir)
   }
 
   const widgets = config.widgets
@@ -167,10 +165,13 @@ export default function load(target: HTMLElement, props: any) {
     fs.writeFileSync(tsFilePath, tsContent, "utf-8")
   })
 
-  buildAllWidgets(widgets.map((w) => w.name))
-    .then(() => console.log("All widgets built!"))
-    .catch((err) => {
-      console.error(err)
-      process.exit(1)
-    })
+  try {
+    await buildAllWidgets(widgets.map((w) => w.name))
+    console.log("All widgets built!")
+  } catch (err) {
+    console.error(err)
+    throw err
+  }
+
+  return config
 }

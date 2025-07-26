@@ -3,53 +3,106 @@ import * as http from "http"
 import sirv from "sirv"
 import { buildPanelsPlugin } from "./build"
 
-export function devServer(
+export async function devServer(
   dir: string,
   port = 3000,
   outDir = "./dist/",
   watchDir = "./src/"
 ) {
-  let isBuilding = false
   let server: http.Server | null = null
+  let debounceTimer: NodeJS.Timeout | null = null
+  let isBuilding = false
+  let pendingBuild = false
+  let currentBuildToken = 0
 
   const runBuild = async () => {
-    if (isBuilding) return
+    if (isBuilding) {
+      pendingBuild = true
+      return
+    }
+
     isBuilding = true
-    console.log("[devServer] Building...")
-    await buildPanelsPlugin(dir)
+    const thisBuildToken = ++currentBuildToken
+    console.log(`[devServer] 🛠️ Building... (token: ${thisBuildToken})`)
 
-    console.log("[devServer] Build succeeded")
+    try {
+      const config = await buildPanelsPlugin(dir)
 
-    isBuilding = false
-    if (!server) {
-      const serve = sirv(outDir, { dev: true })
-      server = http.createServer((req, res) => {
-        res.setHeader("Access-Control-Allow-Origin", "*")
-        res.setHeader(
-          "Access-Control-Allow-Methods",
-          "GET,HEAD,PUT,PATCH,POST,DELETE"
+      if (thisBuildToken === currentBuildToken) {
+        console.log(`[devServer] ✅ Build succeeded (token: ${thisBuildToken})`)
+        console.log("[devServer] ✅ Add this to your config")
+        console.log(`
+import com.bylazar.panels.DevPluginEntry
+import com.bylazar.panels.PanelsConfig
+class Config : PanelsConfig() {
+  override var devPlugins: List<DevPluginEntry> = listOf(
+    DevPluginEntry(
+        pluginID = "${config.id}",
+        devURL = "http://localhost:${port}"
+    )
+  )
+}
+        `)
+      } else {
+        console.log(
+          `[devServer] ⚠️ Build finished but was outdated (token: ${thisBuildToken}, current: ${currentBuildToken}) — skipped`
         )
-        res.setHeader("Access-Control-Allow-Headers", "*")
-
-        if (req.method === "OPTIONS") {
-          res.writeHead(204)
-          res.end()
-          return
-        }
-
-        serve(req, res)
-      })
-
-      server.listen(port, () => {
-        console.log(`[devServer] Server running at http://localhost:${port}`)
-      })
+      }
+    } catch (err) {
+      if (thisBuildToken === currentBuildToken) {
+        console.error(
+          `[devServer] ❌ Build failed (token: ${thisBuildToken}):`,
+          err
+        )
+      } else {
+        console.log(
+          `[devServer] ⚠️ Failed outdated build ignored (token: ${thisBuildToken}, current: ${currentBuildToken})`
+        )
+      }
+    } finally {
+      isBuilding = false
+      if (pendingBuild) {
+        pendingBuild = false
+        setImmediate(() => runBuild())
+      }
     }
   }
 
-  console.log(`[devServer] Watching "${watchDir}" for changes...`)
-  chokidar.watch(watchDir, { ignoreInitial: true }).on("all", () => {
-    runBuild()
-  })
+  const triggerBuild = () => {
+    if (debounceTimer) clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(async () => {
+      await runBuild()
+    }, 150)
+  }
 
-  runBuild()
+  chokidar
+    .watch([watchDir, "./config.ts"], { ignoreInitial: true })
+    .on("all", triggerBuild)
+
+  if (!server) {
+    const serve = sirv(outDir, { dev: true })
+    server = http.createServer((req, res) => {
+      res.setHeader("Access-Control-Allow-Origin", "*")
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET,HEAD,PUT,PATCH,POST,DELETE"
+      )
+      res.setHeader("Access-Control-Allow-Headers", "*")
+
+      if (req.method === "OPTIONS") {
+        res.writeHead(204)
+        res.end()
+        return
+      }
+
+      serve(req, res)
+    })
+
+    server.listen(port, () => {
+      console.log(`[devServer] 🚀 Server running at http://localhost:${port}`)
+    })
+  }
+
+  console.log(`[devServer] 👀 Watching "${watchDir}" and "config.ts"...`)
+  await runBuild()
 }
