@@ -30,19 +30,32 @@ export async function devServer(
 
       if (thisBuildToken === currentBuildToken) {
         console.log(`[devServer] ✅ Build succeeded (token: ${thisBuildToken})`)
-        console.log("[devServer] ✅ Add this to your config")
+        const c = {
+          reset: "\x1b[0m",
+          keyword: "\x1b[35m", // magenta for class, override, var, etc.
+          type: "\x1b[36m", // cyan for types like List, PanelsConfig
+          string: "\x1b[32m", // green for strings
+          property: "\x1b[33m", // yellow for property names
+          value: "\x1b[93m", // bright yellow for values
+          operator: "\x1b[37m", // white for operators
+          comment: "\x1b[90m", // gray for comments
+          import: "\x1b[94m", // bright blue for import/package names
+          punctuation: "\x1b[37m", // white for punctuation
+        }
+
         console.log(`
-import com.bylazar.panels.DevPluginEntry
-import com.bylazar.panels.PanelsConfig
-class Config : PanelsConfig() {
-  override var devPlugins: List<DevPluginEntry> = listOf(
-    DevPluginEntry(
-        pluginID = "${config.id}",
-        devURL = "http://localhost:${port}"
-    )
-  )
-}
-        `)
+${c.keyword}import${c.reset} ${c.import}com.bylazar.panels.DevPluginEntry${c.reset}
+${c.keyword}import${c.reset} ${c.import}com.bylazar.panels.PanelsConfig${c.reset}
+${c.keyword}class${c.reset} ${c.type}Config${c.reset} ${c.punctuation}:${c.reset} ${c.type}PanelsConfig${c.punctuation}()${c.reset} ${c.punctuation}{${c.reset}
+  ${c.keyword}override${c.reset} ${c.keyword}var${c.reset} ${c.property}devPlugins${c.reset}${c.punctuation}:${c.reset} ${c.type}List${c.punctuation}<${c.type}DevPluginEntry${c.punctuation}>${c.reset} ${c.operator}=${c.reset} ${c.type}listOf${c.punctuation}(${c.reset}
+    ${c.type}DevPluginEntry${c.punctuation}(${c.reset}
+        ${c.property}pluginID${c.reset} ${c.operator}=${c.reset} ${c.string}"${config.id}"${c.reset}${c.punctuation},${c.reset}
+        ${c.property}devURL${c.reset} ${c.operator}=${c.reset} ${c.string}"http://localhost:${port}"${c.reset}
+    ${c.punctuation})${c.reset}
+  ${c.punctuation})${c.reset}
+${c.punctuation}}${c.reset}
+`)
+        console.log("[devServer] ✅ Add this to your config")
       } else {
         console.log(
           `[devServer] ⚠️ Build finished but was outdated (token: ${thisBuildToken}, current: ${currentBuildToken}) — skipped`
