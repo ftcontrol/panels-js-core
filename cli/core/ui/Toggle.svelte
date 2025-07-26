@@ -1,27 +1,31 @@
 <script lang="ts">
-  import { tick, onMount } from "svelte"
+  import { onMount, tick } from "svelte"
 
   type Snippet<Props = any> = (props: Props) => any
 
   let {
     trigger,
     content,
+    defaultOpen = false,
   }: {
     trigger: Snippet<{ isOpen: boolean }>
     content: Snippet<{ close: () => void }>
+    defaultOpen?: boolean
   } = $props()
 
-  let isOpen = $state(false)
-  let shouldRender = $state(false)
+  let isOpen = $state(defaultOpen)
+  let shouldRender = $state(defaultOpen)
   let container: HTMLDivElement | null = null
 
-  function toggle(event?: MouseEvent | KeyboardEvent) {
-    event?.preventDefault()
-    if (isOpen) {
-      close()
-    } else {
-      open()
+  async function open() {
+    shouldRender = true
+    await tick()
+
+    if (container) {
+      container.style.height = container.scrollHeight + "px"
     }
+
+    isOpen = true
   }
 
   function close() {
@@ -30,37 +34,42 @@
       container.offsetHeight
       container.style.height = "0"
     }
+
     isOpen = false
   }
 
-  function open() {
-    shouldRender = true
-    tick().then(() => {
-      if (container) {
-        container.style.height = container.scrollHeight + "px"
-      }
-    })
-    isOpen = true
+  function toggle(event?: MouseEvent | KeyboardEvent) {
+    event?.preventDefault()
+    isOpen ? close() : open()
   }
 
   function onTransitionEnd() {
-    if (!isOpen) {
-      shouldRender = false
-    } else if (container) {
-      container.style.height = "auto"
+    if (container) {
+      if (isOpen) {
+        container.style.height = "auto"
+      } else {
+        shouldRender = false
+      }
     }
   }
+
+  onMount(async () => {
+    if (defaultOpen) {
+      await tick()
+      if (container) {
+        container.style.height = "auto"
+      }
+    }
+  })
 </script>
 
 <div
   class="trigger"
-  onclick={toggle}
   role="button"
   tabindex="0"
-  onmousedown={(event: MouseEvent) => {
-    if (event.detail > 1) event.preventDefault()
-  }}
-  onkeydown={(e: KeyboardEvent) => {
+  onclick={toggle}
+  onmousedown={(e) => e.detail > 1 && e.preventDefault()}
+  onkeydown={(e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
       toggle()
@@ -73,10 +82,9 @@
 {#if shouldRender}
   <div
     bind:this={container}
-    class="content-container"
-    data-open={isOpen}
+    class="accordion"
     ontransitionend={onTransitionEnd}
-    style="height: 0; overflow: hidden"
+    style="height: 0; overflow: hidden;"
   >
     {@render content({ close })}
   </div>
@@ -84,19 +92,12 @@
 
 <style>
   .trigger {
-    display: block;
     cursor: pointer;
     user-select: none;
   }
 
-  .content-container {
-    transition:
-      height 250ms ease,
-      opacity 250ms ease;
-    opacity: 0;
-  }
-
-  .content-container[data-open="true"] {
-    opacity: 1;
+  .accordion {
+    transition: height 100ms ease;
+    overflow: hidden;
   }
 </style>
