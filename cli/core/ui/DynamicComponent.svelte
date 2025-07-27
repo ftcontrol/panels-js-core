@@ -3,12 +3,15 @@
   import { unmount } from "svelte"
   import type { GlobalSocket } from "../socket/global"
   import { importFromSource } from "../socket/source"
+  import type { PluginInfo } from "../types"
   let {
     globalSocket,
+    info,
     textContent,
     id,
   }: {
     globalSocket: GlobalSocket
+    info: PluginInfo
     textContent: string
     id: string
   } = $props()
@@ -21,6 +24,7 @@
 
     instance = load(host, {
       manager: globalSocket.pluginManagers[id],
+      info: info,
     })
 
     return () => {

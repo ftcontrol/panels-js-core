@@ -3,53 +3,56 @@ import { svelte } from "@sveltejs/vite-plugin-svelte"
 import fs from "fs"
 import path from "path"
 import type { PluginConfig } from "../core/types"
+
 export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
   const generatedDir = path.resolve(dir, ".panels")
   const distDir = path.resolve(dir, "dist")
   const distWidgetsDir = path.resolve(dir, "dist/widgets")
   const distDocsDir = path.resolve(dir, "dist/docs")
+  const distNavletsDir = path.resolve(dir, "dist/navlets")
 
   if (!fs.existsSync(generatedDir)) {
     fs.mkdirSync(generatedDir)
   }
 
   const configPath = path.resolve(dir, "config.ts")
-
   const module = await import(/* @vite-ignore */ configPath)
-
   const config = module.config as PluginConfig
 
   console.log(config)
 
   const widgetNames = config.widgets.map((w) => w.name)
-  const duplicates = widgetNames.filter(
+  const widgetDuplicates = widgetNames.filter(
     (name, i, arr) => arr.indexOf(name) !== i
   )
-
-  if (duplicates.length > 0) {
+  if (widgetDuplicates.length > 0) {
     throw new Error(
-      `Duplicate widget names found in config: ${[...new Set(duplicates)].join(", ")}`
+      `Duplicate widget names found in config: ${[...new Set(widgetDuplicates)].join(", ")}`
+    )
+  }
+
+  const navlets = config.navlets ?? []
+  const navletNames = navlets.map((n) => n.name)
+  const navletDuplicates = navletNames.filter(
+    (name, i, arr) => arr.indexOf(name) !== i
+  )
+  if (navletDuplicates.length > 0) {
+    throw new Error(
+      `Duplicate navlet names found in config: ${[...new Set(navletDuplicates)].join(", ")}`
     )
   }
 
   const docsNames = []
+  docsNames.push(config.docs.homepage.name)
 
-  if (config.docs?.homepage) {
-    docsNames.push(config.docs.homepage.name)
-  }
-
-  if (Array.isArray(config.docs?.chapters)) {
-    docsNames.push(...config.docs.chapters.map((c) => c.name))
-  }
+  docsNames.push(...config.docs.chapters.map((c) => c.name))
 
   const docsDuplicates = docsNames.filter(
     (name, i, arr) => arr.indexOf(name) !== i
   )
   if (docsDuplicates.length > 0) {
     throw new Error(
-      `Duplicate doc names found between homepage and chapters: ${[
-        ...new Set(docsDuplicates),
-      ].join(", ")}`
+      `Duplicate doc names found between homepage and chapters: ${[...new Set(docsDuplicates)].join(", ")}`
     )
   }
 
@@ -57,7 +60,6 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
     if (!fs.existsSync(distDir)) {
       fs.mkdirSync(distDir, { recursive: true })
     }
-
     const jsonPath = path.resolve(distDir, "config.json")
     fs.writeFileSync(jsonPath, JSON.stringify(config, null, 2), "utf-8")
   }
@@ -75,7 +77,7 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
     }
   }
 
-  function clearUdmDist() {
+  function clearUmdDist() {
     const clearUmdFilesInDir = (dirPath: string) => {
       if (fs.existsSync(dirPath)) {
         fs.readdirSync(dirPath).forEach((file) => {
@@ -89,9 +91,9 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
         })
       }
     }
-
     clearUmdFilesInDir(distWidgetsDir)
     clearUmdFilesInDir(distDocsDir)
+    clearUmdFilesInDir(distNavletsDir)
     clearUmdFilesInDir(distDir)
   }
 
@@ -150,6 +152,10 @@ export default function load(target: HTMLElement, props: any) {
     createTsWrapper(name, filepath)
   })
 
+  navlets.forEach(({ name, filepath }) => {
+    createTsWrapper(name, filepath)
+  })
+
   createTsWrapper(config.docs.homepage.name, config.docs.homepage.filepath)
 
   config.docs.chapters.forEach(({ name, filepath }) => {
@@ -165,7 +171,16 @@ export default function load(target: HTMLElement, props: any) {
       "widgets"
     )
 
-    await buildAllComponents([config.docs.homepage.name], "docs")
+    if (navlets.length > 0) {
+      await buildAllComponents(
+        navlets.map((n) => n.name),
+        "navlets"
+      )
+    }
+
+    if (config.docs.homepage) {
+      await buildAllComponents([config.docs.homepage.name], "docs")
+    }
 
     if (config.docs.chapters.length > 0) {
       await buildAllComponents(
@@ -201,7 +216,7 @@ export default function load(target: HTMLElement, props: any) {
       fs.unlinkSync(path.resolve(generatedDir, file))
     })
 
-    clearUdmDist()
+    clearUmdDist()
 
     console.log("All components built!")
   } catch (err) {

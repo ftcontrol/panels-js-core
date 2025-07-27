@@ -8,6 +8,7 @@ export type PluginConfig = {
   pluginsCoreVersion: string
   author: string
   widgets: PanelsWidget[]
+  navlets: PanelsWidget[]
   manager: PanelsWidget
   docs: PluginDocs
 }
