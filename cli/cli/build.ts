@@ -77,6 +77,17 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
     }
   }
 
+  function clearGeneratedPanelsDir() {
+    if (fs.existsSync(generatedDir)) {
+      fs.readdirSync(generatedDir).forEach((file) => {
+        const filePath = path.join(generatedDir, file)
+        if (fs.lstatSync(filePath).isFile()) {
+          fs.unlinkSync(filePath)
+        }
+      })
+    }
+  }
+
   function clearUmdDist() {
     const clearUmdFilesInDir = (dirPath: string) => {
       if (fs.existsSync(dirPath)) {
@@ -212,9 +223,7 @@ export default function load(target: HTMLElement, props: any) {
       },
     })
 
-    fs.readdirSync(generatedDir).forEach((file) => {
-      fs.unlinkSync(path.resolve(generatedDir, file))
-    })
+    clearGeneratedPanelsDir()
 
     clearUmdDist()
 
