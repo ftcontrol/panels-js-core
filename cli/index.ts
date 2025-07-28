@@ -8,6 +8,7 @@ import Toggle from "./core/ui/Toggle.svelte"
 import type { PluginConfig, PluginInfo, PanelsWidget } from "./core/types"
 import type { PluginValue } from "./core/socket/state"
 import { PluginStateManager } from "./core/socket/state"
+import { setCookie, getCookie } from "./core/cookies"
 
 export type { PluginConfig, PluginInfo, PluginValue, PanelsWidget }
 export {
@@ -19,4 +20,6 @@ export {
   GlobalSocket,
   Toggle,
   PluginStateManager,
+  setCookie,
+  getCookie,
 }
