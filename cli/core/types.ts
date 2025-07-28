@@ -3,8 +3,8 @@ export type PluginConfig = {
   name: string
   letterName: string
   description: string
+  websiteURL: string
   version: string
-  panelsVersion: string
   pluginsCoreVersion: string
   author: string
   widgets: PanelsWidget[]

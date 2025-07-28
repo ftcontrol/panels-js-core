@@ -26,7 +26,8 @@ export class GlobalSocket {
       )
 
       this.pluginManagers[it.details.id] = new Manager(
-        new PluginSocket(it.details.id, this)
+        new PluginSocket(it.details.id, this),
+        it.details
       )
 
       this.pluginManagers[it.details.id]?.onInit()
