@@ -3,6 +3,7 @@ import { svelte } from "@sveltejs/vite-plugin-svelte"
 import fs from "fs"
 import path from "path"
 import type { PluginConfig } from "../core/types"
+import { checkPlugin } from "./check"
 
 export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
   const generatedDir = path.resolve(dir, ".panels")
@@ -18,6 +19,12 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
   const configPath = path.resolve(dir, "config.ts")
   const module = await import(/* @vite-ignore */ configPath)
   const config = module.config as PluginConfig
+
+  const isValid = await checkPlugin(dir)
+  if (!isValid) {
+    console.log("Plugin is not valid.")
+    return config
+  }
 
   console.log(config)
 
