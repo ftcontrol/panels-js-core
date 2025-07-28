@@ -4,6 +4,7 @@ export type PluginConfig = {
   letterName: string
   description: string
   websiteURL: string
+  devURL: string
   version: string
   pluginsCoreVersion: string
   author: string
@@ -31,9 +32,4 @@ export type PluginInfo = {
     isEnabled: boolean
     [key: string]: unknown
   }
-}
-
-export type DevPluginEntry = {
-  pluginID: string
-  devURL: string
 }

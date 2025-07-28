@@ -15,5 +15,5 @@ export abstract class PluginManager {
 
   abstract onInit(): void
 
-  abstract hasNewVersion(currentVersion: string): boolean | Promise<boolean>
+  abstract getNewVersion(): string | Promise<string>
 }
