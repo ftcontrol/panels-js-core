@@ -79,28 +79,48 @@ function watchWebDir(name: string, webDir: string) {
 }
 
 export async function buildAllPlugins(
-  dir: string = process.cwd()
+  dir: string = process.cwd(),
+  isParallel: boolean = true
 ): Promise<PluginConfig[]> {
   const moduleDirs = fs
     .readdirSync(dir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
 
-  const buildTasks = moduleDirs.map(async (name) => {
-    const webDir = path.join(dir, name, "web")
-    const configPath = path.join(webDir, "config.ts")
+  const results: (PluginConfig | null)[] = []
 
-    if (!fs.existsSync(configPath)) {
-      console.log(`⏭️  Skipping "${name}" (missing web/config.ts)`)
-      return null
+  if (isParallel) {
+    const buildTasks = moduleDirs.map(async (name) => {
+      const webDir = path.join(dir, name, "web")
+      const configPath = path.join(webDir, "config.ts")
+
+      if (!fs.existsSync(configPath)) {
+        console.log(`⏭️  Skipping "${name}" (missing web/config.ts)`)
+        return null
+      }
+
+      return await buildModule(name, webDir)
+    })
+
+    return (await Promise.all(buildTasks)).filter(
+      (config): config is PluginConfig => config !== null
+    )
+  } else {
+    for (const name of moduleDirs) {
+      const webDir = path.join(dir, name, "web")
+      const configPath = path.join(webDir, "config.ts")
+
+      if (!fs.existsSync(configPath)) {
+        console.log(`⏭️  Skipping "${name}" (missing web/config.ts)`)
+        continue
+      }
+
+      const config = await buildModule(name, webDir)
+      results.push(config)
     }
 
-    return await buildModule(name, webDir)
-  })
-
-  const results = await Promise.all(buildTasks)
-
-  return results.filter((config): config is PluginConfig => config !== null)
+    return results.filter((config): config is PluginConfig => config !== null)
+  }
 }
 
 export function getAllPluginConfigs(): PluginConfig[] {
