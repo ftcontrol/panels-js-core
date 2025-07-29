@@ -144,7 +144,7 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
       },
       chapters: config.docs.chapters.map((chapter) => ({
         ...chapter,
-        content: readContent(`dist/docs/${chapter.name}.js`),
+        textContent: readContent(`dist/docs/${chapter.name}.js`),
       })),
     }
   }
