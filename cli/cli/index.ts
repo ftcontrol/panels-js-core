@@ -1,6 +1,5 @@
 import { buildPanelsPlugin } from "./build"
-import { devServer } from "./dev"
 import { checkPlugin } from "./check"
-import { globalDev } from "./globalDev"
+import { globalDev, buildAllPlugins } from "./globalDev"
 
-export { buildPanelsPlugin, devServer, checkPlugin, globalDev }
+export { buildPanelsPlugin, checkPlugin, globalDev, buildAllPlugins }
