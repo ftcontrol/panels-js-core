@@ -115,6 +115,40 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
     clearUmdFilesInDir(distDir)
   }
 
+  function injectFileContents(config: PluginConfig, baseDir: string) {
+    const readContent = (filepath: string): string => {
+      const fullPath = path.resolve(baseDir, filepath)
+      return fs.readFileSync(fullPath, "utf-8")
+    }
+
+    config.widgets = config.widgets.map((w) => ({
+      ...w,
+      textContent: readContent(`dist/widgets/${w.name}.js`),
+    }))
+
+    config.navlets =
+      config.navlets?.map((n) => ({
+        ...n,
+        textContent: readContent(`dist/navlets/${n.name}.js`),
+      })) ?? []
+
+    config.manager = {
+      ...config.manager,
+      textContent: readContent(`dist/${config.manager.name}.js`),
+    }
+
+    config.docs = {
+      homepage: {
+        ...config.docs.homepage,
+        textContent: readContent(`dist/docs/${config.docs.homepage.name}.js`),
+      },
+      chapters: config.docs.chapters.map((chapter) => ({
+        ...chapter,
+        content: readContent(`dist/docs/${chapter.name}.js`),
+      })),
+    }
+  }
+
   function createTsWrapper(name: string, filepath: string) {
     const tsFilename = `${name}.ts`
     const tsFilePath = path.resolve(generatedDir, tsFilename)
@@ -182,7 +216,6 @@ export default function load(target: HTMLElement, props: any) {
 
   try {
     clearDist()
-    writeConfigJsonToDist(config)
 
     await buildAllComponents(
       config.widgets.map((w) => w.name),
@@ -233,6 +266,10 @@ export default function load(target: HTMLElement, props: any) {
     clearGeneratedPanelsDir()
 
     clearUmdDist()
+
+    injectFileContents(config, dir)
+    clearDist()
+    writeConfigJsonToDist(config)
 
     console.log("All components built!")
   } catch (err) {
