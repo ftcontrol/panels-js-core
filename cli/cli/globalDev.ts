@@ -4,6 +4,8 @@ import { exec } from "child_process"
 import { promisify } from "util"
 import { type PluginConfig } from "ftc-panels"
 import chokidar from "chokidar"
+import http from "http"
+import url from "url"
 
 const execAsync = promisify(exec)
 
@@ -93,4 +95,32 @@ export async function globalDev(currentDir: string = process.cwd()) {
   for (const { name, webDir } of results) {
     watchWebDir(name, webDir)
   }
+
+  startServer()
+}
+
+function startServer() {
+  const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url || "", true)
+    const match = parsedUrl.pathname?.match(/^\/plugins\/([^/]+)$/)
+    if (match) {
+      const pluginId = match[1]
+      const plugin = modules.find((m) => m.id === pluginId)
+      if (plugin) {
+        res.writeHead(200, { "Content-Type": "application/json" })
+        res.end(JSON.stringify(plugin, null, 2))
+      } else {
+        res.writeHead(404, { "Content-Type": "application/json" })
+        res.end(JSON.stringify({ error: "Plugin not found" }))
+      }
+    } else {
+      res.writeHead(404, { "Content-Type": "application/json" })
+      res.end(JSON.stringify({ error: "Not found" }))
+    }
+  })
+
+  const PORT = 3001
+  server.listen(PORT, () => {
+    console.log(`🚀 Plugin server running at http://localhost:${PORT}`)
+  })
 }
