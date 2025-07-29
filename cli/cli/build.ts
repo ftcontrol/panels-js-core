@@ -28,41 +28,6 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
 
   console.log(config)
 
-  const widgetNames = config.widgets.map((w) => w.name)
-  const widgetDuplicates = widgetNames.filter(
-    (name, i, arr) => arr.indexOf(name) !== i
-  )
-  if (widgetDuplicates.length > 0) {
-    throw new Error(
-      `Duplicate widget names found in config: ${[...new Set(widgetDuplicates)].join(", ")}`
-    )
-  }
-
-  const navlets = config.navlets ?? []
-  const navletNames = navlets.map((n) => n.name)
-  const navletDuplicates = navletNames.filter(
-    (name, i, arr) => arr.indexOf(name) !== i
-  )
-  if (navletDuplicates.length > 0) {
-    throw new Error(
-      `Duplicate navlet names found in config: ${[...new Set(navletDuplicates)].join(", ")}`
-    )
-  }
-
-  const docsNames = []
-  docsNames.push(config.docs.homepage.name)
-
-  docsNames.push(...config.docs.chapters.map((c) => c.name))
-
-  const docsDuplicates = docsNames.filter(
-    (name, i, arr) => arr.indexOf(name) !== i
-  )
-  if (docsDuplicates.length > 0) {
-    throw new Error(
-      `Duplicate doc names found between homepage and chapters: ${[...new Set(docsDuplicates)].join(", ")}`
-    )
-  }
-
   function writeConfigJsonToDist(config: PluginConfig) {
     if (!fs.existsSync(distDir)) {
       fs.mkdirSync(distDir, { recursive: true })
@@ -204,7 +169,7 @@ export default function load(target: HTMLElement, props: any) {
     createTsWrapper(name, filepath)
   })
 
-  navlets.forEach(({ name, filepath }) => {
+  config.navlets.forEach(({ name, filepath }) => {
     createTsWrapper(name, filepath)
   })
 
@@ -222,9 +187,9 @@ export default function load(target: HTMLElement, props: any) {
       "widgets"
     )
 
-    if (navlets.length > 0) {
+    if (config.navlets.length > 0) {
       await buildAllComponents(
-        navlets.map((n) => n.name),
+        config.navlets.map((n) => n.name),
         "navlets"
       )
     }

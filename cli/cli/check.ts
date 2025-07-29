@@ -100,6 +100,34 @@ export async function checkPlugin(dir: string): Promise<boolean> {
     }
   }
 
+  if (cfg.widgets) {
+    const widgetNames = cfg.widgets.map((w) => w.name)
+    const uniqueWidgetNames = new Set(widgetNames)
+    if (uniqueWidgetNames.size !== widgetNames.length) {
+      console.error("Duplicate widget names found")
+      return false
+    }
+  }
+
+  if (cfg.navlets) {
+    const navletNames = cfg.navlets.map((n) => n.name)
+    const uniqueNavletNames = new Set(navletNames)
+    if (uniqueNavletNames.size !== navletNames.length) {
+      console.error("Duplicate navlet names found")
+      return false
+    }
+  }
+
+  const docNames = [
+    cfg.docs.homepage.name,
+    ...(cfg.docs.chapters?.map((c) => c.name) || []),
+  ]
+  const uniqueDocNames = new Set(docNames)
+  if (uniqueDocNames.size !== docNames.length) {
+    console.error("Duplicate docs chapter/homepage names found")
+    return false
+  }
+
   const pluginNamespace = extractPluginNamespace(gradlePath)
   if (!pluginNamespace) {
     console.error("Could not find 'pluginNamespace' in build.gradle.kts")

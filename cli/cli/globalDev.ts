@@ -79,7 +79,7 @@ function watchWebDir(name: string, webDir: string) {
 }
 
 export async function buildAllPlugins(
-  dir: string = process.cwd(),
+  dir: string,
   isParallel: boolean = true
 ): Promise<PluginConfig[]> {
   const moduleDirs = fs
