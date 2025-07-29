@@ -86,12 +86,22 @@ export async function globalDev(currentDir: string = process.cwd()) {
 
   const buildPromises = modulesRaw.map(async (name) => {
     const webDir = path.join(libraryPath, name, "web")
+    const configPath = path.join(webDir, "config.ts")
+
+    if (!fs.existsSync(configPath)) {
+      console.log(`⏭️  Skipping "${name}" (missing web/config.ts)`)
+      return null
+    }
+
     const config = await buildModule(name, webDir)
     if (config) modules.push(config)
     return { name, webDir }
   })
 
-  const results = await Promise.all(buildPromises)
+  const results = (await Promise.all(buildPromises)).filter(Boolean) as {
+    name: string
+    webDir: string
+  }[]
 
   console.log(`✅ Built ${modules.length} module(s). Starting watchers...`)
 
@@ -107,7 +117,6 @@ function startServer() {
     const parsedUrl = url.parse(req.url || "", true)
 
     if (parsedUrl.pathname === "/plugins") {
-      // Return all plugins and their last changed timestamps
       const pluginSummaries = modules.map((plugin) => ({
         id: plugin.id,
         name: plugin.name,

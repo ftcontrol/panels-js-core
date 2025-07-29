@@ -4,7 +4,6 @@ export type PluginConfig = {
   letterName: string
   description: string
   websiteURL: string
-  devURL: string
   version: string
   pluginsCoreVersion: string
   author: string
