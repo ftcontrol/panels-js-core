@@ -10,6 +10,7 @@ import url from "url"
 const execAsync = promisify(exec)
 
 const modules: PluginConfig[] = []
+const moduleTimestamps = new Map<string, number>()
 const debounceMap = new Map<string, NodeJS.Timeout>()
 
 async function buildModule(
@@ -35,7 +36,9 @@ async function buildModule(
 
   try {
     const rawConfig = fs.readFileSync(distConfigJson, "utf-8")
-    return JSON.parse(rawConfig) as PluginConfig
+    const config = JSON.parse(rawConfig) as PluginConfig
+    moduleTimestamps.set(config.name, Date.now())
+    return config
   } catch (e) {
     console.error(`❌ Failed to parse config for ${name}:`, e)
     return null
@@ -56,7 +59,7 @@ function watchWebDir(name: string, webDir: string) {
     persistent: true,
   })
 
-  watcher.on("all", (_, filePath) => {
+  watcher.on("all", () => {
     if (debounceMap.has(name)) clearTimeout(debounceMap.get(name)!)
     debounceMap.set(
       name,
@@ -102,6 +105,20 @@ export async function globalDev(currentDir: string = process.cwd()) {
 function startServer() {
   const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url || "", true)
+
+    if (parsedUrl.pathname === "/plugins") {
+      // Return all plugins and their last changed timestamps
+      const pluginSummaries = modules.map((plugin) => ({
+        id: plugin.id,
+        name: plugin.name,
+        lastChanged: moduleTimestamps.get(plugin.name) || null,
+      }))
+
+      res.writeHead(200, { "Content-Type": "application/json" })
+      res.end(JSON.stringify(pluginSummaries, null, 2))
+      return
+    }
+
     const match = parsedUrl.pathname?.match(/^\/plugins\/([^/]+)$/)
     if (match) {
       const pluginId = match[1]
@@ -113,10 +130,11 @@ function startServer() {
         res.writeHead(404, { "Content-Type": "application/json" })
         res.end(JSON.stringify({ error: "Plugin not found" }))
       }
-    } else {
-      res.writeHead(404, { "Content-Type": "application/json" })
-      res.end(JSON.stringify({ error: "Not found" }))
+      return
     }
+
+    res.writeHead(404, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ error: "Not found" }))
   })
 
   const PORT = 3001
