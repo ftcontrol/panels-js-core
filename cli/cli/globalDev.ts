@@ -45,7 +45,11 @@ function watchWebDir(name: string, webDir: string) {
 
   console.log(`👀 Watching "${name}" for changes...`)
   const watcher = chokidar.watch(webDir, {
-    ignored: [path.join(webDir, "dist"), path.join(webDir, "node_modules")],
+    ignored: [
+      path.join(webDir, "dist"),
+      path.join(webDir, "node_modules"),
+      path.join(webDir, ".panels"),
+    ],
     ignoreInitial: true,
     persistent: true,
   })
