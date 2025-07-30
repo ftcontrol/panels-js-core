@@ -16,8 +16,6 @@ export function addEntry(id: string, close: () => void) {
     close,
   })
 
-  console.log(history)
-
   setGlobalData("overlays", history)
 }
 
@@ -30,32 +28,30 @@ export function generateId(): string {
 }
 
 export function closeAllAfter(id: string) {
-  console.log("closeAllAfter", id)
   let history = getGlobalData<Entry[]>("overlays")
   if (!history) return
   if (history.length == 0) return
 
   if (history.length == 1) {
     history[0]?.close()
+    history = []
+    setGlobalData("overlays", history)
     return
   }
 
   const index = history.findIndex((e) => e.id === id)
   if (index === -1) return
 
-  for (let i = index + 1; i < history.length; i++) {
+  for (let i = index; i < history.length; i++) {
     history[i]?.close()
   }
 
-  history = history.slice(0, index + 1)
+  history = history.slice(0, index)
 
   setGlobalData("overlays", history)
-  console.log(history)
 }
 
 export function closeLast(id: string) {
-  console.log("closeLast", id)
-
   let history = getGlobalData<Entry[]>("overlays")
   if (!history || history.length === 0) return
 
@@ -66,5 +62,4 @@ export function closeLast(id: string) {
     history.pop()
     setGlobalData("overlays", history)
   }
-  console.log(history)
 }

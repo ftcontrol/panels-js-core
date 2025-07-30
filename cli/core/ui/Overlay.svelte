@@ -29,12 +29,15 @@
       mouseY = event.clientY
       event.preventDefault()
     }
-    isOpen = !isOpen
 
     if (isOpen) {
+      close()
+      isOpen = false
+    } else {
       addEntry(id, () => {
         isOpen = false
       })
+      isOpen = true
     }
 
     tick().then(() => {
@@ -86,7 +89,6 @@
   }
 
   function close() {
-    isOpen = false
     closeAllAfter(id)
   }
 
@@ -144,12 +146,12 @@
     }
   }}
 >
-  {id}
   {@render trigger({ isOpen })}
 </div>
 
 <Portal>
   {#if isOpen}
+    <div class="backdrop" aria-hidden="true"></div>
     <div bind:this={container} class="overlay" class:padding={disablePadding}>
       {@render overlay({ close })}
     </div>
@@ -157,6 +159,16 @@
 </Portal>
 
 <style>
+  .backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 0, 0, 0.1);
+    opacity: 0;
+    z-index: 998;
+  }
   .overlay {
     border: 1px solid var(--bgLight);
     width: fit-content;
