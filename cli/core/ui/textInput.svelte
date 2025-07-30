@@ -20,7 +20,7 @@
   {placeholder}
   {disabled}
   class:transparent
-  on:input={oninput}
+  {oninput}
 />
 
 <style>

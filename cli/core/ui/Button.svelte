@@ -4,17 +4,19 @@
   let {
     disabled = false,
     transparent = false,
+    selected = false,
     onclick = () => {},
     children,
   }: {
     disabled?: boolean
     transparent?: boolean
+    selected?: boolean
     onclick?: () => void
     children: Snippet
   } = $props()
 </script>
 
-<button {disabled} class:transparent {onclick}>
+<button {disabled} class:transparent class:selected {onclick}>
   {@render children()}
 </button>
 
@@ -30,15 +32,20 @@
     flex-grow: 1;
 
     justify-content: center;
-
     display: inline-flex;
     align-items: center;
     gap: 0.5em;
   }
+
   button.transparent {
     background-color: transparent;
     padding: 0;
   }
+
+  button.selected {
+    font-weight: 700;
+  }
+
   button:disabled {
     opacity: 0.5;
   }
