@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from "svelte"
   import Portal from "svelte-portal"
+  import { generateId, addEntry, closeAllAfter, closeLast } from "./overlay"
   type Snippet<Props = any> = (props: Props) => any
   let {
     trigger,
@@ -20,6 +21,8 @@
   let container: HTMLElement
   let triggerButton: HTMLElement
 
+  let id = generateId()
+
   function toggle(event?: MouseEvent) {
     if (event) {
       mouseX = event.clientX
@@ -27,6 +30,12 @@
       event.preventDefault()
     }
     isOpen = !isOpen
+
+    if (isOpen) {
+      addEntry(id, () => {
+        isOpen = false
+      })
+    }
 
     tick().then(() => {
       if (container) {
@@ -78,6 +87,7 @@
 
   function close() {
     isOpen = false
+    closeAllAfter(id)
   }
 
   function onClickOutside(event: MouseEvent) {
@@ -88,7 +98,7 @@
     const path = event.composedPath()
     if (path.includes(container) || path.includes(triggerButton)) return
 
-    close()
+    closeLast(id)
   }
 
   onMount(() => {
@@ -134,6 +144,7 @@
     }
   }}
 >
+  {id}
   {@render trigger({ isOpen })}
 </div>
 
