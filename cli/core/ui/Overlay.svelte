@@ -110,20 +110,33 @@
       if (isOpen) positionOverlay()
     }
 
-    let observer = new MutationObserver(updatePosition)
-    if (triggerButton)
-      observer.observe(triggerButton, {
+    let domObserver = new MutationObserver(updatePosition)
+    let sizeObserver = new ResizeObserver(updatePosition)
+    if (triggerButton) {
+      domObserver.observe(triggerButton, {
         attributes: true,
         childList: true,
         subtree: true,
       })
+      sizeObserver.observe(triggerButton)
+    }
+
+    if (container) {
+      domObserver.observe(container, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      })
+      sizeObserver.observe(container)
+    }
 
     window.addEventListener("resize", updatePosition)
 
     return () => {
       window.removeEventListener("click", onClickOutside, true)
       window.removeEventListener("resize", updatePosition)
-      observer.disconnect()
+      domObserver.disconnect()
+      sizeObserver.disconnect()
     }
   })
 </script>
