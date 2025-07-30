@@ -21,6 +21,35 @@
   let container: HTMLElement
   let triggerButton: HTMLElement
 
+  let pollInterval: ReturnType<typeof setInterval> | null = null
+
+  $effect(() => {
+    if (isOpen) {
+      startPolling()
+    } else {
+      startPolling()
+    }
+  })
+
+  function startPolling() {
+    stopPolling()
+
+    pollInterval = setInterval(() => {
+      if (!isOpen || !triggerButton || !container) return
+
+      console.log("POLL")
+
+      positionOverlay()
+    }, 1000 / 10)
+  }
+
+  function stopPolling() {
+    if (pollInterval) {
+      clearInterval(pollInterval)
+      pollInterval = null
+    }
+  }
+
   let id = generateId()
 
   function toggle(event?: MouseEvent) {
@@ -137,6 +166,8 @@
       window.removeEventListener("resize", updatePosition)
       domObserver.disconnect()
       sizeObserver.disconnect()
+
+      stopPolling()
     }
   })
 </script>
