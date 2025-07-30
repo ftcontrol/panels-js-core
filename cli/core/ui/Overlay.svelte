@@ -77,6 +77,7 @@
   }
 
   function positionOverlay() {
+    if (!isOpen) return
     if (!triggerButton || !container) return
 
     const triggerRect = triggerButton.getBoundingClientRect()
@@ -135,37 +136,11 @@
   onMount(() => {
     window.addEventListener("click", onClickOutside, true)
 
-    const updatePosition = () => {
-      if (isOpen) positionOverlay()
-    }
-
-    let domObserver = new MutationObserver(updatePosition)
-    let sizeObserver = new ResizeObserver(updatePosition)
-    if (triggerButton) {
-      domObserver.observe(triggerButton, {
-        attributes: true,
-        childList: true,
-        subtree: true,
-      })
-      sizeObserver.observe(triggerButton)
-    }
-
-    if (container) {
-      domObserver.observe(container, {
-        attributes: true,
-        childList: true,
-        subtree: true,
-      })
-      sizeObserver.observe(container)
-    }
-
-    window.addEventListener("resize", updatePosition)
+    window.addEventListener("resize", positionOverlay)
 
     return () => {
       window.removeEventListener("click", onClickOutside, true)
-      window.removeEventListener("resize", updatePosition)
-      domObserver.disconnect()
-      sizeObserver.disconnect()
+      window.removeEventListener("resize", positionOverlay)
 
       stopPolling()
     }
