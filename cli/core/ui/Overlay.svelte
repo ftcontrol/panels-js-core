@@ -27,7 +27,7 @@
     if (isOpen) {
       startPolling()
     } else {
-      startPolling()
+      stopPolling()
     }
   })
 
@@ -40,7 +40,7 @@
       console.log("POLL")
 
       positionOverlay()
-    }, 1000 / 10)
+    }, 1000 / 30)
   }
 
   function stopPolling() {
@@ -80,6 +80,14 @@
     if (!isOpen) return
     if (!triggerButton || !container) return
 
+    const prevVisibility = container.style.visibility
+    const prevPosition = container.style.position
+    container.style.visibility = "hidden"
+    container.style.position = "fixed"
+
+    container.style.left = "0"
+    container.style.top = "0"
+
     const triggerRect = triggerButton.getBoundingClientRect()
     const overlayRect = container.getBoundingClientRect()
 
@@ -113,6 +121,9 @@
       left -= parentRect.left + scrollX
       top -= parentRect.top + scrollY
     }
+
+    container.style.visibility = prevVisibility
+    container.style.position = prevPosition
 
     container.style.left = `${left}px`
     container.style.top = `${top}px`
