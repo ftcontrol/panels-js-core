@@ -6,11 +6,13 @@
   let {
     trigger,
     overlay,
-    disablePadding = false,
+    overlayStyle = "",
+    triggerStyle = "",
   }: {
     trigger: Snippet<{ isOpen: boolean }>
     overlay: Snippet<{ close: () => void }>
-    disablePadding?: boolean
+    overlayStyle?: string
+    triggerStyle?: string
   } = $props()
 
   let isOpen = $state(false)
@@ -37,10 +39,8 @@
     pollInterval = setInterval(() => {
       if (!isOpen || !triggerButton || !container) return
 
-      console.log("POLL")
-
       positionOverlay()
-    }, 1000 / 30)
+    }, 1000 / 10)
   }
 
   function stopPolling() {
@@ -175,6 +175,7 @@
       toggle()
     }
   }}
+  style={triggerStyle}
 >
   {@render trigger({ isOpen })}
 </div>
@@ -182,7 +183,7 @@
 <Portal>
   {#if isOpen}
     <div class="backdrop" aria-hidden="true"></div>
-    <div bind:this={container} class="overlay" class:padding={disablePadding}>
+    <div bind:this={container} class="overlay" style={overlayStyle}>
       {@render overlay({ close })}
     </div>
   {/if}
@@ -210,9 +211,6 @@
     max-height: 80vh;
     max-width: 80vw;
     overflow: auto;
-  }
-  .overlay.padding {
-    padding: 0.5rem;
   }
   .trigger {
     display: block;

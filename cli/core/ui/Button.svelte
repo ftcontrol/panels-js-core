@@ -7,16 +7,18 @@
     selected = false,
     onclick = () => {},
     children,
+    style = "",
   }: {
     disabled?: boolean
     transparent?: boolean
     selected?: boolean
     onclick?: () => void
     children: Snippet
+    style?: string
   } = $props()
 </script>
 
-<button {disabled} class:transparent class:selected {onclick}>
+<button {disabled} class:transparent class:selected {onclick} {style}>
   {@render children()}
 </button>
 

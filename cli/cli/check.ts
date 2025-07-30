@@ -72,6 +72,20 @@ export async function checkPlugin(dir: string): Promise<boolean> {
     }
   }
 
+  const arrayFields: [string, unknown][] = [
+    ["widgets", cfg.widgets],
+    ["navlets", cfg.navlets],
+    ["templates", cfg.templates],
+    ["docs.chapters", cfg.docs?.chapters],
+  ]
+
+  for (const [name, value] of arrayFields) {
+    if (!Array.isArray(value)) {
+      console.error(`Field '${name}' must be an array`)
+      return false
+    }
+  }
+
   if (!isValidFile(dir, cfg.manager.filepath)) {
     console.error(
       `Invalid or missing manager.filepath: ${cfg.manager.filepath}`
@@ -105,6 +119,15 @@ export async function checkPlugin(dir: string): Promise<boolean> {
     const uniqueWidgetNames = new Set(widgetNames)
     if (uniqueWidgetNames.size !== widgetNames.length) {
       console.error("Duplicate widget names found")
+      return false
+    }
+  }
+
+  if (cfg.templates) {
+    const templateNames = cfg.templates.map((t) => t.name)
+    const uniqueTemplateNames = new Set(templateNames)
+    if (uniqueTemplateNames.size !== templateNames.length) {
+      console.error("Duplicate template names found")
       return false
     }
   }

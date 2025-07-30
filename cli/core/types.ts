@@ -11,6 +11,7 @@ export type PluginConfig = {
   navlets: PanelsWidget[]
   manager: PanelsWidget
   docs: PluginDocs
+  templates: Template[]
 }
 
 export type PluginDocs = {
@@ -31,4 +32,29 @@ export type PluginInfo = {
     isEnabled: boolean
     [key: string]: unknown
   }
+}
+
+export type Template = {
+  name: string
+  widgets: TemplateWidgetGroup[]
+  navlets: TemplateNavlet[]
+  plugins?: string[]
+}
+
+export type TemplateWidget = {
+  pluginID: string
+  widgetID: string
+}
+
+export type TemplateWidgetGroup = {
+  widgets: TemplateWidget[]
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+export type TemplateNavlet = {
+  pluginID: string
+  navletID: string
 }
