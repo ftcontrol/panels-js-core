@@ -80,7 +80,8 @@ function watchWebDir(name: string, webDir: string) {
 
 export async function buildAllPlugins(
   dir: string,
-  isParallel: boolean = true
+  isParallel: boolean = true,
+  folders: string[] | null
 ): Promise<PluginConfig[]> {
   const moduleDirs = fs
     .readdirSync(dir, { withFileTypes: true })
@@ -96,6 +97,11 @@ export async function buildAllPlugins(
 
       if (!fs.existsSync(configPath)) {
         console.log(`⏭️  Skipping "${name}" (missing web/config.ts)`)
+        return null
+      }
+
+      if (folders != null && !folders.includes(name)) {
+        console.log(`⏭️  Skipping "${name}" (not in folders list)`)
         return null
       }
 
@@ -115,6 +121,11 @@ export async function buildAllPlugins(
         continue
       }
 
+      if (folders != null && !folders.includes(name)) {
+        console.log(`⏭️  Skipping "${name}" (not in folders list)`)
+        continue
+      }
+
       const config = await buildModule(name, webDir)
       results.push(config)
     }
@@ -127,8 +138,11 @@ export function getAllPluginConfigs(): PluginConfig[] {
   return modules
 }
 
-export async function globalDev(currentDir: string = process.cwd()) {
-  const pluginConfigs = await buildAllPlugins(currentDir)
+export async function globalDev(
+  currentDir: string = process.cwd(),
+  folders: string[] | null
+) {
+  const pluginConfigs = await buildAllPlugins(currentDir, false, folders)
   pluginConfigs.forEach((config) => {
     modules.push(config)
     const webDir = path.join(currentDir, config.name, "web")
