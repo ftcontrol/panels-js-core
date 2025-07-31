@@ -40,6 +40,6 @@
     background-color: transparent;
     min-width: 100%;
     display: inline-block;
-    max-height: 100%;
+    height: 100%;
   }
 </style>
