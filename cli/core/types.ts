@@ -38,7 +38,6 @@ export type Template = {
   name: string
   widgets: TemplateWidgetGroup[]
   navlets: TemplateNavlet[]
-  plugins?: string[]
 }
 
 export type TemplateWidget = {
