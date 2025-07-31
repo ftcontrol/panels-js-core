@@ -82,13 +82,21 @@ export async function buildAllPlugins(
   dir: string,
   isParallel: boolean = true,
   folders: string[] | null
-): Promise<PluginConfig[]> {
+): Promise<
+  {
+    config: PluginConfig
+    name: string
+  }[]
+> {
   const moduleDirs = fs
     .readdirSync(dir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
 
-  const results: (PluginConfig | null)[] = []
+  const results: {
+    config: PluginConfig
+    name: string
+  }[] = []
 
   if (isParallel) {
     const buildTasks = moduleDirs.map(async (name) => {
@@ -105,12 +113,17 @@ export async function buildAllPlugins(
         return null
       }
 
-      return await buildModule(name, webDir)
+      const config = await buildModule(name, webDir)
+
+      if (config == null) return null
+
+      return {
+        config,
+        name,
+      }
     })
 
-    return (await Promise.all(buildTasks)).filter(
-      (config): config is PluginConfig => config !== null
-    )
+    return (await Promise.all(buildTasks)).filter((it) => it != null)
   } else {
     for (const name of moduleDirs) {
       const webDir = path.join(dir, name, "web")
@@ -127,10 +140,15 @@ export async function buildAllPlugins(
       }
 
       const config = await buildModule(name, webDir)
-      results.push(config)
+      if (config == null) continue
+
+      results.push({
+        config,
+        name,
+      })
     }
 
-    return results.filter((config): config is PluginConfig => config !== null)
+    return results
   }
 }
 
@@ -142,16 +160,14 @@ export async function globalDev(
   currentDir: string = process.cwd(),
   folders: string[] | null
 ) {
-  const pluginConfigs = await buildAllPlugins(currentDir, false, folders)
-  pluginConfigs.forEach((config) => {
-    modules.push(config)
-    const webDir = path.join(currentDir, config.name, "web")
-    watchWebDir(config.name, webDir)
+  const data = await buildAllPlugins(currentDir, false, folders)
+  data.forEach((entry) => {
+    modules.push(entry.config)
+    const webDir = path.join(currentDir, entry.name, "web")
+    watchWebDir(entry.name, webDir)
   })
 
-  console.log(
-    `✅ Built ${pluginConfigs.length} module(s). Starting watchers...`
-  )
+  console.log(`✅ Built ${data.length} module(s). Starting watchers...`)
   startServer()
 }
 
