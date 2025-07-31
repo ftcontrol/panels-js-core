@@ -24,6 +24,14 @@ function extractPluginNamespace(gradlePath: string): string | null {
   return match && match[1] ? match[1] : null
 }
 
+function extractPluginVersion(gradlePath: string): string | null {
+  if (!existsSync(gradlePath)) return null
+
+  const content = readFileSync(gradlePath, "utf-8")
+  const match = content.match(/val\s+pluginVersion\s*=\s*"([^"]+)"/)
+  return match && match[1] ? match[1] : null
+}
+
 export async function checkPlugin(dir: string): Promise<boolean> {
   console.log("Checking plugin")
   const configPath = resolve(dir, "config.ts")
@@ -160,6 +168,19 @@ export async function checkPlugin(dir: string): Promise<boolean> {
   if (cfg.id !== pluginNamespace) {
     console.error(
       `Mismatch between config.id ("${cfg.id}") from config.ts and pluginNamespace ("${pluginNamespace}") from build.gradle.kts`
+    )
+    return false
+  }
+
+  const pluginVersion = extractPluginVersion(gradlePath)
+  if (!pluginVersion) {
+    console.error("Could not find 'pluginVersion' in build.gradle.kts")
+    return false
+  }
+
+  if (cfg.version !== pluginVersion) {
+    console.error(
+      `Mismatch between config.id ("${cfg.version}") from config.ts and pluginNamespace ("${pluginVersion}") from build.gradle.kts`
     )
     return false
   }
