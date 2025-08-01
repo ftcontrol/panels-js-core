@@ -8,14 +8,20 @@
     overlay,
     overlayStyle = "",
     triggerStyle = "",
+    onStateChange = () => {},
   }: {
     trigger: Snippet<{ isOpen: boolean }>
     overlay: Snippet<{ close: () => void }>
     overlayStyle?: string
     triggerStyle?: string
+    onStateChange?: (isOpen: boolean) => void
   } = $props()
 
   let isOpen = $state(false)
+
+  $effect(() => {
+    onStateChange(isOpen)
+  })
 
   let mouseX = $state(0)
   let mouseY = $state(0)
