@@ -138,6 +138,54 @@ export async function checkPlugin(dir: string): Promise<boolean> {
       console.error("Duplicate template names found")
       return false
     }
+
+    for (const template of cfg.templates) {
+      const grid = Array.from({ length: 12 }, () => Array(12).fill(false))
+
+      if (!Array.isArray(template.widgets)) {
+        console.error(
+          `Template '${template.name}' is missing a valid widgets array`
+        )
+        return false
+      }
+
+      for (const widget of template.widgets) {
+        const { x, y, w, h } = widget
+
+        if (
+          typeof x !== "number" ||
+          typeof y !== "number" ||
+          typeof w !== "number" ||
+          typeof h !== "number"
+        ) {
+          console.error(
+            `Invalid widget layout dimensions in template '${template.name}'`
+          )
+          return false
+        }
+
+        if (x < 0 || y < 0 || w <= 0 || h <= 0 || x + w > 12 || y + h > 12) {
+          console.error(
+            `Widget in template '${template.name}' is out of bounds: x=${x}, y=${y}, w=${w}, h=${h}`
+          )
+          return false
+        }
+
+        for (let dx = 0; dx < w; dx++) {
+          for (let dy = 0; dy < h; dy++) {
+            const gx = x + dx
+            const gy = y + dy
+            if (grid[gy]![gx]) {
+              console.error(
+                `Overlap detected in template '${template.name}' at cell (${gx}, ${gy})`
+              )
+              return false
+            }
+            grid[gy]![gx] = true
+          }
+        }
+      }
+    }
   }
 
   if (cfg.navlets) {
