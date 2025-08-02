@@ -26,6 +26,8 @@
   let mouseX = $state(0)
   let mouseY = $state(0)
 
+  let overlayStackIndex = $state(0)
+
   let container: HTMLElement
   let triggerButton: HTMLElement
 
@@ -69,7 +71,7 @@
       close()
       isOpen = false
     } else {
-      addEntry(id, () => {
+      overlayStackIndex = addEntry(id, () => {
         isOpen = false
       })
       isOpen = true
@@ -162,6 +164,8 @@
       stopPolling()
     }
   })
+
+  import { fade } from "svelte/transition"
 </script>
 
 <div
@@ -188,8 +192,17 @@
 
 <Portal>
   {#if isOpen}
-    <div class="backdrop" aria-hidden="true"></div>
-    <div bind:this={container} class="overlay" style={overlayStyle}>
+    <div
+      class="backdrop"
+      aria-hidden="true"
+      style={`z-index: ${998 + overlayStackIndex * 2}`}
+      transition:fade={{ duration: 100 }}
+    ></div>
+    <div
+      bind:this={container}
+      class="overlay"
+      style={`z-index: ${999 + overlayStackIndex * 2}; ${overlayStyle}`}
+    >
       {@render overlay({ close })}
     </div>
   {/if}
@@ -202,8 +215,10 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(255, 0, 0, 0.1);
-    opacity: 0;
+    background-color: var(--bgDark);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    opacity: 0.3;
     z-index: 998;
   }
   .overlay {

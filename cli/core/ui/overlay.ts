@@ -17,6 +17,8 @@ export function addEntry(id: string, close: () => void) {
   })
 
   setGlobalData("overlays", history)
+
+  return history.length - 1
 }
 
 export function generateId(): string {
