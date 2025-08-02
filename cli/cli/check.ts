@@ -1,4 +1,4 @@
-import { existsSync, statSync, readFileSync } from "fs"
+import { existsSync, statSync, readFileSync, writeFileSync } from "fs"
 import { resolve } from "path"
 import { pathToFileURL } from "url"
 import type { PluginConfig } from "../core/types"
@@ -214,10 +214,19 @@ export async function checkPlugin(dir: string): Promise<boolean> {
   }
 
   if (cfg.id !== pluginNamespace) {
-    console.error(
-      `Mismatch between config.id ("${cfg.id}") from config.ts and pluginNamespace ("${pluginNamespace}") from build.gradle.kts`
+    console.warn(
+      `⚠️ Mismatch between config.id and pluginNamespace:\n` +
+        `    config.id         = "${cfg.id}"\n` +
+        `    pluginNamespace   = "${pluginNamespace}"\n` +
+        `✅ Updating build.gradle.kts to use "${cfg.id}" as pluginNamespace`
     )
-    return false
+
+    const content = readFileSync(gradlePath, "utf-8")
+    const updated = content.replace(
+      /val\s+pluginNamespace\s*=\s*"([^"]+)"/,
+      `val pluginNamespace = "${cfg.id}"`
+    )
+    writeFileSync(gradlePath, updated, "utf-8")
   }
 
   const pluginVersion = extractPluginVersion(gradlePath)
@@ -227,10 +236,18 @@ export async function checkPlugin(dir: string): Promise<boolean> {
   }
 
   if (cfg.version !== pluginVersion) {
-    console.error(
-      `Mismatch between config.id ("${cfg.version}") from config.ts and pluginNamespace ("${pluginVersion}") from build.gradle.kts`
+    console.warn(
+      `⚠️  Mismatch between config.version ("${cfg.version}") and pluginVersion ("${pluginVersion}") in build.gradle.kts.\n` +
+        `    Overwriting build.gradle.kts with config version.`
     )
-    return false
+
+    const gradleContent = readFileSync(gradlePath, "utf-8")
+    const updatedContent = gradleContent.replace(
+      /val\s+pluginVersion\s*=\s*"([^"]+)"/,
+      `val pluginVersion = "${cfg.version}"`
+    )
+
+    writeFileSync(gradlePath, updatedContent, "utf-8")
   }
 
   const namespacePath = pluginNamespace.replace(/\./g, "/")
