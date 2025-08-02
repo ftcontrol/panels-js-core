@@ -3,6 +3,7 @@ import { PluginManager } from "./manager"
 import type { GenericData, Handler } from "./types"
 import type { PluginInfo } from "../types"
 import { importFromSource } from "./source"
+import type { NotificationsManager } from "./notifications"
 
 export class GlobalSocket {
   socket: WebSocket | null = null
@@ -13,7 +14,11 @@ export class GlobalSocket {
 
   private maxLogSize: number = 100
 
-  async init(plugins: PluginInfo[], onclose: () => void) {
+  async init(
+    plugins: PluginInfo[],
+    notifications: NotificationsManager,
+    onclose: () => void
+  ) {
     this.log = []
     const host = window.location.hostname
     const wsUrl = `ws://${host}:8002`
@@ -27,7 +32,8 @@ export class GlobalSocket {
 
       this.pluginManagers[it.details.id] = new Manager(
         new PluginSocket(it.details.id, this),
-        it.details
+        it.details,
+        notifications
       )
 
       this.pluginManagers[it.details.id]?.onInit()
