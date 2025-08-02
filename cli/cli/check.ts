@@ -140,7 +140,7 @@ export async function checkPlugin(dir: string): Promise<boolean> {
     }
 
     for (const template of cfg.templates) {
-      const grid = Array.from({ length: 12 }, () => Array(12).fill(false))
+      const grid = Array.from({ length: 12 }, () => Array(16).fill(false))
 
       if (!Array.isArray(template.widgets)) {
         console.error(
@@ -164,7 +164,7 @@ export async function checkPlugin(dir: string): Promise<boolean> {
           return false
         }
 
-        if (x < 0 || y < 0 || w <= 0 || h <= 0 || x + w > 12 || y + h > 12) {
+        if (x < 0 || y < 0 || w <= 0 || h <= 0 || x + w > 16 || y + h > 12) {
           console.error(
             `Widget in template '${template.name}' is out of bounds: x=${x}, y=${y}, w=${w}, h=${h}`
           )
