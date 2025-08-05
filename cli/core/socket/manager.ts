@@ -22,5 +22,7 @@ export abstract class PluginManager {
 
   abstract onInit(): void
 
-  abstract getNewVersion(): string | Promise<string>
+  static getNewVersion(): string | Promise<string> {
+    throw new Error("getNewVersion must be implemented as a static method.")
+  }
 }

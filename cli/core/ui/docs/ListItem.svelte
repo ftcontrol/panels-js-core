@@ -34,6 +34,8 @@
     align-items: flex-start;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
+    width: 100%;
+    max-width: 500px;
   }
 
   .marker {
