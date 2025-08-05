@@ -20,6 +20,19 @@
     oninput?: (e: Event) => void
     style: string
   } = $props()
+
+  function clampValue(e: Event) {
+    const input = e.target as HTMLInputElement
+    let val = parseFloat(input.value)
+
+    if (isNaN(val)) return
+
+    if (min !== undefined && val < min) val = min
+    if (max !== undefined && val > max) val = max
+
+    input.value = val.toString()
+    value = val
+  }
 </script>
 
 <input
@@ -31,7 +44,10 @@
   {min}
   {max}
   {step}
-  {oninput}
+  oninput={(e) => {
+    clampValue(e)
+    oninput(e)
+  }}
   {style}
 />
 
