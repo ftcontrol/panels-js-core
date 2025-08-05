@@ -65,7 +65,7 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
       PATH: `${path.join(jdkPath, "bin")};${process.env.PATH}`,
     }
 
-    execSync(`${gradleCommand} --refresh-dependencies`, {
+    execSync(`${gradleCommand} --refresh-dependencies --no-daemon`, {
       cwd: gradleRoot,
       stdio: "inherit",
       env,
