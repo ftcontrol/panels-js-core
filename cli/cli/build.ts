@@ -4,6 +4,7 @@ import fs from "fs"
 import path from "path"
 import type { PluginConfig } from "../core/types"
 import { checkPlugin } from "./check"
+import { execSync } from "child_process"
 
 export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
   const generatedDir = path.resolve(dir, ".panels")
@@ -11,6 +12,67 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
   const distWidgetsDir = path.resolve(dir, "dist/widgets")
   const distDocsDir = path.resolve(dir, "dist/docs")
   const distNavletsDir = path.resolve(dir, "dist/navlets")
+
+  function findGradleRoot(startDir: string): string | null {
+    let dir = path.resolve(startDir)
+
+    while (true) {
+      const gradlewPath = path.join(
+        dir,
+        process.platform === "win32" ? "gradlew.bat" : "gradlew"
+      )
+
+      if (fs.existsSync(gradlewPath)) {
+        return dir
+      }
+
+      const parentDir = path.dirname(dir)
+      if (parentDir === dir) {
+        return null
+      }
+
+      dir = parentDir
+    }
+  }
+
+  function findAndroidStudioJDK(): string | null {
+    const paths = [
+      "C:\\Program Files\\Android\\Android Studio\\jbr",
+      "C:\\Program Files\\Android\\Android Studio\\jdk",
+    ]
+    for (const p of paths) {
+      if (fs.existsSync(p)) return p
+    }
+    return null
+  }
+
+  function syncGradle(startDir: string) {
+    const gradleRoot = findGradleRoot(startDir)
+    if (!gradleRoot) throw new Error("No gradlew file found.")
+
+    const gradleCommand =
+      process.platform === "win32" ? "gradlew.bat" : "./gradlew"
+    const jdkPath = findAndroidStudioJDK()
+
+    if (!jdkPath) throw new Error("Android Studio JDK not found.")
+
+    console.log("Found JDK in", jdkPath)
+    console.log("Running Gradle sync in", gradleRoot)
+
+    const env = {
+      ...process.env,
+      JAVA_HOME: jdkPath,
+      PATH: `${path.join(jdkPath, "bin")};${process.env.PATH}`,
+    }
+
+    execSync(`${gradleCommand} --refresh-dependencies`, {
+      cwd: gradleRoot,
+      stdio: "inherit",
+      env,
+    })
+  }
+
+  clearDist()
 
   if (!fs.existsSync(generatedDir)) {
     fs.mkdirSync(generatedDir)
@@ -25,6 +87,8 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
     console.log("Plugin is not valid.")
     return config
   }
+
+  syncGradle(dir)
 
   console.log(config)
 
