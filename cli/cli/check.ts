@@ -227,6 +227,8 @@ export async function checkPlugin(dir: string): Promise<boolean> {
       `val pluginNamespace = "${cfg.id}"`
     )
     writeFileSync(gradlePath, updated, "utf-8")
+
+    console.error("Please resync gradle.")
   }
 
   const pluginVersion = extractPluginVersion(gradlePath)
@@ -248,6 +250,7 @@ export async function checkPlugin(dir: string): Promise<boolean> {
     )
 
     writeFileSync(gradlePath, updatedContent, "utf-8")
+    console.error("Please resync gradle.")
   }
 
   const namespacePath = pluginNamespace.replace(/\./g, "/")

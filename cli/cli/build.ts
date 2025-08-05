@@ -88,8 +88,6 @@ export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
     return config
   }
 
-  syncGradle(dir)
-
   console.log(config)
 
   function writeConfigJsonToDist(config: PluginConfig) {
