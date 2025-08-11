@@ -14,66 +14,106 @@ export class GlobalSocket {
 
   private maxLogSize: number = 100
 
-  async init(
-    plugins: PluginInfo[],
-    notifications: NotificationsManager,
-    onclose: () => void
+  private outgoingQueue: string[] = []
+  private isDraining = false
+
+  async initPlugins(
+      plugins: PluginInfo[],
+      notifications: NotificationsManager,
   ) {
+    const created: Record<string, PluginManager> = {}
+
+    await Promise.all(
+        plugins.map(async (it) => {
+          try {
+            const src = it.details.manager.textContent?.trim() ?? ""
+            if (!src) {
+              console.warn(`[plugin:${it.details.id}] Missing manager source`)
+              return
+            }
+
+            const mod = await importFromSource(src)
+            const Manager = (mod as any)?.default
+            if (typeof Manager !== "function") {
+              console.error(`[plugin:${it.details.id}] Manager default export not found`)
+              return
+            }
+
+            const manager: PluginManager = new Manager(
+                new PluginSocket(it.details.id, this),
+                it.details,
+                notifications
+            )
+
+            created[it.details.id] = manager
+            if (typeof manager.onInit === "function") {
+              await manager.onInit()
+            }
+          } catch (err) {
+            console.error(`[plugin:${it.details.id}] Failed to initialize`, err)
+          }
+        })
+    )
+
+    this.pluginManagers = { ...this.pluginManagers, ...created }
+  }
+
+  async initSocket(onclose: () => void) {
     this.log = []
+
     const host = window.location.hostname
-    const wsUrl = `ws://${host}:8002`
+    const secure = window.location.protocol === "https:"
+    const wsUrl = `${secure ? "wss" : "ws"}://${host}:8002`
+
     const socket = new WebSocket(wsUrl)
     this.socket = socket
 
-    plugins.forEach(async (it) => {
-      const { default: Manager } = await importFromSource(
-        it.details.manager.textContent || ""
-      )
-
-      this.pluginManagers[it.details.id] = new Manager(
-        new PluginSocket(it.details.id, this),
-        it.details,
-        notifications
-      )
-
-      this.pluginManagers[it.details.id]?.onInit()
-    })
-
     await new Promise<void>((resolve, reject) => {
-      if (socket == null) reject("Socket is null")
-      socket.onopen = () => {
+      const onOpen = () => {
         console.log("WebSocket connection opened:", wsUrl)
+        cleanup()
         resolve()
       }
-      socket.onerror = (error) => {
+      const onError = (error: Event) => {
         console.error("WebSocket error:", error)
+        cleanup()
         onclose()
         reject(error)
       }
+      const cleanup = () => {
+        socket.removeEventListener("open", onOpen)
+        socket.removeEventListener("error", onError)
+      }
+      socket.addEventListener("open", onOpen)
+      socket.addEventListener("error", onError)
     })
 
-    socket.onopen = () => {
-      console.log("WebSocket connection opened:", wsUrl)
-    }
+    socket.addEventListener("open", () => {
+      this.drainQueue()
+    })
 
-    socket.onmessage = (event) => {
+    this.drainQueue()
+
+    socket.addEventListener("message", (event) => {
       this.log = [...this.log, event.data].slice(-this.maxLogSize)
+      try {
+        const data = JSON.parse(event.data)
+        console.log(data.pluginID, data.messageID, data.data)
+        this.handleMessage(data.pluginID, data.messageID, data.data)
+      } catch (e) {
+        console.error("Failed to parse message:", e, event.data)
+      }
+    })
 
-      const data = JSON.parse(event.data)
-      console.log(data.pluginID, data.messageID, data.data)
-
-      this.handleMessage(data.pluginID, data.messageID, data.data)
-    }
-
-    socket.onerror = (error) => {
+    socket.addEventListener("error", (error) => {
       console.error("WebSocket error:", error)
       onclose()
-    }
+    })
 
-    socket.onclose = () => {
+    socket.addEventListener("close", () => {
       console.log("WebSocket connection closed")
       onclose()
-    }
+    })
   }
 
   close() {
@@ -102,10 +142,39 @@ export class GlobalSocket {
   }
 
   sendMessage(message: GenericData) {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(message))
-    } else {
-      console.warn("WebSocket not open.")
+    const payload = JSON.stringify(message)
+
+    if (this.outgoingQueue.length >= this.maxQueueSize) {
+      console.warn("Outgoing queue full. Dropping oldest message.")
+      this.outgoingQueue.shift()
+    }
+
+    this.outgoingQueue.push(payload)
+    this.drainQueue()
+  }
+
+  clearQueue() {
+    this.outgoingQueue.length = 0
+  }
+
+  private drainQueue() {
+    if (this.isDraining) return
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return
+
+    this.isDraining = true
+    try {
+      while (this.socket && this.socket.readyState === WebSocket.OPEN && this.outgoingQueue.length > 0) {
+        const payload = this.outgoingQueue.shift()!
+        try {
+          this.socket.send(payload)
+        } catch (err) {
+          this.outgoingQueue.unshift(payload)
+          console.error("Send failed; will retry later.", err)
+          break
+        }
+      }
+    } finally {
+      this.isDraining = false
     }
   }
 
