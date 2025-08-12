@@ -1,40 +1,27 @@
 <script lang="ts">
     import type {Snippet} from "svelte"
 
-    let {level = 1, text = "", children}: { level: number; text?: string; children?: Snippet } = $props()
+    let {level = 1, children}: { level: number; children?: Snippet } = $props()
+    const tag = (`h${Math.min(5, Math.max(1, level))}`) as const;
 </script>
 
-<h1>{@render children?.()}</h1>
+<svelte:element this={tag} data-level={tag}>
+    {@render children()}
+</svelte:element>
 
+<style>
+    [data-level] {
+        font-weight: 700;
+        line-height: 1.2;
+        margin-block: 0 0.5em;
+        letter-spacing: -0.015em;
+        color: inherit;
+        text-wrap: balance;
+    }
 
-{#if level === 1}
-    <h1>
-        {#if text}{text}{:else}
-            {@render children?.()}
-        {/if}
-    </h1>
-{:else if level === 2}
-    <h2>
-        {#if text}{text}{:else}
-            {@render children?.()}
-        {/if}
-    </h2>
-{:else if level === 3}
-    <h3>
-        {#if text}{text}{:else}
-            {@render children?.()}
-        {/if}
-    </h3>
-{:else if level === 4}
-    <h4>
-        {#if text}{text}{:else}
-            {@render children?.()}
-        {/if}
-    </h4>
-{:else}
-    <h5>
-        {#if text}{text}{:else}
-            {@render children?.()}
-        {/if}
-    </h5>
-{/if}
+    [data-level="h1"] { font-size: var(--h1-size, clamp(2.25rem, 1.5rem + 2.8vw, 3.25rem)); }
+    [data-level="h2"] { font-size: var(--h2-size, clamp(1.9rem,  1.35rem + 2.0vw, 2.6rem)); }
+    [data-level="h3"] { font-size: var(--h3-size, clamp(1.6rem,  1.2rem  + 1.4vw, 2.0rem)); }
+    [data-level="h4"] { font-size: var(--h4-size, clamp(1.35rem, 1.1rem  + 0.9vw, 1.6rem)); }
+    [data-level="h5"] { font-size: var(--h5-size, clamp(1.15rem, 1.05rem + 0.5vw, 1.3rem)); }
+</style>

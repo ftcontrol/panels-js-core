@@ -1,37 +1,29 @@
 <script lang="ts">
-    import {onMount} from 'svelte'
-    import {
-        codeToHtml
-    } from 'shiki'
+    import hljs from 'highlight.js';
+    import {onMount} from "svelte";
+    import juice from 'juice';
+    import themeCss from 'highlight.js/styles/github-dark.css?raw';
 
-    let {code = '', lang}: {
-        code: string
-        lang: string
+    let {code = ''}: {
+        code?: string
     } = $props()
 
-    let highlightedCode = $state('')
-
-    async function loadShikiAndHighlight() {
-        highlightedCode = await codeToHtml(code, {
-            lang,
-            theme: 'night-owl'
-        })
-    }
+    let html = $state("")
 
     onMount(() => {
-        loadShikiAndHighlight()
+        const value = hljs.highlightAuto(code).value
+        const wrapped = `<pre><code class="hljs">${value}</code></pre>`;
+        html = juice.inlineContent(wrapped, themeCss);
     })
 </script>
 
-<div>
-    {@html highlightedCode}
-</div>
+<div>{@html html}</div>
 
 <style>
-    div > :global(pre) {
-        padding: var(--padding);
+    div{
+        background: #0d1117;
+        padding: calc(var(--padding) / 2);
         border: 1px solid currentColor;
-        width: 100%;
-        max-width: 500px;
+        margin: 4px;
     }
 </style>

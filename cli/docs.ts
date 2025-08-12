@@ -7,6 +7,8 @@ import OrderedList from "./core/ui/docs/OrderedList.svelte"
 import UnorderedList from "./core/ui/docs/UnorderedList.svelte"
 import Image from "./core/ui/docs/Image.svelte"
 import Video from "./core/ui/docs/Video.svelte"
+import AutoplayVideo from "./core/ui/docs/AutoplayVideo.svelte"
+import ControlsVideo from "./core/ui/docs/ControlsVideo.svelte"
 import InlineCode from "./core/ui/docs/InlineCode.svelte"
 import AccentedParagraph from "./core/ui/docs/AccentedParagraph.svelte"
 import Separator from "./core/ui/docs/Separator.svelte"
@@ -21,6 +23,8 @@ export {
     ListItem,
     Image,
     Video,
+    AutoplayVideo,
+    ControlsVideo,
     InlineCode,
     AccentedParagraph,
     Separator,
