@@ -1,27 +1,46 @@
 <script lang="ts">
-  let {
-    src,
-    alt = "Image",
-  }: {
-    src: string
-    alt?: string
-  } = $props()
+    let {
+        src = '',
+        alt = '',
+        caption = '',
+        rounded = true,
+    }: {
+        src: string
+        alt: string
+        caption: string
+        rounded?: boolean
+    } = $props();
 </script>
 
-<img {src} {alt} />
-<p>{alt}</p>
+<figure>
+    <img src={src} alt={alt}
+         class:rounded loading="lazy"/>
+    {#if caption}
+        <figcaption>{caption}</figcaption>
+    {/if}
+</figure>
 
 <style>
-  img,
-  p {
-    width: 100%;
-    max-width: 500px;
-  }
-  p {
-    text-align: center;
-    opacity: 0.5;
-  }
-  img {
-    border: 1px solid currentColor;
-  }
+    figure {
+        margin: 1rem 0;
+        text-align: center;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .rounded {
+        border-radius: 0.25rem;
+    }
+
+    figcaption {
+        font-size: .9em;
+        margin-top: .4rem;
+    }
 </style>
