@@ -295,6 +295,49 @@ export default function load(target: HTMLElement, props: any) {
     clearUmdDist()
 
     injectFileContents(config, dir)
+
+    function readPackageJson(pkgDir: string): any | null {
+      const pkgPath = path.resolve(pkgDir, "package.json")
+      if (!fs.existsSync(pkgPath)) return null
+      try {
+        const raw = fs.readFileSync(pkgPath, "utf-8")
+        return JSON.parse(raw)
+      } catch (e) {
+        console.warn("Could not parse package.json:", e)
+        return null
+      }
+    }
+
+    function sanitizeVersion(version: string): string {
+      const m = version.match(/\d+(?:\.\d+){0,2}/)
+      if (m) return m[0]
+      return version.replace(/^[^\d]*/, "")
+    }
+
+
+    function getFtcPanelsPluginVersion(pkg: any): string | null {
+      if (!pkg) return null
+      const sections = [pkg.dependencies || {}, pkg.devDependencies || {}, pkg.optionalDependencies || {}]
+
+      for (const deps of sections) {
+        for (const [name, ver] of Object.entries(deps as Record<string, string>)) {
+          if (name.toLowerCase().includes("ftc-panels")) {
+            return sanitizeVersion(ver as string)
+          }
+        }
+      }
+      return null
+    }
+
+    const pkg = readPackageJson(dir)
+    const panelsVersion = getFtcPanelsPluginVersion(pkg)
+    if (panelsVersion) {
+      config.pluginsCoreVersion = panelsVersion
+      console.log("Set config.pluginsCoreVersion from ftc-panels dependency:", panelsVersion)
+    } else {
+      throw Error("ftc-panels plugin dependency not found in package.json; leaving config.version unchanged.")
+    }
+
     clearDist()
     writeConfigJsonToDist(config)
 
