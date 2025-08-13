@@ -28,7 +28,9 @@
             name: "Core",
         }
 
-        return [renamedDocsPlugin, ...otherPlugins]
+        const response = [renamedDocsPlugin, ...otherPlugins]
+
+        return response.sort((a, b) => a.name.localeCompare(b.name))
     })
 </script>
 

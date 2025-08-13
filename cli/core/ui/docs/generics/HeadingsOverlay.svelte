@@ -64,7 +64,9 @@
     })
 
     onDestroy(() => {
-        cancelAnimationFrame(rafId);
+        if (typeof cancelAnimationFrame === 'function') {
+            cancelAnimationFrame(rafId);
+        }
     })
 
     function scrollToHeading(heading: Heading) {
