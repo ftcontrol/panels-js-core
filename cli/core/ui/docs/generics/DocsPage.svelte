@@ -3,6 +3,7 @@
     import Toggle from "../../Toggle.svelte";
     import Arrow from "../../Arrow.svelte";
     import {type PluginConfig} from "../../../types"
+    import HeadingsOverlay from "./HeadingsOverlay.svelte";
 
     let {plugins, skippedPlugins = [], children}: {
         plugins: PluginConfig[];
@@ -59,6 +60,7 @@
         {/each}
     </nav>
     <div class="content">
+        <HeadingsOverlay />
         {@render children?.()}
     </div>
 </section>
