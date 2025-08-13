@@ -14,6 +14,7 @@ import AccentedParagraph from "./core/ui/docs/AccentedParagraph.svelte"
 import Separator from "./core/ui/docs/Separator.svelte"
 import Table from "./core/ui/docs/Table.svelte"
 import CodeBlock from "./core/ui/docs/CodeBlock.svelte"
+import DocsPage from "./core/ui/docs/generics/DocsPage.svelte"
 
 export {
     Title,
@@ -31,5 +32,6 @@ export {
     OrderedList,
     UnorderedList,
     Table,
-    CodeBlock
+    CodeBlock,
+    DocsPage
 }

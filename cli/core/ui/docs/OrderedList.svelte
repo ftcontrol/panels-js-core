@@ -1,17 +1,21 @@
 <script lang="ts">
+    import {type Snippet} from "svelte";
+
     let {
         start = 1,
         type = '1',
         dense = false,
+        children
     }: {
         start: any
         type: '1' | 'a' | 'A' | 'i' | 'I'
-        dense: boolean
+        dense: boolean,
+        children?: Snippet
     } = $props();
 </script>
 
 <ol start={start} type={type} class:dense>
-    <slot/>
+    {@render children?.()}
 </ol>
 
 <style>

@@ -1,13 +1,17 @@
 <script lang="ts">
+    import {type Snippet} from "svelte";
+
     let {
         dense = false,
+        children
     }: {
         dense: boolean
+        children?: Snippet
     } = $props();
 </script>
 
 <ul class:dense>
-    <slot/>
+    {@render children?.()}
 </ul>
 
 <style>

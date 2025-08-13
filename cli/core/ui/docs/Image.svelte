@@ -26,6 +26,7 @@
         text-align: center;
         width: 100%;
         max-width: 500px;
+        border: 1px solid currentColor;
     }
 
     img {

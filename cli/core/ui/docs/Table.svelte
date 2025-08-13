@@ -11,9 +11,6 @@
 </script>
 
 <table>
-    {#if caption}
-        <caption>{caption}</caption>
-    {/if}
     <tbody>
     {#each data as row, i}
         <tr class:header={i===0 && hasHeader}>
@@ -25,6 +22,9 @@
         </tr>
     {/each}
     </tbody>
+    {#if caption}
+        <caption>{caption}</caption>
+    {/if}
 </table>
 
 <style>
