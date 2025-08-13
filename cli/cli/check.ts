@@ -32,12 +32,67 @@ function extractPluginVersion(gradlePath: string): string | null {
   return match && match[1] ? match[1] : null
 }
 
+function readPackageJson(pkgDir: string): any | null {
+  const pkgPath = resolve(pkgDir, "package.json")
+  if (!existsSync(pkgPath)) return null
+  try {
+    const raw = readFileSync(pkgPath, "utf-8")
+    return JSON.parse(raw)
+  } catch (e) {
+    console.warn("Could not parse package.json:", e)
+    return null
+  }
+}
+
+function sanitizeVersion(version: string): string {
+  const m = version.match(/\d+(?:\.\d+){0,2}/)
+  if (m) return m[0]
+  return version.replace(/^[^\d]*/, "")
+}
+
+
+function getFtcPanelsPluginVersion(pkg: any): string | null {
+  if (!pkg) return null
+  const sections = [pkg.dependencies || {}, pkg.devDependencies || {}, pkg.optionalDependencies || {}]
+
+  for (const deps of sections) {
+    for (const [name, ver] of Object.entries(deps as Record<string, string>)) {
+      if (name.toLowerCase().includes("ftc-panels")) {
+        return sanitizeVersion(ver as string)
+      }
+    }
+  }
+  return null
+}
+
+
 export async function checkPlugin(dir: string): Promise<boolean> {
   console.log("Checking plugin")
   const configPath = resolve(dir, "config.ts")
   if (!existsSync(configPath)) {
     console.error("Missing config.ts in", dir)
     return false
+  }
+
+  const pkg = readPackageJson(dir)
+  const panelsVersion = getFtcPanelsPluginVersion(pkg)
+  if (panelsVersion) {
+    let src = readFileSync(configPath, "utf-8")
+    const original = src
+
+    src = src.replace(
+        /(pluginsCoreVersion\s*:\s*['"])([^'"]+)(['"])/,
+        `$1${panelsVersion}$3`
+    )
+
+    if (src !== original) {
+      writeFileSync(configPath, src, "utf-8")
+      console.log(`Updated config.ts pluginsCoreVersion version to ${panelsVersion}`)
+    } else {
+      console.warn("No matching pluginsCoreVersion version found to update in config.ts")
+    }
+  } else {
+    throw Error("ftc-panels plugin dependency not found in package.json; leaving config.version unchanged.")
   }
 
   const gradleDir = resolve(dir, "..")
@@ -62,6 +117,9 @@ export async function checkPlugin(dir: string): Promise<boolean> {
   }
 
   const cfg = config as PluginConfig
+
+  cfg.pluginsCoreVersion = panelsVersion
+
 
   const requiredStrings: (keyof PluginConfig)[] = [
     "id",

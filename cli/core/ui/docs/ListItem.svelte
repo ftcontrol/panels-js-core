@@ -14,6 +14,6 @@
     }
 
     li :global(p) {
-        margin: .25rem 0 .35rem;
+        margin: .25rem 0 .35rem var(--padding);
     }
 </style>
