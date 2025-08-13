@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-import { exec } from "child_process"
+import { exec, execSync } from "child_process"
 import { promisify } from "util"
 import { type PluginConfig } from "ftc-panels"
 import chokidar from "chokidar"
@@ -8,6 +8,7 @@ import http from "http"
 import url from "url"
 
 const execAsync = promisify(exec)
+
 
 const modules: PluginConfig[] = []
 const moduleTimestamps = new Map<string, number>()
@@ -18,6 +19,8 @@ async function buildModule(
   webDir: string
 ): Promise<PluginConfig | null> {
   const packageJsonPath = path.join(webDir, "package.json")
+  console.log(`🛠️  Path: ${packageJsonPath}`)
+
   if (fs.existsSync(packageJsonPath)) {
     const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"))
     if (pkg.scripts?.build) {
@@ -138,6 +141,25 @@ export async function buildAllPlugins(
         console.log(`⏭️  Skipping "${name}" (not in folders list)`)
         continue
       }
+
+      function ensureBunAvailable() {
+        try {
+          execSync("bun --version", { stdio: "ignore" })
+        } catch {
+          throw new Error(
+              "Bun is required to build this plugin, but it wasn't found in PATH. Install Bun and try again."
+          )
+        }
+      }
+
+      function bunInstall(pkgDir: string) {
+        console.log(`🔧 Ensuring dependencies in ${pkgDir}`)
+        ensureBunAvailable()
+        console.log("📦 Running: bun install")
+        execSync("bun install", { cwd: pkgDir, stdio: "inherit" })
+      }
+
+      bunInstall(webDir)
 
       const config = await buildModule(name, webDir)
       if (config == null) continue

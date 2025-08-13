@@ -6,21 +6,42 @@
     "email": "hi@bylazar.com",
     "url": "https://bylazar.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ftcontrol/panels-js-core.git"
+  },
   "type": "module",
-  "version": "0.1.2",
+  "version": "1.1.10",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "create-panels-plugin": "./cli/bin/create.ts"
   },
   "exports": {
-    ".": "./index.ts",
-    "./cli": "./cli/index.ts",
-    "./docs": "./docs.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli/index.d.ts",
+      "import": "./dist/cli/index.js"
+    },
+    "./docs": {
+      "types": "./dist/docs.d.ts",
+      "import": "./dist/docs.js"
+    }
   },
   "files": [
-    "src",
-    "cli",
-    "template"
+    "dist"
   ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-core.mjs",
+    "clean": "rm -rf dist",
+    "prepack": "bun run clean && bun run build",
+    "prepublishOnly": "bun run build",
+    "dev": "tsc -w -p tsconfig.json"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

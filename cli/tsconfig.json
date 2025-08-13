@@ -1,37 +1,18 @@
 {
-  "include": [
-    "src",
-    "src/index.tsx.tssrc/index.tsindex.ts",
-    "cli",
-    "index.ts",
-    "index.ts"
-  ],
-  "exclude": ["template", "test", "dist", "node_modules"],
   "compilerOptions": {
-    // Environment setup & latest features
-    "lib": ["ESNext"],
-    "target": "ESNext",
-    "module": "Preserve",
-    "moduleDetection": "force",
-    "jsx": "react-jsx",
-    "allowJs": true,
-
-    // Bundler mode
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
-
-    // Best practices
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "outDir": "dist",
+    "rootDir": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "strict": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-
-    // Some stricter flags (disabled by default)
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
-  }
+    "types": ["node"],
+    "lib": ["ES2022"]
+  },
+  "include": ["src", "cli", "core", "index.ts", "docs.ts"],
+  "exclude": ["dist", "**/*.test.*"]
 }

@@ -1,4 +1,4 @@
-import { getGlobalData, setGlobalData } from ".././globalWriter.ts"
+import { getGlobalData, setGlobalData } from "../globalWriter"
 
 type Entry = {
   id: string

@@ -13,6 +13,7 @@ export class GlobalSocket {
   log: string[] = []
 
   private maxLogSize: number = 100
+  private maxQueueSize: number = 256
 
   private outgoingQueue: string[] = []
   private isDraining = false
