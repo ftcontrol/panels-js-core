@@ -6,7 +6,7 @@ import type { PluginConfig } from "../core/types"
 import { checkPlugin } from "./check"
 import { execSync } from "child_process"
 
-export async function buildPanelsPlugin(dir: string): Promise<PluginConfig> {
+export async function buildPanelsPlugin(dir: string, minify = true): Promise<PluginConfig> {
   const generatedDir = path.resolve(dir, ".panels")
   const distDir = path.resolve(dir, "dist")
   const distWidgetsDir = path.resolve(dir, "dist/widgets")
@@ -220,7 +220,7 @@ export default function load(target: HTMLElement, props: any) {
               globals: {},
             },
           },
-          minify: false,
+          minify: minify,
           emptyOutDir: false,
         },
       })
@@ -286,6 +286,7 @@ export default function load(target: HTMLElement, props: any) {
             globals: {},
           },
         },
+        minify: minify,
         emptyOutDir: false,
       },
     })
