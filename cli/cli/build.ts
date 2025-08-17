@@ -91,10 +91,26 @@ export async function buildPanelsPlugin(dir: string, minify = true): Promise<Plu
   console.log(config)
 
   function writeConfigJsonToDist(config: PluginConfig) {
+    let c = config
     if (!fs.existsSync(distDir)) {
       fs.mkdirSync(distDir, { recursive: true })
     }
-    const jsonPath = path.resolve(distDir, "config.json")
+    let jsonPath = path.resolve(distDir, "config.json")
+    fs.writeFileSync(jsonPath, JSON.stringify(config, null, 2), "utf-8")
+
+    c.manager.textContent = ""
+    for(const item of c.widgets){
+      item.textContent = ""
+    }
+    for(const item of c.navlets){
+      item.textContent = ""
+    }
+    c.docs.homepage.textContent = ""
+    for(const item of c.docs.chapters){
+      item.textContent = ""
+    }
+
+    jsonPath = path.resolve(distDir, "simple_config.json")
     fs.writeFileSync(jsonPath, JSON.stringify(config, null, 2), "utf-8")
   }
 
