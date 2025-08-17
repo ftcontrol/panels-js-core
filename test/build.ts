@@ -12,6 +12,7 @@ await build({
       entry: "wrapper.ts",
       name: "Component",
       fileName: `out.js`,
+      formats: ["es"],
     },
     rollupOptions: {
       external: [],
@@ -19,76 +20,9 @@ await build({
         globals: {},
       },
     },
-    minify: false,
-    emptyOutDir: false,
-  },
-})
-
-await build({
-  plugins: [
-    svelte({
-      emitCss: false,
-    }),
-  ],
-  build: {
-    lib: {
-      entry: "Main.svelte",
-      name: "Component",
-      fileName: `out2.js`,
-    },
-    rollupOptions: {
-      external: [],
-      output: {
-        globals: {},
-      },
-    },
-    minify: false,
-    emptyOutDir: false,
-  },
-})
-
-await build({
-  plugins: [
-    svelte({
-      emitCss: false,
-    }),
-  ],
-  build: {
-    lib: {
-      entry: "wrapper2.ts",
-      name: "Component",
-      fileName: `out3.js`,
-    },
-    rollupOptions: {
-      external: [],
-      output: {
-        globals: {},
-      },
-    },
-    minify: false,
-    emptyOutDir: false,
-  },
-})
-
-await build({
-  plugins: [
-    svelte({
-      emitCss: false,
-    }),
-  ],
-  build: {
-    lib: {
-      entry: "Main.svelte",
-      name: "Component",
-      fileName: `out3.js`,
-    },
-    rollupOptions: {
-      external: ["svelte"],
-      output: {
-        globals: {},
-      },
-    },
-    minify: false,
-    emptyOutDir: false,
+    minify: "esbuild",
+    target: "es2019",
+    sourcemap: false,
+    emptyOutDir: true,
   },
 })
