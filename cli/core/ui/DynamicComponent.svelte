@@ -7,22 +7,20 @@
   let {
     globalSocket,
     info,
-    textContent,
     id,
+    loadFunction = (host, props) => {},
   }: {
     globalSocket: GlobalSocket
     info: PluginInfo
-    textContent: string
     id: string
+    loadFunction: (host: HTMLElement, props: any) => any
   } = $props()
 
   let host: HTMLDivElement
   let instance: any
 
   onMount(async () => {
-    const { default: load } = await importFromSource(textContent)
-
-    instance = load(host, {
+    instance = loadFunction(host, {
       manager: globalSocket.pluginManagers[id],
       info: info,
     })

@@ -27,7 +27,9 @@ function gzipFile(srcPath: string) {
     // @ts-ignore Node accepts mtime
     mtime: 0,
   })
-  fs.writeFileSync(srcPath + ".gz", gz)
+
+  fs.unlinkSync(srcPath)
+  fs.writeFileSync(srcPath, gz)
 }
 
 export async function buildPanelsPlugin(
@@ -57,8 +59,6 @@ export async function buildPanelsPlugin(
       .relative(generatedDir, path.resolve(dir, config.manager))
       .replace(/\\/g, "/")
     output.push(`import Manager from "${filepath}"`)
-    itemNames.push("Manager")
-    itemFixedNames.push("Manager")
 
     output.push(`const mappings = {`)
     for (let i = 0; i < itemNames.length; i++) {
@@ -69,6 +69,9 @@ export async function buildPanelsPlugin(
     output.push(
       `export default function load(id: string, target: HTMLElement, props: any){`
     )
+    output.push(`if(id == "Manager"){`)
+    output.push("return Manager");
+    output.push(`}`)
     output.push(`return mount(mappings[id], {target: target, props: props})`)
     output.push(`}`)
 
@@ -131,8 +134,6 @@ export async function buildPanelsPlugin(
 
   const svelteBundle = path.resolve(distDir, "svelte.js")
   gzipFile(svelteBundle)
-
-  fs.unlinkSync(svelteBundle)
 
   return config
 }

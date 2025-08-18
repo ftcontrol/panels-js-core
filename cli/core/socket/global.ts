@@ -9,6 +9,7 @@ export class GlobalSocket {
   socket: WebSocket | null = null
   private readonly messageHandlers: Record<string, Handler> = {}
   pluginManagers: Record<string, PluginManager> = {}
+  pluginSelectors: Record<string, any> = {}
 
   log: string[] = []
 
@@ -20,6 +21,7 @@ export class GlobalSocket {
 
   async initPlugins(
     plugins: PluginInfo[],
+    svelteURLs: Record<string, string>,
     notifications: NotificationsManager
   ) {
     const created: Record<string, PluginManager> = {}
@@ -27,26 +29,29 @@ export class GlobalSocket {
     await Promise.all(
       plugins.map(async (it) => {
         try {
-          // const src = it.details.manager.textContent?.trim() ?? ""
-          // if (!src) {
-          //   console.warn(`[plugin:${it.details.id}] Missing manager source`)
-          //   return
-          // }
-          // const mod = await importFromSource(src)
-          // const Manager = (mod as any)?.default
-          // if (typeof Manager !== "function") {
-          //   console.error(`[plugin:${it.details.id}] Manager default export not found`)
-          //   return
-          // }
-          // const manager: PluginManager = new Manager(
-          //     new PluginSocket(it.details.id, this),
-          //     it.details,
-          //     notifications
-          // )
-          // created[it.details.id] = manager
-          // if (typeof manager.onInit === "function") {
-          //   await manager.onInit()
-          // }
+          const response = await fetch(svelteURLs[it.details.id])
+          const data = await response.text()
+          const src = data.trim() ?? ""
+          if (!src) {
+            console.warn(`[plugin:${it.details.id}] Missing manager source`)
+            return
+          }
+          const mod = await importFromSource(src)
+          const Selector = (mod as any)?.default
+
+          this.pluginSelectors[it.details.id] = Selector
+
+          const Manager = Selector("Manager")
+
+          const manager: PluginManager = new Manager(
+            new PluginSocket(it.details.id, this),
+            it.details,
+            notifications
+          )
+          created[it.details.id] = manager
+          if (typeof manager.onInit === "function") {
+            await manager.onInit()
+          }
         } catch (err) {
           console.error(`[plugin:${it.details.id}] Failed to initialize`, err)
         }
