@@ -45,6 +45,9 @@ function readPackageJson(pkgDir: string): any | null {
 }
 
 function sanitizeVersion(version: string): string {
+  if (version.startsWith("link:") || version.startsWith("file:")) {
+    return version
+  }
   const m = version.match(/\d+(?:\.\d+){0,2}/)
   if (m) return m[0]
   return version.replace(/^[^\d]*/, "")
@@ -82,7 +85,10 @@ export async function checkPlugin(dir: string): Promise<boolean> {
   const isLocal =
     panelsVersion?.startsWith("link:") || panelsVersion?.startsWith("file:")
 
-  if (!panelsVersion) return false
+  if (!panelsVersion) {
+    console.error("ftc-panels version not found")
+    return false
+  }
 
   if (isLocal) {
     console.log("ftc-panels is a local link, skipping config.ts version update")
