@@ -25,7 +25,7 @@
 
         const renamedDocsPlugin = {
             ...docsPlugin,
-            name: "Core",
+            name: "Core"
         }
 
         return [renamedDocsPlugin, ...otherPlugins.sort((a, b) => a.name.localeCompare(b.name))]
@@ -42,13 +42,10 @@
                         <Arrow {isOpen}/>
                     </p>
                 {/snippet}
-                {#snippet content({close}: { close: () => void })}
+                {#snippet content({close})}
                     <div class="item">
-                        <a href="/docs/{plugin.id}"
-                        >{plugin.docs.homepage.name}</a
-                        >
-                        {#each plugin.docs.chapters as c}
-                            <a href="/docs/{plugin.id}/{c.name}">{c.name}</a>
+                        {#each (plugin.components || []).filter(it => it.type === "docs") as c}
+                            <a href="/docs/{plugin.id}/{c.id}">{c.id}</a>
                         {/each}
                     </div>
                 {/snippet}
@@ -60,7 +57,7 @@
         {/each}
     </nav>
     <div class="content">
-        <HeadingsOverlay />
+        <HeadingsOverlay/>
         {@render children?.()}
     </div>
 </section>

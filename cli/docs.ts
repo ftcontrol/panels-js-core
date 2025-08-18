@@ -15,6 +15,7 @@ import Separator from "./core/ui/docs/Separator.svelte"
 import Table from "./core/ui/docs/Table.svelte"
 import CodeBlock from "./core/ui/docs/CodeBlock.svelte"
 import DocsPage from "./core/ui/docs/generics/DocsPage.svelte"
+import CodeFormatter from "./core/ui/docs/generics/CodeFormatter.svelte";
 
 export {
     Title,
@@ -33,5 +34,6 @@ export {
     UnorderedList,
     Table,
     CodeBlock,
-    DocsPage
+    DocsPage,
+    CodeFormatter
 }

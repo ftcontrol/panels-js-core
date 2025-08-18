@@ -17,7 +17,7 @@ const debounceMap = new Map<string, NodeJS.Timeout>()
 async function buildModule(
   name: string,
   webDir: string
-): Promise<PluginConfig | null> {
+): Promise<{config: PluginConfig, svelte: Buffer} | null> {
   const packageJsonPath = path.join(webDir, "package.json")
   console.log(`🛠️  Path: ${packageJsonPath}`)
 
@@ -35,13 +35,18 @@ async function buildModule(
   }
 
   const distConfigJson = path.join(webDir, "dist", "config.json")
+  const sveltePath = path.join(webDir, "dist", "svelte.js")
   if (!fs.existsSync(distConfigJson)) return null
 
   try {
     const rawConfig = fs.readFileSync(distConfigJson, "utf-8")
+    const rawSvelte = fs.readFileSync(sveltePath)
     const config = JSON.parse(rawConfig) as PluginConfig
     moduleTimestamps.set(config.name, Date.now())
-    return config
+    return {
+      config: config,
+      svelte: rawSvelte,
+    }
   } catch (e) {
     console.error(`❌ Failed to parse config for ${name}:`, e)
     return null
@@ -72,12 +77,12 @@ function watchWebDir(name: string, webDir: string) {
       name,
       setTimeout(async () => {
         console.log(`🔄 Rebuilding "${name}" due to changes...`)
-        const config = await buildModule(name, webDir)
-        if (config) {
-          const index = modules.findIndex((m) => m.name === config.name)
-          if (index >= 0) modules[index] = config
-          else modules.push(config)
-          moduleTimestamps.set(config.name, Date.now())
+        const info = await buildModule(name, webDir)
+        if (info) {
+          const index = modules.findIndex((m) => m.name === info.config.name)
+          if (index >= 0) modules[index] = info.config
+          else modules.push(info.config)
+          moduleTimestamps.set(info.config.name, Date.now())
           console.log(`✅ Rebuilt and reloaded "${name}".`)
         }
       }, 300)
@@ -91,8 +96,9 @@ export async function buildAllPlugins(
   folders: string[] | null
 ): Promise<
   {
-    config: PluginConfig
-    name: string
+    config: PluginConfig,
+    name: string,
+    svelte: Buffer
   }[]
 > {
   const moduleDirs = fs
@@ -103,6 +109,7 @@ export async function buildAllPlugins(
   const results: {
     config: PluginConfig
     name: string
+    svelte: Buffer
   }[] = []
 
   if (isParallel) {
@@ -120,13 +127,14 @@ export async function buildAllPlugins(
         return null
       }
 
-      const config = await buildModule(name, webDir)
+      const info = await buildModule(name, webDir)
 
-      if (config == null) return null
+      if (info == null) return null
 
       return {
-        config,
+        config: info.config,
         name,
+        svelte: info.svelte,
       }
     })
 
@@ -165,12 +173,13 @@ export async function buildAllPlugins(
 
       bunInstall(webDir)
 
-      const config = await buildModule(name, webDir)
-      if (config == null) continue
+      const info = await buildModule(name, webDir)
+      if (info == null) continue
 
       results.push({
-        config,
+        config: info.config,
         name,
+        svelte: info.svelte,
       })
     }
 

@@ -1,39 +1,39 @@
 <script lang="ts">
-  import { onMount } from "svelte"
-  import { unmount } from "svelte"
-  import { importFromSource } from "../socket/source"
-  import type { PluginConfig, PluginInfo } from "../types"
-  let {
-    info,
-    textContent,
-  }: {
-    info: PluginConfig
-    textContent: string
-  } = $props()
+    import {onMount} from "svelte"
+    import {unmount} from "svelte"
+    import {importFromSource} from "../socket/source"
+    import type {PluginConfig, PluginInfo} from "../types"
 
-  let host: HTMLDivElement
-  let instance: any
+    let {
+        info,
+        loadFunction = (host, props) => {
+        },
+    }: {
+        info: PluginConfig
+        loadFunction: (host: HTMLElement, props: any) => any
+    } = $props()
 
-  onMount(async () => {
-    const { default: load } = await importFromSource(textContent)
+    let host: HTMLDivElement
+    let instance: any
 
-    instance = load(host, {
-      info: info,
+    onMount(async () => {
+        instance = loadFunction(host, {
+            info: info,
+        })
+
+        return () => {
+            unmount(instance)
+        }
     })
-
-    return () => {
-      unmount(instance)
-    }
-  })
 </script>
 
 <div bind:this={host}></div>
 
 <style>
-  div {
-    background-color: transparent;
-    min-width: 100%;
-    display: inline-block;
-    max-height: 100%;
-  }
+    div {
+        background-color: transparent;
+        min-width: 100%;
+        display: inline-block;
+        max-height: 100%;
+    }
 </style>
