@@ -132,5 +132,7 @@ export async function buildPanelsPlugin(
   const svelteBundle = path.resolve(distDir, "svelte.js")
   gzipFile(svelteBundle)
 
+  fs.unlinkSync(svelteBundle)
+
   return config
 }
