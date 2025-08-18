@@ -19,41 +19,38 @@ export class GlobalSocket {
   private isDraining = false
 
   async initPlugins(
-      plugins: PluginInfo[],
-      notifications: NotificationsManager,
+    plugins: PluginInfo[],
+    notifications: NotificationsManager
   ) {
     const created: Record<string, PluginManager> = {}
 
     await Promise.all(
-        plugins.map(async (it) => {
-          try {
-            const src = it.details.manager.textContent?.trim() ?? ""
-            if (!src) {
-              console.warn(`[plugin:${it.details.id}] Missing manager source`)
-              return
-            }
-
-            const mod = await importFromSource(src)
-            const Manager = (mod as any)?.default
-            if (typeof Manager !== "function") {
-              console.error(`[plugin:${it.details.id}] Manager default export not found`)
-              return
-            }
-
-            const manager: PluginManager = new Manager(
-                new PluginSocket(it.details.id, this),
-                it.details,
-                notifications
-            )
-
-            created[it.details.id] = manager
-            if (typeof manager.onInit === "function") {
-              await manager.onInit()
-            }
-          } catch (err) {
-            console.error(`[plugin:${it.details.id}] Failed to initialize`, err)
-          }
-        })
+      plugins.map(async (it) => {
+        try {
+          // const src = it.details.manager.textContent?.trim() ?? ""
+          // if (!src) {
+          //   console.warn(`[plugin:${it.details.id}] Missing manager source`)
+          //   return
+          // }
+          // const mod = await importFromSource(src)
+          // const Manager = (mod as any)?.default
+          // if (typeof Manager !== "function") {
+          //   console.error(`[plugin:${it.details.id}] Manager default export not found`)
+          //   return
+          // }
+          // const manager: PluginManager = new Manager(
+          //     new PluginSocket(it.details.id, this),
+          //     it.details,
+          //     notifications
+          // )
+          // created[it.details.id] = manager
+          // if (typeof manager.onInit === "function") {
+          //   await manager.onInit()
+          // }
+        } catch (err) {
+          console.error(`[plugin:${it.details.id}] Failed to initialize`, err)
+        }
+      })
     )
 
     this.pluginManagers = { ...this.pluginManagers, ...created }
@@ -164,7 +161,11 @@ export class GlobalSocket {
 
     this.isDraining = true
     try {
-      while (this.socket && this.socket.readyState === WebSocket.OPEN && this.outgoingQueue.length > 0) {
+      while (
+        this.socket &&
+        this.socket.readyState === WebSocket.OPEN &&
+        this.outgoingQueue.length > 0
+      ) {
         const payload = this.outgoingQueue.shift()!
         try {
           this.socket.send(payload)

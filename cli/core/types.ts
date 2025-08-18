@@ -1,60 +1,58 @@
 export type PluginConfig = {
-    id: string
-    name: string
-    letterName: string
-    description: string
-    websiteURL: string
-    version: string
-    pluginsCoreVersion: string
-    author: string
-    widgets: PanelsWidget[]
-    navlets: PanelsWidget[]
-    manager: PanelsWidget
-    docs: PluginDocs
-    templates: Template[]
-    includedPluginsIDs: string[]
+  id: string
+  name: string
+  letterName: string
+  description: string
+  websiteURL: string
+  version: string
+  pluginsCoreVersion: string
+  author: string
+  components: PanelsWidget[]
+  manager: string
+  templates: Template[]
+  includedPluginsIDs: string[]
 }
 
 export type PluginDocs = {
-    homepage: PanelsWidget
-    chapters: PanelsWidget[]
+  homepage: PanelsWidget
+  chapters: PanelsWidget[]
 }
 
 export type PanelsWidget = {
-    name: string
-    filepath: string
-    textContent?: string
+  type: "widget" | "navlet" | "docs"
+  id: string
+  filepath: string
 }
 
 export type PluginInfo = {
-    details: PluginConfig
-    config: {
-        idDev: boolean
-        isEnabled: boolean
-        [key: string]: unknown
-    }
+  details: PluginConfig
+  config: {
+    idDev: boolean
+    isEnabled: boolean
+    [key: string]: unknown
+  }
 }
 
 export type Template = {
-    name: string
-    widgets: TemplateWidgetGroup[]
-    navlets: TemplateNavlet[]
+  name: string
+  widgets: TemplateWidgetGroup[]
+  navlets: TemplateNavlet[]
 }
 
 export type TemplateWidget = {
-    pluginID: string
-    widgetID: string
+  pluginID: string
+  widgetID: string
 }
 
 export type TemplateWidgetGroup = {
-    widgets: TemplateWidget[]
-    x: number
-    y: number
-    w: number
-    h: number
+  widgets: TemplateWidget[]
+  x: number
+  y: number
+  w: number
+  h: number
 }
 
 export type TemplateNavlet = {
-    pluginID: string
-    navletID: string
+  pluginID: string
+  navletID: string
 }
