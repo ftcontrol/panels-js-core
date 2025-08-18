@@ -4,6 +4,7 @@ import fs from "fs"
 import path from "path"
 import type { PanelsWidget, PluginConfig } from "../core/types"
 import { checkPlugin } from "./check"
+import zlib from "zlib"
 import { execSync } from "child_process"
 
 function clearDist(distDir: string) {
@@ -17,6 +18,17 @@ function clearDist(distDir: string) {
       }
     })
   }
+}
+
+function gzipFile(srcPath: string) {
+  if (!fs.existsSync(srcPath)) return
+  const buf = fs.readFileSync(srcPath)
+  const gz = zlib.gzipSync(buf, {
+    level: zlib.constants.Z_BEST_COMPRESSION,
+    // @ts-ignore Node accepts mtime
+    mtime: 0,
+  })
+  fs.writeFileSync(srcPath + ".gz", gz)
 }
 
 //check all slvete components to have different name
@@ -115,6 +127,9 @@ export async function buildPanelsPlugin(
 
   const jsonPath = path.resolve(distDir, "config.json")
   fs.writeFileSync(jsonPath, JSON.stringify(config, null, 2), "utf-8")
+
+  const svelteBundle = path.resolve(distDir, "svelte.js")
+  gzipFile(svelteBundle)
 
   return config
 
