@@ -4,6 +4,7 @@
     import Arrow from "../../Arrow.svelte";
     import {type PluginConfig} from "../../../types"
     import HeadingsOverlay from "./HeadingsOverlay.svelte";
+    import Button from "../../Button.svelte";
 
     let {plugins, skippedPlugins = [], children}: {
         plugins: PluginConfig[];
@@ -30,10 +31,20 @@
 
         return [renamedDocsPlugin, ...otherPlugins.sort((a, b) => a.name.localeCompare(b.name))]
     })
+
+    let isOpened = $state(false)
+
+
+
 </script>
 
+<button class="bg" class:isOpened aria-label="Close Navbar" onclick={()=>{isOpened = false}}></button>
+
 <section>
-    <nav>
+    <div class="button nav" class:isOpened>
+        <Button onclick={()=>{isOpened = !isOpened}}>Content</Button>
+    </div>
+    <nav class:isOpened>
         {#each orderedPlugins as plugin}
             <Toggle defaultOpen={plugin.id === "com.bylazar.docs"}>
                 {#snippet trigger({isOpen})}
@@ -45,7 +56,7 @@
                 {#snippet content({close})}
                     <div class="item">
                         {#each (plugin.components || []).filter(it => it.type === "docs") as c}
-                            <a href="/docs/{plugin.id}/{c.id}">{c.id}</a>
+                            <a onclick={()=>{isOpened = false}} href="/docs/{plugin.id}/{c.id}">{c.id}</a>
                         {/each}
                     </div>
                 {/snippet}
@@ -112,5 +123,62 @@
         background-color: currentColor;
         margin-block: 1rem;
         opacity: 0.5;
+    }
+
+    .button.nav {
+        display: none;
+        position: fixed;
+        z-index: 100;
+        right: calc(var(--padding) / 1);
+        bottom: calc(var(--padding) / 1);
+    }
+
+    button.bg {
+        all: unset;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--bgDark);
+        opacity: 0;
+        cursor: pointer;
+        z-index: 99;
+        transition: opacity 0.5s;
+        pointer-events: none;
+    }
+
+    @media only screen and (max-width: 900px) {
+        nav {
+            position: fixed;
+            top: calc(var(--padding) / 2);
+            left: calc(var(--padding) / 2);
+            bottom: calc(var(--padding) / 2);
+            transform: translateX(-120%);
+            transition: transform 0.5s;
+            height: calc(100% - var(--padding));
+            z-index: 100;
+        }
+
+        nav.isOpened {
+            transform: translateX(0);
+        }
+
+        .button.nav {
+            display: block;
+            transform: translateX(0);
+            transition: transform 0.5s;
+        }
+        .button.nav.isOpened {
+            transform: translateX(150%);
+        }
+
+        button.bg {
+            display: block;
+        }
+        button.bg.isOpened{
+            opacity: 0.5;
+            pointer-events: all;
+        }
     }
 </style>
