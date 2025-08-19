@@ -21,6 +21,8 @@ import type { PluginValue } from "./core/socket/state"
 import { PluginStateManager } from "./core/socket/state"
 import { setCookie, getCookie } from "./core/cookies"
 
+import {importFromSource} from "./core/socket/source";
+
 import type {
   Notification,
   NotificationAction,
@@ -57,4 +59,5 @@ export {
   PluginStateManager,
   setCookie,
   getCookie,
+  importFromSource
 }

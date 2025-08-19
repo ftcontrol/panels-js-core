@@ -4,6 +4,7 @@ import type { GenericData, Handler } from "./types"
 import type { PluginInfo } from "../types"
 import { importFromSource } from "./source"
 import type { NotificationsManager } from "./notifications"
+import {svelte} from "@sveltejs/vite-plugin-svelte";
 
 export class GlobalSocket {
   socket: WebSocket | null = null
@@ -21,7 +22,7 @@ export class GlobalSocket {
 
   async initPlugins(
     plugins: PluginInfo[],
-    svelteURLs: Record<string, string>,
+    svelteFiles: Record<string, string>,
     notifications: NotificationsManager
   ) {
     const created: Record<string, PluginManager> = {}
@@ -29,14 +30,7 @@ export class GlobalSocket {
     await Promise.all(
       plugins.map(async (it) => {
         try {
-          const response = await fetch(svelteURLs[it.details.id])
-          const data = await response.text()
-          const src = data.trim() ?? ""
-          if (!src) {
-            console.warn(`[plugin:${it.details.id}] Missing manager source`)
-            return
-          }
-          const mod = await importFromSource(src)
+          const mod = await importFromSource(svelteFiles[it.details.id])
           const Selector = (mod as any)?.default
 
           this.pluginSelectors[it.details.id] = Selector
