@@ -27,7 +27,7 @@ export type PanelsWidget = {
 export type PluginInfo = {
   details: PluginConfig
   config: {
-    idDev: boolean
+    isDev: boolean
     isEnabled: boolean
     [key: string]: unknown
   }
