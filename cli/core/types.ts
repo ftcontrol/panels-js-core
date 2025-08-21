@@ -11,6 +11,26 @@ export type PluginConfig = {
   manager: string
   templates: Template[]
   includedPluginsIDs: string[]
+  changelog: ChangeLogEntry[]
+}
+
+export type ChangeLogEntry = {
+  version: string
+  release_date: string
+  changes: Change[]
+}
+
+export type Change = {
+  type:
+    | "added"
+    | "changed"
+    | "deprecated"
+    | "removed"
+    | "fixed"
+    | "docs"
+    | "other"
+  description: string
+  upgrading: string
 }
 
 export type PluginDocs = {
