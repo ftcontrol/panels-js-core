@@ -17,9 +17,19 @@
   } = $props()
 
   let orderedPlugins = $derived.by(() => {
-    const p = plugins.filter((it) => it.id != "com.bylazar.panels")
-    const docsPlugin = p.find((it) => it.id === "com.bylazar.docs")
-    const otherPlugins = p.filter((it) => it.id !== "com.bylazar.docs")
+    const docsPlugin = plugins.find((it) => it.id === "com.bylazar.docs")
+    const panelsPlugin = plugins.find((it) => it.id === "com.bylazar.panels")
+    const jsCorePlugin = plugins.find(
+      (it) => it.id === "com.bylazar.pluginsjscore"
+    )
+    const otherPlugins = plugins.filter(
+      (it) =>
+        ![
+          "com.bylazar.docs",
+          "com.bylazar.panels",
+          "com.bylazar.pluginsjscore",
+        ].includes(it.id)
+    )
 
     if (!docsPlugin) {
       return otherPlugins
@@ -32,6 +42,8 @@
 
     return [
       renamedDocsPlugin,
+      panelsPlugin,
+      jsCorePlugin,
       ...otherPlugins.sort((a, b) => a.name.localeCompare(b.name)),
     ]
   })
@@ -67,16 +79,25 @@
         {/snippet}
         {#snippet content({ close })}
           <div class="item">
-            {#each (plugin.components || []).filter((it) => it.type === "docs") as c, index}
+            {#if (plugin.components || []).filter((it) => it.type === "docs").length == 0}
               <a
                 onclick={() => {
                   isOpened = false
                 }}
-                href={index == 0
-                  ? `/docs/${plugin.id}`
-                  : `/docs/${plugin.id}/${c.id}`}>{c.id}</a
+                href={`/docs/${plugin.id}`}>Overview</a
               >
-            {/each}
+            {:else}
+              {#each (plugin.components || []).filter((it) => it.type === "docs") as c, index}
+                <a
+                  onclick={() => {
+                    isOpened = false
+                  }}
+                  href={index == 0
+                    ? `/docs/${plugin.id}`
+                    : `/docs/${plugin.id}/${c.id}`}>{c.id}</a
+                >
+              {/each}
+            {/if}
           </div>
         {/snippet}
       </Toggle>

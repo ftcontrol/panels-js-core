@@ -70,3 +70,24 @@ export {
   importFromSource,
   PluginSocket,
 }
+
+export const pluginsCoreConfig: PluginConfig = {
+  id: "com.bylazar.pluginsjscore",
+  name: "Plugins JS Core",
+  letterName: "PJC",
+  description: "Plugins Javascript Core",
+  websiteURL: "https://panels.bylazar.com",
+  version: "1.1.33",
+  pluginsCoreVersion: "1.1.33",
+  author: "Lazar",
+  manager: "",
+  components: [],
+  templates: [],
+  includedPluginsIDs: [],
+  changelog: [],
+}
+
+export const defaultSettings: PluginSettings = {
+  isEnabled: true,
+  isDev: false,
+}

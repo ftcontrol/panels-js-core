@@ -6,23 +6,25 @@
   let { changelog }: { changelog: ChangeLogEntry[] } = $props()
 </script>
 
-<section>
-  <h3 class="docs-heading" data-level="h2">Changelog</h3>
-  {#each changelog as log}
-    <p><b>{log.version}</b> {log.release_date}</p>
-    <OrderedList>
-      {#each log.changes as change}
-        <ListItem>
-          <p>{change.type}</p>
-          <p><b>Description:</b> {change.description}</p>
-          {#if change.upgrading}
-            <p><b>Upgrading:</b> {change.upgrading}</p>
-          {/if}
-        </ListItem>
-      {/each}
-    </OrderedList>
-  {/each}
-</section>
+{#if changelog && changelog.length > 0}
+  <section>
+    <h3 class="docs-heading" data-level="h2">Changelog</h3>
+    {#each changelog as log}
+      <p><b>{log.version}</b> {log.release_date}</p>
+      <OrderedList>
+        {#each log.changes as change}
+          <ListItem>
+            <p>{change.type}</p>
+            <p><b>Description:</b> {change.description}</p>
+            {#if change.upgrading}
+              <p><b>Upgrading:</b> {change.upgrading}</p>
+            {/if}
+          </ListItem>
+        {/each}
+      </OrderedList>
+    {/each}
+  </section>
+{/if}
 
 <style>
   b {
