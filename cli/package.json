@@ -11,7 +11,7 @@
     "url": "git+https://github.com/ftcontrol/panels-js-core.git"
   },
   "type": "module",
-  "version": "1.1.33",
+  "version": "1.1.34",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
