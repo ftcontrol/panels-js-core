@@ -67,12 +67,14 @@
         {/snippet}
         {#snippet content({ close })}
           <div class="item">
-            {#each (plugin.components || []).filter((it) => it.type === "docs") as c}
+            {#each (plugin.components || []).filter((it) => it.type === "docs") as c, index}
               <a
                 onclick={() => {
                   isOpened = false
                 }}
-                href="/docs/{plugin.id}/{c.id}">{c.id}</a
+                href={index == 0
+                  ? `/docs/${plugin.id}`
+                  : `/docs/${plugin.id}/${c.id}`}>{c.id}</a
               >
             {/each}
           </div>

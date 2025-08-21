@@ -7,7 +7,7 @@
 </script>
 
 <section>
-  <h3>Changelog</h3>
+  <h3 class="docs-heading" data-level="h2">Changelog</h3>
   {#each changelog as log}
     <p><b>{log.version}</b> {log.release_date}</p>
     <OrderedList>

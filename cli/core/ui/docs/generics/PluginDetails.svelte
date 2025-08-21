@@ -31,7 +31,7 @@
 
 <section class:filled={!transparent}>
   <p>{plugin.id}</p>
-  <h2>
+  <h2 class="docs-heading" data-level="h1">
     {plugin.name} v{plugin.version}
   </h2>
   <p>by {plugin.author}</p>
