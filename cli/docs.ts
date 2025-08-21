@@ -18,6 +18,7 @@ import DocsPage from "./core/ui/docs/generics/DocsPage.svelte"
 import CodeFormatter from "./core/ui/docs/generics/CodeFormatter.svelte"
 import PluginDetails from "./core/ui/docs/generics/PluginDetails.svelte"
 import ChangeLog from "./core/ui/docs/generics/ChangeLog.svelte"
+import Version from "./core/ui/docs/generics/Version.svelte"
 
 export {
   Title,
@@ -40,4 +41,5 @@ export {
   CodeFormatter,
   PluginDetails,
   ChangeLog,
+  Version,
 }

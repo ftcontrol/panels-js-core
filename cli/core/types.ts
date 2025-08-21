@@ -4,6 +4,8 @@ export type PluginConfig = {
   letterName: string
   description: string
   websiteURL: string
+  mavenURL: string
+  packageString: string
   version: string
   pluginsCoreVersion: string
   author: string

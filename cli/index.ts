@@ -77,6 +77,8 @@ export const pluginsCoreConfig: PluginConfig = {
   letterName: "PJC",
   description: "Plugins Javascript Core",
   websiteURL: "https://panels.bylazar.com",
+  mavenURL: "",
+  packageString: "",
   version: "1.1.33",
   pluginsCoreVersion: "1.1.33",
   author: "Lazar",
