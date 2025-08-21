@@ -23,11 +23,13 @@
 
   function init() {
     const elements = document.querySelectorAll<HTMLElement>(".docs-heading")
-    titles = Array.from(elements).map((el) => ({
-      level: getLevel(el),
-      text: el.textContent?.trim() || "",
-      element: el,
-    }))
+    titles = Array.from(elements)
+      .map((el) => ({
+        level: getLevel(el),
+        text: el.textContent?.trim() || "",
+        element: el,
+      }))
+      .filter((it) => it.text != "")
   }
 
   let observer: MutationObserver | null = null
