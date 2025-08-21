@@ -4,7 +4,7 @@ import type { GenericData, Handler } from "./types"
 import type { PluginInfo } from "../types"
 import { importFromSource } from "./source"
 import type { NotificationsManager } from "./notifications"
-import {svelte} from "@sveltejs/vite-plugin-svelte";
+import { svelte } from "@sveltejs/vite-plugin-svelte"
 
 export class GlobalSocket {
   socket: WebSocket | null = null
@@ -40,6 +40,7 @@ export class GlobalSocket {
           const manager: PluginManager = new Manager(
             new PluginSocket(it.details.id, this),
             it.details,
+            it.config,
             notifications
           )
           created[it.details.id] = manager

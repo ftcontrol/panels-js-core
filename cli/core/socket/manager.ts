@@ -1,4 +1,4 @@
-import type { PluginConfig } from "../types"
+import type { PluginConfig, PluginSettings } from "../types"
 import type { PluginSocket } from "./plugin"
 import { PluginStateManager } from "./state"
 import { NotificationsManager } from "./notifications"
@@ -8,15 +8,18 @@ export abstract class PluginManager {
   state: PluginStateManager
   notifications: NotificationsManager
   config: PluginConfig
+  settings: PluginSettings
 
   constructor(
     pluginSocket: PluginSocket,
     config: PluginConfig,
+    settings: PluginSettings,
     notifications: NotificationsManager
   ) {
     this.socket = pluginSocket
     this.state = new PluginStateManager(pluginSocket.id)
     this.config = config
+    this.settings = settings
     this.notifications = notifications
   }
 

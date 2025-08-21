@@ -24,13 +24,15 @@ export type PanelsWidget = {
   filepath: string
 }
 
+export type PluginSettings = {
+  isDev: boolean
+  isEnabled: boolean
+  [key: string]: unknown
+}
+
 export type PluginInfo = {
   details: PluginConfig
-  config: {
-    isDev: boolean
-    isEnabled: boolean
-    [key: string]: unknown
-  }
+  config: PluginSettings
 }
 
 export type Template = {

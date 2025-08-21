@@ -16,6 +16,7 @@ import type {
   TemplateWidget,
   TemplateNavlet,
   TemplateWidgetGroup,
+  PluginSettings,
 } from "./core/types"
 import type { PluginValue } from "./core/socket/state"
 import { PluginStateManager } from "./core/socket/state"
@@ -46,6 +47,7 @@ export type {
   TemplateWidget,
   TemplateNavlet,
   TemplateWidgetGroup,
+  PluginSettings,
 }
 export {
   PluginManager,
