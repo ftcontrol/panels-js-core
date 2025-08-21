@@ -15,25 +15,29 @@ import Separator from "./core/ui/docs/Separator.svelte"
 import Table from "./core/ui/docs/Table.svelte"
 import CodeBlock from "./core/ui/docs/CodeBlock.svelte"
 import DocsPage from "./core/ui/docs/generics/DocsPage.svelte"
-import CodeFormatter from "./core/ui/docs/generics/CodeFormatter.svelte";
+import CodeFormatter from "./core/ui/docs/generics/CodeFormatter.svelte"
+import PluginDetails from "./core/ui/docs/generics/PluginDetails.svelte"
+import ChangeLog from "./core/ui/docs/generics/ChangeLog.svelte"
 
 export {
-    Title,
-    Paragraph,
-    Accent,
-    Link,
-    ListItem,
-    Image,
-    Video,
-    AutoplayVideo,
-    ControlsVideo,
-    InlineCode,
-    AccentedParagraph,
-    Separator,
-    OrderedList,
-    UnorderedList,
-    Table,
-    CodeBlock,
-    DocsPage,
-    CodeFormatter
+  Title,
+  Paragraph,
+  Accent,
+  Link,
+  ListItem,
+  Image,
+  Video,
+  AutoplayVideo,
+  ControlsVideo,
+  InlineCode,
+  AccentedParagraph,
+  Separator,
+  OrderedList,
+  UnorderedList,
+  Table,
+  CodeBlock,
+  DocsPage,
+  CodeFormatter,
+  PluginDetails,
+  ChangeLog,
 }
