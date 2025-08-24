@@ -1,12 +1,13 @@
 <script lang="ts">
-  import type { PluginConfig, PluginManager } from "ftc-panels"
+  import type { PluginConfig } from "ftc-panels"
   let {
     plugin,
     fetchFunction = async () => "",
-  }: { plugin: PluginConfig; fetchFunction: () => Promise<string> } = $props()
-</script>
+  }: { plugin: PluginConfig; fetchFunction: () => string | Promise<string>; } = $props()
 
-{#if plugin.mavenURL != "" && plugin.packageString != ""}
+
+</script>
+{#if plugin.mavenURL && plugin.mavenURL !== "" && plugin.packageString && plugin.packageString !== ""}
   <section>
     <h3>Version</h3>
 
@@ -16,7 +17,7 @@
       {#await fetchFunction()}
         Loading
       {:then data}
-        {#if data != "" && data != plugin.version}
+        {#if data !== "" && data !== plugin.version}
           {"->"}
           {`implementation "${plugin.packageString.replace("<VERSION>", data)}"`}
         {/if}

@@ -5,7 +5,6 @@
 
   let { changelog }: { changelog: ChangeLogEntry[] } = $props()
 </script>
-
 {#if changelog && changelog.length > 0}
   <section>
     <h3 class="docs-heading" data-level="h2">Changelog</h3>

@@ -10,8 +10,8 @@
   }: {
     plugin: PluginConfig
     children?: Snippet
-    transparent: boolean
-    showIncludedPlugins: boolean
+    transparent?: boolean
+    showIncludedPlugins?: boolean
   } = $props()
 
   function processWebsiteURL(url: string) {
@@ -36,9 +36,9 @@
   </h2>
   <p>by {plugin.author}</p>
   {#if plugin.websiteURL}
-    <a href={plugin.websiteURL}
-      >Website: {processWebsiteURL(plugin.websiteURL)}</a
-    >
+    <a href={plugin.websiteURL}>
+      Website: {processWebsiteURL(plugin.websiteURL)}
+    </a>
   {:else}
     <a>No website</a>
   {/if}
