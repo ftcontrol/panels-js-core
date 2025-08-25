@@ -9,10 +9,12 @@
   let {
     plugins,
     skippedPlugins = [],
+    url = $bindable(),
     children,
   }: {
     plugins: PluginConfig[]
     skippedPlugins?: PluginConfig[]
+    url: string
     children?: Snippet
   } = $props()
 
@@ -31,20 +33,43 @@
         ].includes(it.id)
     )
 
-    const data = [...otherPlugins.sort((a, b) => a.name.localeCompare(b.name))]
+    const data = []
 
-    if (jsCorePlugin) data.push(jsCorePlugin)
-    if (panelsPlugin) data.push(panelsPlugin)
     if (docsPlugin)
       data.push({
         ...docsPlugin,
         name: "Core",
+      })
+    if (jsCorePlugin) data.push(jsCorePlugin)
+    if (panelsPlugin) data.push(panelsPlugin)
+
+    otherPlugins
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .forEach((it) => {
+        data.push(it)
       })
 
     return data
   })
 
   let isOpened = $state(false)
+
+  function parseFromUrl(u: string) {
+    const m = u?.match(/\/docs\/([^/]+)(?:\/([^/]+))?/)
+    return {
+      activePluginId: m?.[1] ?? null,
+      activeChildId: m?.[2] ?? null,
+    }
+  }
+
+  let active = $derived(parseFromUrl(url))
+
+  function isActive(plugin: string | null, section: string | null) {
+    return active.activePluginId == plugin && active.activeChildId == section
+  }
+  function isActiveFirst(plugin: string | null, section: string | null) {
+    return isActive(plugin, section) || isActive(plugin, null)
+  }
 </script>
 
 <button
@@ -80,6 +105,7 @@
                 onclick={() => {
                   isOpened = false
                 }}
+                class:active={isActiveFirst(plugin.id, "Overview")}
                 href={`/docs/${plugin.id}`}>Overview</a
               >
             {:else}
@@ -88,6 +114,9 @@
                   onclick={() => {
                     isOpened = false
                   }}
+                  class:active={index == 0
+                    ? isActiveFirst(plugin.id, c.id)
+                    : isActive(plugin.id, c.id)}
                   href={index == 0
                     ? `/docs/${plugin.id}`
                     : `/docs/${plugin.id}/${c.id}`}>{c.id}</a
@@ -182,6 +211,10 @@
     z-index: 99;
     transition: opacity 0.5s;
     pointer-events: none;
+  }
+
+  .active {
+    text-decoration: underline;
   }
 
   @media only screen and (max-width: 900px) {
