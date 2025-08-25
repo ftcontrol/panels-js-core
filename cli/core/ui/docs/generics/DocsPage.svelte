@@ -9,6 +9,7 @@
   import ForwardIcon from "./ForwardIcon.svelte"
   import Separator from "../Separator.svelte"
   import Credits from "./Credits.svelte"
+  import NavbarIcon from "./NavbarIcon.svelte"
 
   let {
     plugins,
@@ -175,10 +176,13 @@
 <section>
   <div class="button nav" class:isOpened>
     <Button
+      style="padding: 1rem;"
       onclick={() => {
         isOpened = !isOpened
-      }}>Content</Button
+      }}
     >
+      <NavbarIcon />
+    </Button>
   </div>
   <nav class:isOpened>
     {#each orderedPlugins as plugin}
@@ -274,9 +278,6 @@
     height: 100%;
   }
 
-  footer {
-  }
-
   .main {
     flex-grow: 1;
   }
@@ -362,9 +363,9 @@
     nav {
       position: fixed;
       top: calc(var(--padding) / 2);
-      left: calc(var(--padding) / 2);
+      right: calc(var(--padding) / 2);
       bottom: calc(var(--padding) / 2);
-      transform: translateX(-120%);
+      transform: translateX(120%);
       transition: transform 0.5s;
       height: calc(100% - var(--padding));
       z-index: 100;
