@@ -161,7 +161,7 @@
     border: 1px solid var(--bgLight);
     padding: 0.5rem;
     font-size: 0.9rem;
-    position: absolute;
+    position: fixed;
     right: 1rem;
     top: 30%;
     z-index: 1;

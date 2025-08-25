@@ -5,6 +5,10 @@
   import { type PluginConfig } from "../../../types"
   import HeadingsOverlay from "./HeadingsOverlay.svelte"
   import Button from "../../Button.svelte"
+  import BackIcon from "./BackIcon.svelte"
+  import ForwardIcon from "./ForwardIcon.svelte"
+  import Separator from "../Separator.svelte"
+  import Credits from "./Credits.svelte"
 
   let {
     plugins,
@@ -63,6 +67,85 @@
   }
 
   let active = $derived(parseFromUrl(url))
+
+  function pagesFor(plugin: PluginConfig) {
+    const docs = (plugin.components || []).filter((c) => c.type === "docs")
+    if (docs.length == 0) {
+      return [
+        {
+          pageId: null as string | null,
+          label: "Overview",
+          href: `/docs/${plugin.id}`,
+        },
+      ]
+    }
+    return docs.map((c) => ({
+      pageId: c.id as string,
+      label: c.id,
+      href: `/docs/${plugin.id}/${c.id}`,
+    }))
+  }
+
+  let pager = $derived.by(() => {
+    const pi = orderedPlugins.findIndex((p) => p.id === active.activePluginId)
+    if (pi === -1) return { prev: null, next: null }
+
+    const plugin = orderedPlugins[pi]
+    const pages = pagesFor(plugin)
+
+    const pageIndex = Math.max(
+      0,
+      pages.findIndex((pg) => pg.pageId === (active.activeChildId ?? null))
+    )
+
+    let prev = null
+    if (pageIndex > 0) {
+      const tgt = pages[pageIndex - 1]
+      prev = {
+        pluginId: plugin.id,
+        pluginName: plugin.name,
+        pageId: tgt.pageId,
+        pageLabel: tgt.label,
+        href: tgt.href,
+      }
+    } else if (pi > 0) {
+      const prevPlugin = orderedPlugins[pi - 1]
+      const prevPages = pagesFor(prevPlugin)
+      const tgt = prevPages[prevPages.length - 1]
+      prev = {
+        pluginId: prevPlugin.id,
+        pluginName: prevPlugin.name,
+        pageId: tgt.pageId,
+        pageLabel: tgt.label,
+        href: tgt.href,
+      }
+    }
+
+    let next = null
+    if (pageIndex < pages.length - 1) {
+      const tgt = pages[pageIndex + 1]
+      next = {
+        pluginId: plugin.id,
+        pluginName: plugin.name,
+        pageId: tgt.pageId,
+        pageLabel: tgt.label,
+        href: tgt.href,
+      }
+    } else if (pi < orderedPlugins.length - 1) {
+      const nextPlugin = orderedPlugins[pi + 1]
+      const nextPages = pagesFor(nextPlugin)
+      const tgt = nextPages[0]
+      next = {
+        pluginId: nextPlugin.id,
+        pluginName: nextPlugin.name,
+        pageId: tgt.pageId,
+        pageLabel: tgt.label,
+        href: tgt.href,
+      }
+    }
+
+    return { prev, next }
+  })
 
   function isActive(plugin: string | null, section: string | null) {
     return active.activePluginId == plugin && active.activeChildId == section
@@ -142,17 +225,60 @@
   </nav>
   <div class="content">
     <HeadingsOverlay />
-    {@render children?.()}
+    <div class="main">
+      {@render children?.()}
+    </div>
+
+    <footer>
+      <Separator />
+
+      <div class="pager">
+        {#if pager.prev}
+          <a href={pager.prev.href}>
+            <BackIcon />{pager.prev.pluginName}
+            <span>{pager.prev.pageLabel}</span>
+          </a>
+        {/if}
+        {#if pager.next}
+          <a href={pager.next.href}>
+            {pager.next.pluginName}
+            <span>{pager.next.pageLabel}</span><ForwardIcon />
+          </a>
+        {/if}
+      </div>
+
+      <Credits />
+    </footer>
   </div>
 </section>
 
 <style>
+  .pager {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .pager > a {
+    text-decoration: none;
+    padding: 0.5em;
+    border: 1px solid currentColor;
+  }
+  .pager > a > span {
+    font-weight: 600;
+  }
   section {
     display: flex;
     gap: calc(var(--padding) / 2);
     margin: 0.5rem;
     overflow-y: auto;
     height: 100%;
+  }
+
+  footer {
+  }
+
+  .main {
+    flex-grow: 1;
   }
 
   p {
@@ -168,6 +294,9 @@
     text-decoration: none;
     display: block;
     margin-bottom: 0.25rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
   }
 
   nav {
@@ -184,6 +313,10 @@
     padding: var(--padding);
     width: 100%;
     overflow-y: auto;
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
   }
 
   p.disabled {

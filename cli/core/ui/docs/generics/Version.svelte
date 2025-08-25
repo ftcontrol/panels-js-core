@@ -1,28 +1,42 @@
 <script lang="ts">
   import type { PluginConfig } from "ftc-panels"
+  import CodeBlock from "../CodeBlock.svelte"
   let {
     plugin,
     fetchFunction = async () => "",
-  }: { plugin: PluginConfig; fetchFunction: () => string | Promise<string>; } = $props()
-
-
+  }: { plugin: PluginConfig; fetchFunction: () => string | Promise<string> } =
+    $props()
 </script>
+
 {#if plugin.mavenURL && plugin.mavenURL !== "" && plugin.packageString && plugin.packageString !== ""}
   <section>
-    <h3>Version</h3>
+    <h3 class="docs-heading" data-level="h2">Version</h3>
 
-    <p>{`maven { url = "${plugin.mavenURL}" }`}</p>
-    <p>
-      {`implementation "${plugin.packageString.replace("<VERSION>", plugin.version)}"`}
-      {#await fetchFunction()}
-        Loading
-      {:then data}
-        {#if data !== "" && data !== plugin.version}
-          {"->"}
-          {`implementation "${plugin.packageString.replace("<VERSION>", data)}"`}
-        {/if}
-      {/await}
-    </p>
+    <p>Repository</p>
+    <CodeBlock
+      language={"gradle"}
+      code={`maven { url = "${plugin.mavenURL}" }`}
+    />
+
+    <p>Current Dependency</p>
+
+    <CodeBlock
+      language={"gradle"}
+      code={`implementation "${plugin.packageString.replace("<VERSION>", plugin.version)}"`}
+    />
+
+    {#await fetchFunction()}
+      Loading
+    {:then data}
+      {#if data !== "" && data !== plugin.version}
+        <p>Latest Dependency</p>
+
+        <CodeBlock
+          language={"gradle"}
+          code={`implementation "${plugin.packageString.replace("<VERSION>", data)}"`}
+        />
+      {/if}
+    {/await}
   </section>
 {/if}
 
