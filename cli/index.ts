@@ -86,7 +86,19 @@ export const pluginsCoreConfig: PluginConfig = {
   components: [],
   templates: [],
   includedPluginsIDs: [],
-  changelog: [],
+  changelog: [
+    {
+      version: "1.1.36",
+      release_date: "25.08.2025",
+      changes: [
+        {
+          type: "fixed",
+          description: "Fixed minor docs shared UI logic",
+          upgrading: "",
+        },
+      ],
+    },
+  ],
 }
 
 export const defaultSettings: PluginSettings = {
