@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Snippet } from "svelte"
+  import { onMount, type Snippet } from "svelte"
   import Toggle from "../../Toggle.svelte"
   import Arrow from "../../Arrow.svelte"
   import { type PluginConfig } from "../../../types"
@@ -70,6 +70,14 @@
   function isActiveFirst(plugin: string | null, section: string | null) {
     return isActive(plugin, section) || isActive(plugin, null)
   }
+  onMount(() => {
+    if (!isActive(null, null)) return
+
+    const first = orderedPlugins[0]
+    if (first == undefined) return
+
+    window.location.href = `/docs/${first.id}`
+  })
 </script>
 
 <button
