@@ -31,21 +31,17 @@
         ].includes(it.id)
     )
 
-    if (!docsPlugin) {
-      return otherPlugins
-    }
+    const data = [...otherPlugins.sort((a, b) => a.name.localeCompare(b.name))]
 
-    const renamedDocsPlugin = {
-      ...docsPlugin,
-      name: "Core",
-    }
+    if (jsCorePlugin) data.push(jsCorePlugin)
+    if (panelsPlugin) data.push(panelsPlugin)
+    if (docsPlugin)
+      data.push({
+        ...docsPlugin,
+        name: "Core",
+      })
 
-    return [
-      renamedDocsPlugin,
-      panelsPlugin,
-      jsCorePlugin,
-      ...otherPlugins.sort((a, b) => a.name.localeCompare(b.name)),
-    ]
+    return data
   })
 
   let isOpened = $state(false)
