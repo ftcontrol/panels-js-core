@@ -62,8 +62,8 @@
   function parseFromUrl(u: string) {
     const m = u?.match(/\/docs\/([^/]+)(?:\/([^/]+))?/)
     return {
-      activePluginId: m?.[1] ?? null,
-      activeChildId: m?.[2] ?? null,
+      activePluginId: m?.[1] ? decodeURIComponent(m[1]) : null,
+      activeChildId: m?.[2] ? decodeURIComponent(m[2]) : null,
     }
   }
 

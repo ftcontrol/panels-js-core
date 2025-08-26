@@ -79,14 +79,31 @@ export const pluginsCoreConfig: PluginConfig = {
   websiteURL: "https://panels.bylazar.com",
   mavenURL: "",
   packageString: "",
-  version: "1.1.34",
-  pluginsCoreVersion: "1.1.34",
+  version: "1.1.37",
+  pluginsCoreVersion: "1.1.37",
   author: "Lazar",
   manager: "",
   components: [],
   templates: [],
   includedPluginsIDs: [],
   changelog: [
+    {
+      version: "1.1.37",
+      release_date: "25.08.2025",
+      changes: [
+        {
+          type: "fixed",
+          description:
+            "Fixed docs handling of URL special characters for selected link",
+          upgrading: "",
+        },
+        {
+          type: "fixed",
+          description: "Fixed JS Core plugin config versions",
+          upgrading: "",
+        },
+      ],
+    },
     {
       version: "1.1.36",
       release_date: "25.08.2025",
