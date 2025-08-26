@@ -4,7 +4,6 @@ import type { GenericData, Handler } from "./types"
 import type { PluginInfo } from "../types"
 import { importFromSource } from "./source"
 import type { NotificationsManager } from "./notifications"
-import { svelte } from "@sveltejs/vite-plugin-svelte"
 
 export class GlobalSocket {
   socket: WebSocket | null = null

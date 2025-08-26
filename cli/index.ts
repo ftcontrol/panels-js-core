@@ -79,14 +79,26 @@ export const pluginsCoreConfig: PluginConfig = {
   websiteURL: "https://panels.bylazar.com",
   mavenURL: "",
   packageString: "",
-  version: "1.1.37",
-  pluginsCoreVersion: "1.1.37",
+  version: "1.1.38",
+  pluginsCoreVersion: "1.1.38",
   author: "Lazar",
   manager: "",
   components: [],
   templates: [],
   includedPluginsIDs: [],
   changelog: [
+    {
+      version: "1.1.38",
+      release_date: "26.08.2025",
+      changes: [
+        {
+          type: "added",
+          description:
+            "Added generic functions to fetch latest versions from GitHub hosted mavens",
+          upgrading: "",
+        },
+      ],
+    },
     {
       version: "1.1.37",
       release_date: "25.08.2025",
@@ -121,4 +133,37 @@ export const pluginsCoreConfig: PluginConfig = {
 export const defaultSettings: PluginSettings = {
   isEnabled: true,
   isDev: false,
+}
+
+export async function getLazarPackageLatestVersion(pck: string) {
+  return await genericGitHubMavenVersionFetcher(
+    "lazarcloud",
+    "ftcontrol-maven",
+    "releases",
+    pck
+  )
+}
+
+export async function genericGitHubMavenVersionFetcher(
+  org: string,
+  repo: string,
+  folder: string,
+  pck: string
+): Promise<string> {
+  try {
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${org}/${repo}/refs/heads/main/${folder}/${pck.replaceAll(".", "/")}/maven-metadata.xml`
+    )
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+
+    const xmlText = await response.text()
+    const parser = new DOMParser()
+    const xmlDoc = parser.parseFromString(xmlText, "application/xml")
+
+    const latestVersion = xmlDoc.querySelector("latest")?.textContent
+
+    return latestVersion || ""
+  } catch (error) {
+    return ""
+  }
 }
