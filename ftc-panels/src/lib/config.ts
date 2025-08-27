@@ -8,14 +8,53 @@ const pluginsCoreConfig: PluginConfig = {
   websiteURL: "https://panels.bylazar.com",
   mavenURL: "",
   packageString: "",
-  version: "1.1.38",
-  pluginsCoreVersion: "1.1.38",
+  version: "1.1.41",
+  pluginsCoreVersion: "1.1.41",
   author: "Lazar",
   manager: "",
   components: [],
   templates: [],
   includedPluginsIDs: [],
   changelog: [
+    {
+      version: "1.1.41",
+      release_date: "27.08.2025",
+      changes: [
+        {
+          type: "fixed",
+          description: "Fixed Overlay component.",
+          upgrading: "",
+        },
+      ],
+    },
+    {
+      version: "1.1.40",
+      release_date: "27.08.2025",
+      changes: [
+        {
+          type: "fixed",
+          description: "Fixed import for Link in docs.",
+          upgrading: "",
+        },
+      ],
+    },
+    {
+      version: "1.1.39",
+      release_date: "27.08.2025",
+      changes: [
+        {
+          type: "deprecated",
+          description:
+            "Moved common docs components for Panels and Docs Website to ftc-panels-docs",
+          upgrading: "Use the new library",
+        },
+        {
+          type: "fixed",
+          description: "Properly exported typed svelte components.",
+          upgrading: "",
+        },
+      ],
+    },
     {
       version: "1.1.38",
       release_date: "26.08.2025",

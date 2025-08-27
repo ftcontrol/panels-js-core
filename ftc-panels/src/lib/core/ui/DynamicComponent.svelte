@@ -1,9 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte"
   import { unmount } from "svelte"
-  import type { GlobalSocket } from "../socket/global"
-  import { importFromSource } from "../socket/source"
-  import type { PluginInfo } from "../types"
+  import type { GlobalSocket } from "../socket/global.js"
+  import type { PluginInfo } from "../types.js"
   let {
     globalSocket,
     info,
@@ -19,7 +18,7 @@
   let host: HTMLDivElement
   let instance: any
 
-  onMount(async () => {
+  onMount(() => {
     instance = loadFunction(host, {
       manager: globalSocket.pluginManagers[id],
       info: info,
@@ -37,7 +36,7 @@
   div {
     background-color: transparent;
     min-width: 100%;
-    display: inline-block;
+    display: block;
     height: 100%;
   }
 </style>

@@ -1,7 +1,7 @@
 {
   "name": "ftc-panels",
   "description": "Library for Panels' plugin system.",
-  "version": "1.1.38",
+  "version": "1.1.41",
   "author": {
     "name": "Lazar",
     "email": "hi@bylazar.com",
@@ -13,12 +13,13 @@
   },
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && npm run prepack",
+    "build": "vite build && bun run prepack",
     "preview": "vite preview",
-    "prepare": "svelte-kit sync || echo ''",
-    "prepack": "svelte-kit sync && svelte-package && publint",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+    "prepare": "bunx svelte-kit sync || echo ''",
+    "prepack": "bunx svelte-kit sync && bunx svelte-package && bunx publint",
+    "check": "bunx svelte-kit sync && bunx svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "bunx svelte-kit sync && bunx svelte-check --tsconfig ./tsconfig.json --watch",
+    "prepublishOnly": "bun run build"
   },
   "files": [
     "dist",
@@ -65,6 +66,7 @@
   ],
   "dependencies": {
     "path": "^0.12.7",
+    "svelte-portal": "^2.2.1",
     "zlib": "^1.0.5"
   }
 }

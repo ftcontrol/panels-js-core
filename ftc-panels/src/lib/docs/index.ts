@@ -1,5 +1,6 @@
 export { default as Title } from "./Title.svelte"
 export { default as Paragraph } from "./Paragraph.svelte"
+export { default as Link } from "./Link.svelte"
 export { default as Accent } from "./Accent.svelte"
 export { default as AccentedParagraph } from "./AccentedParagraph.svelte"
 export { default as InlineCode } from "./InlineCode.svelte"

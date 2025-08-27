@@ -66,7 +66,7 @@
 
   let active = $derived(parseFromUrl(url))
 
-  function pagesFor(plugin: PluginConfig) {
+  function pagesFor(plugin: PluginConfig): Page[] {
     const docs = (plugin.components || []).filter((c) => c.type === "docs")
     if (docs.length == 0) {
       return [
@@ -74,6 +74,7 @@
           pageId: null as string | null,
           label: "Overview",
           href: `/docs/${plugin.id}`,
+          firstHref: `/docs/${plugin.id}`,
         },
       ]
     }
@@ -81,7 +82,15 @@
       pageId: c.id as string,
       label: c.id,
       href: `/docs/${plugin.id}/${c.id}`,
+      firstHref: `/docs/${plugin.id}`,
     }))
+  }
+
+  type Page = {
+    pageId: string | null
+    label: string
+    href: string
+    firstHref: string
   }
 
   let pager = $derived.by(() => {
@@ -96,50 +105,40 @@
       pages.findIndex((pg) => pg.pageId === (active.activeChildId ?? null))
     )
 
-    let prev = null
-    if (pageIndex > 0) {
-      const tgt = pages[pageIndex - 1]
-      prev = {
-        pluginId: plugin.id,
-        pluginName: plugin.name,
+    function makeTarget(
+      pluginObj: PluginConfig,
+      pluginPages: Page[],
+      targetIndex: number
+    ) {
+      const tgt = pluginPages[targetIndex]
+
+      const isFirst = targetIndex === 0
+      return {
+        pluginId: pluginObj.id,
+        pluginName: pluginObj.name,
         pageId: tgt.pageId,
         pageLabel: tgt.label,
-        href: tgt.href,
+        href: isFirst ? tgt.firstHref : tgt.href,
+        isFirstPageOfPlugin: isFirst,
       }
+    }
+
+    let prev = null
+    if (pageIndex > 0) {
+      prev = makeTarget(plugin, pages, pageIndex - 1)
     } else if (pi > 0) {
       const prevPlugin = orderedPlugins[pi - 1]
       const prevPages = pagesFor(prevPlugin)
-      const tgt = prevPages[prevPages.length - 1]
-      prev = {
-        pluginId: prevPlugin.id,
-        pluginName: prevPlugin.name,
-        pageId: tgt.pageId,
-        pageLabel: tgt.label,
-        href: tgt.href,
-      }
+      prev = makeTarget(prevPlugin, prevPages, prevPages.length - 1)
     }
 
     let next = null
     if (pageIndex < pages.length - 1) {
-      const tgt = pages[pageIndex + 1]
-      next = {
-        pluginId: plugin.id,
-        pluginName: plugin.name,
-        pageId: tgt.pageId,
-        pageLabel: tgt.label,
-        href: tgt.href,
-      }
+      next = makeTarget(plugin, pages, pageIndex + 1)
     } else if (pi < orderedPlugins.length - 1) {
       const nextPlugin = orderedPlugins[pi + 1]
       const nextPages = pagesFor(nextPlugin)
-      const tgt = nextPages[0]
-      next = {
-        pluginId: nextPlugin.id,
-        pluginName: nextPlugin.name,
-        pageId: tgt.pageId,
-        pageLabel: tgt.label,
-        href: tgt.href,
-      }
+      next = makeTarget(nextPlugin, nextPages, 0)
     }
 
     return { prev, next }
@@ -335,6 +334,7 @@
     z-index: 100;
     right: calc(var(--padding) / 1);
     bottom: calc(var(--padding) / 1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
 
   button.bg {
@@ -366,6 +366,7 @@
       transition: transform 0.5s;
       height: calc(100% - var(--padding));
       z-index: 100;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
     nav.isOpened {

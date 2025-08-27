@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from "svelte"
-  import Portal from "svelte-portal"
-  import { generateId, addEntry, closeAllAfter, closeLast } from "./overlay"
+  import { portal } from "svelte-portal"
+  import { generateId, addEntry, closeAllAfter, closeLast } from "./overlay.js"
   type Snippet<Props = any> = (props: Props) => any
   let {
     trigger,
@@ -72,6 +72,7 @@
       isOpen = false
     } else {
       overlayStackIndex = addEntry(id, () => {
+        console.log("Closing")
         isOpen = false
       })
       isOpen = true
@@ -190,23 +191,23 @@
   {@render trigger({ isOpen })}
 </div>
 
-<Portal>
-  {#if isOpen}
-    <div
-      class="backdrop"
-      aria-hidden="true"
-      style={`z-index: ${998 + overlayStackIndex * 2}`}
-      transition:fade={{ duration: 100 }}
-    ></div>
-    <div
-      bind:this={container}
-      class="overlay"
-      style={`z-index: ${999 + overlayStackIndex * 2}; ${overlayStyle}`}
-    >
-      {@render overlay({ close })}
-    </div>
-  {/if}
-</Portal>
+{#if isOpen}
+  <div
+    class="backdrop"
+    aria-hidden="true"
+    use:portal={"body"}
+    style={`z-index: ${998 + overlayStackIndex * 2}`}
+    transition:fade={{ duration: 100 }}
+  ></div>
+  <div
+    bind:this={container}
+    class="overlay"
+    use:portal={"body"}
+    style={`z-index: ${999 + overlayStackIndex * 2}; ${overlayStyle}`}
+  >
+    {@render overlay({ close })}
+  </div>
+{/if}
 
 <style>
   .backdrop {

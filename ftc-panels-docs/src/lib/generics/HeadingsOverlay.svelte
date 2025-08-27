@@ -166,6 +166,12 @@
     right: 1rem;
     top: 30%;
     z-index: 1;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    transform: translateX(92.5%);
+    transition: transform 0.5s;
+  }
+  section:hover {
+    transform: translateX(0%);
   }
 
   button {
@@ -181,5 +187,11 @@
 
   button:hover {
     background: var(--bgLight);
+  }
+
+  @media only screen and (max-width: 900px) {
+    section {
+      display: none;
+    }
   }
 </style>

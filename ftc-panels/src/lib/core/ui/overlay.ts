@@ -1,4 +1,4 @@
-import { getGlobalData, setGlobalData } from "../globalWriter"
+import { getGlobalData, setGlobalData } from "../globalWriter.js"
 
 type Entry = {
   id: string
