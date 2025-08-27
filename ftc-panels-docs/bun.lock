@@ -5,6 +5,7 @@
       "name": "ftc-panels-shared-docs",
       "dependencies": {
         "ftc-panels": "^1.1.41",
+        "highlight.js": "^11.11.1",
       },
       "devDependencies": {
         "@sveltejs/adapter-auto": "^6.0.0",
@@ -180,6 +181,8 @@
     "fsevents": ["fsevents@2.3.3", "", { "os": "darwin" }, "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="],
 
     "ftc-panels": ["ftc-panels@1.1.41", "", { "dependencies": { "path": "^0.12.7", "svelte-portal": "^2.2.1", "zlib": "^1.0.5" }, "peerDependencies": { "svelte": "^5.0.0" } }, "sha512-HxZoxG3L8lbBZUNpDkknT6RdXhtVEtuE6oxXPLJaiq+b99NL7w6VX32Pmk7vu+hXn35Zg+4QGSvo8g7JcR6T6Q=="],
+
+    "highlight.js": ["highlight.js@11.11.1", "", {}, "sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w=="],
 
     "inherits": ["inherits@2.0.3", "", {}, "sha512-x00IRNXNy63jwGkJmzPigoySHbaqpNuzKbBOmzK+g2OdZpQ9w+sxCN+VSB3ja7IAge2OP2qpfxTjeNcyjmW1uw=="],
 
