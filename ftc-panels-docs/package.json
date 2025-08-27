@@ -1,7 +1,7 @@
 {
   "name": "ftc-panels-docs",
   "description": "Library for Panels' Docs system.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": {
     "name": "Lazar",
     "email": "hi@bylazar.com",
@@ -57,6 +57,7 @@
   ],
   "dependencies": {
     "ftc-panels": "^1.1.41",
-    "highlight.js": "^11.11.1"
+    "highlight.js": "^11.11.1",
+    "juice": "^11.0.1"
   }
 }

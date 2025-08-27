@@ -8,14 +8,36 @@ const pluginsCoreConfig: PluginConfig = {
   websiteURL: "https://panels.bylazar.com",
   mavenURL: "",
   packageString: "",
-  version: "1.1.41",
-  pluginsCoreVersion: "1.1.41",
+  version: "1.1.43",
+  pluginsCoreVersion: "1.1.43",
   author: "Lazar",
   manager: "",
   components: [],
   templates: [],
   includedPluginsIDs: [],
   changelog: [
+    {
+      version: "1.1.43",
+      release_date: "28.08.2025",
+      changes: [
+        {
+          type: "fixed",
+          description: "Installed chokidar.",
+          upgrading: "",
+        },
+      ],
+    },
+    {
+      version: "1.1.42",
+      release_date: "28.08.2025",
+      changes: [
+        {
+          type: "fixed",
+          description: "Fixed some imports.",
+          upgrading: "",
+        },
+      ],
+    },
     {
       version: "1.1.41",
       release_date: "27.08.2025",
