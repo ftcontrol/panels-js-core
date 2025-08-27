@@ -1,9 +1,0 @@
-{
-  "widgets": [
-    {
-      "name": "Counter",
-      "kebabCase": "counter",
-      "file": "counter.js"
-    }
-  ]
-}

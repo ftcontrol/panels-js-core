@@ -1,0 +1,44 @@
+<script lang="ts">
+  import type { ChangeLogEntry } from "ftc-panels"
+  import { ListItem, OrderedList } from "ftc-panels/docs"
+
+  let { changelog }: { changelog: ChangeLogEntry[] } = $props()
+</script>
+
+{#if changelog && changelog.length > 0}
+  <section>
+    <h3 class="docs-heading" data-level="h2">Changelog</h3>
+    {#each changelog as log}
+      <p><b>{log.version}</b> {log.release_date}</p>
+      <OrderedList>
+        {#each log.changes as change}
+          <ListItem>
+            <p>{change.type}</p>
+            <p><b>Description:</b> {change.description}</p>
+            {#if change.upgrading}
+              <p><b>Upgrading:</b> {change.upgrading}</p>
+            {/if}
+          </ListItem>
+        {/each}
+      </OrderedList>
+    {/each}
+  </section>
+{/if}
+
+<style>
+  b {
+    font-weight: 800;
+  }
+  section {
+    background-color: var(--bgLight);
+    padding: var(--padding);
+    margin-bottom: var(--padding);
+    border-radius: 1rem;
+    overflow: auto;
+  }
+
+  p {
+    margin: 0;
+    margin: 0.25rem;
+  }
+</style>
