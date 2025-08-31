@@ -158,6 +158,7 @@
 <style>
   section {
     overflow-y: auto;
+    max-height: 400px;
     background: var(--bgMedium);
     border: 1px solid var(--bgLight);
     padding: 0.5rem;

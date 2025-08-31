@@ -21,38 +21,46 @@
     children?: Snippet
   } = $props()
 
-  let orderedPlugins = $derived.by(() => {
-    const docsPlugin = plugins.find((it) => it.id === "com.bylazar.docs")
-    const panelsPlugin = plugins.find((it) => it.id === "com.bylazar.panels")
-    const jsCorePlugin = plugins.find(
-      (it) => it.id === "com.bylazar.pluginsjscore"
-    )
-    const otherPlugins = plugins.filter(
-      (it) =>
-        ![
-          "com.bylazar.docs",
-          "com.bylazar.panels",
-          "com.bylazar.pluginsjscore",
-        ].includes(it.id)
-    )
+  const ordering = $derived.by(() => {
+    let baseDocsPlugin: PluginConfig | null = null
+    const corePlugins: PluginConfig[] = []
+    const extraPlugins: PluginConfig[] = []
 
-    const data = []
+    for (const p of plugins) {
+      const docs = (p.components || []).filter((c) => c.type === "docs")
+      if (p.id === "com.bylazar.docs") {
+        baseDocsPlugin = p
+        continue
+      }
+      console.log(p.id, p.components, docs)
+      if (p.id.startsWith("com.bylazar") && docs.length === 1) {
+        corePlugins.push(p)
+      } else {
+        extraPlugins.push(p)
+      }
+    }
 
-    if (docsPlugin)
-      data.push({
-        ...docsPlugin,
-        name: "Core",
-      })
-    if (jsCorePlugin) data.push(jsCorePlugin)
-    if (panelsPlugin) data.push(panelsPlugin)
+    corePlugins.sort((a, b) => a.name.localeCompare(b.name))
+    extraPlugins.sort((a, b) => a.name.localeCompare(b.name))
 
-    otherPlugins
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .forEach((it) => {
-        data.push(it)
-      })
+    const orderedList: PluginConfig[] = [
+      ...(baseDocsPlugin ? [baseDocsPlugin] : []),
+      ...corePlugins,
+      ...extraPlugins,
+    ]
 
-    return data
+    const coreSingleDocIds = new Set(corePlugins.map((p) => p.id))
+
+    console.log("corePlugins", corePlugins)
+    console.log("coreSingleDocIds", coreSingleDocIds)
+
+    return {
+      baseDocsPlugin,
+      corePlugins,
+      extraPlugins,
+      orderedList,
+      coreSingleDocIds,
+    }
   })
 
   let isOpened = $state(false)
@@ -67,26 +75,6 @@
 
   let active = $derived(parseFromUrl(url))
 
-  function pagesFor(plugin: PluginConfig): Page[] {
-    const docs = (plugin.components || []).filter((c) => c.type === "docs")
-    if (docs.length == 0) {
-      return [
-        {
-          pageId: null as string | null,
-          label: "Overview",
-          href: `/docs/${plugin.id}`,
-          firstHref: `/docs/${plugin.id}`,
-        },
-      ]
-    }
-    return docs.map((c) => ({
-      pageId: c.id as string,
-      label: c.id,
-      href: `/docs/${plugin.id}/${c.id}`,
-      firstHref: `/docs/${plugin.id}`,
-    }))
-  }
-
   type Page = {
     pageId: string | null
     label: string
@@ -94,11 +82,57 @@
     firstHref: string
   }
 
+  function pagesFor(plugin: PluginConfig): Page[] {
+    const docs = (plugin.components || []).filter((c) => c.type === "docs")
+
+    if (ordering.coreSingleDocIds.has(plugin.id)) {
+      if (docs.length === 1) {
+        const only = docs[0]
+        return [
+          {
+            pageId: only.id as string,
+            label: plugin.name,
+            href: `/docs/${plugin.id}/${only.id}`,
+            firstHref: `/docs/${plugin.id}`,
+          },
+        ]
+      }
+      return [
+        {
+          pageId: null,
+          label: plugin.name,
+          href: `/docs/${plugin.id}`,
+          firstHref: `/docs/${plugin.id}`,
+        },
+      ]
+    }
+
+    if (docs.length === 0) {
+      return [
+        {
+          pageId: null,
+          label: "Overview",
+          href: `/docs/${plugin.id}`,
+          firstHref: `/docs/${plugin.id}`,
+        },
+      ]
+    }
+
+    return docs.map((c, idx) => ({
+      pageId: c.id as string,
+      label: c.id as string,
+      href: `/docs/${plugin.id}/${c.id}`,
+      firstHref:
+        idx === 0 ? `/docs/${plugin.id}` : `/docs/${plugin.id}/${c.id}`,
+    }))
+  }
+
   let pager = $derived.by(() => {
-    const pi = orderedPlugins.findIndex((p) => p.id === active.activePluginId)
+    const list = ordering.orderedList
+    const pi = list.findIndex((p) => p.id === active.activePluginId)
     if (pi === -1) return { prev: null, next: null }
 
-    const plugin = orderedPlugins[pi]
+    const plugin = list[pi]
     const pages = pagesFor(plugin)
 
     const pageIndex = Math.max(
@@ -112,7 +146,6 @@
       targetIndex: number
     ) {
       const tgt = pluginPages[targetIndex]
-
       const isFirst = targetIndex === 0
       return {
         pluginId: pluginObj.id,
@@ -128,7 +161,7 @@
     if (pageIndex > 0) {
       prev = makeTarget(plugin, pages, pageIndex - 1)
     } else if (pi > 0) {
-      const prevPlugin = orderedPlugins[pi - 1]
+      const prevPlugin = list[pi - 1]
       const prevPages = pagesFor(prevPlugin)
       prev = makeTarget(prevPlugin, prevPages, prevPages.length - 1)
     }
@@ -136,8 +169,8 @@
     let next = null
     if (pageIndex < pages.length - 1) {
       next = makeTarget(plugin, pages, pageIndex + 1)
-    } else if (pi < orderedPlugins.length - 1) {
-      const nextPlugin = orderedPlugins[pi + 1]
+    } else if (pi < list.length - 1) {
+      const nextPlugin = list[pi + 1]
       const nextPages = pagesFor(nextPlugin)
       next = makeTarget(nextPlugin, nextPages, 0)
     }
@@ -151,12 +184,11 @@
   function isActiveFirst(plugin: string | null, section: string | null) {
     return isActive(plugin, section) || isActive(plugin, null)
   }
+
   onMount(() => {
     if (!isActive(null, null)) return
-
-    const first = orderedPlugins[0]
-    if (first == undefined) return
-
+    const first = ordering.orderedList[0]
+    if (!first) return
     window.location.href = `/docs/${first.id}`
   })
 </script>
@@ -181,35 +213,94 @@
       <NavbarIcon />
     </Button>
   </div>
+
   <nav class:isOpened>
-    {#each orderedPlugins as plugin}
-      <Toggle defaultOpen={plugin.id === "com.bylazar.docs"}>
+    {#if ordering.baseDocsPlugin != null}
+      <Toggle defaultOpen={true}>
+        {#snippet trigger({ isOpen })}
+          <p>
+            Core Panels
+            <Arrow {isOpen} />
+          </p>
+        {/snippet}
+        {#snippet content()}
+          <div class="item">
+            {#if (ordering.baseDocsPlugin.components || []).filter((it) => it.type === "docs").length === 0}
+              <a
+                onclick={() => (isOpened = false)}
+                class:active={isActiveFirst(ordering.baseDocsPlugin.id, null)}
+                href={`/docs/${ordering.baseDocsPlugin.id}`}>Overview</a
+              >
+            {:else}
+              {#each (ordering.baseDocsPlugin.components || []).filter((it) => it.type === "docs") as c, index}
+                <a
+                  onclick={() => (isOpened = false)}
+                  class:active={index === 0
+                    ? isActiveFirst(ordering.baseDocsPlugin.id, c.id as string)
+                    : isActive(ordering.baseDocsPlugin.id, c.id as string)}
+                  href={index === 0
+                    ? `/docs/${ordering.baseDocsPlugin.id}`
+                    : `/docs/${ordering.baseDocsPlugin.id}/${c.id}`}>{c.id}</a
+                >
+              {/each}
+            {/if}
+          </div>
+        {/snippet}
+      </Toggle>
+      <div class="divider"></div>
+    {/if}
+
+    {#if ordering.coreSingleDocIds.size > 0}
+      <Toggle>
+        {#snippet trigger({ isOpen })}
+          <p>
+            Core Plugins
+            <Arrow {isOpen} />
+          </p>
+        {/snippet}
+        {#snippet content()}
+          {#each ordering.corePlugins as plugin}
+            <div class="item">
+              {#each pagesFor(plugin) as pg, index}
+                <a
+                  onclick={() => (isOpened = false)}
+                  class:active={index === 0
+                    ? isActiveFirst(plugin.id, pg.pageId)
+                    : isActive(plugin.id, pg.pageId)}
+                  href={index === 0 ? pg.firstHref : pg.href}>{pg.label}</a
+                >
+              {/each}
+            </div>
+          {/each}
+        {/snippet}
+      </Toggle>
+      <div class="divider"></div>
+    {/if}
+
+    {#each ordering.extraPlugins as plugin}
+      <Toggle defaultOpen={plugin.id === active.activePluginId}>
         {#snippet trigger({ isOpen })}
           <p>
             {plugin.name}
             <Arrow {isOpen} />
           </p>
         {/snippet}
-        {#snippet content({ close })}
+        {#snippet content()}
           <div class="item">
-            {#if (plugin.components || []).filter((it) => it.type === "docs").length == 0}
+            {#if (plugin.components || []).filter((it) => it.type === "docs").length === 0}
               <a
-                onclick={() => {
-                  isOpened = false
-                }}
-                class:active={isActiveFirst(plugin.id, "Overview")}
+                onclick={() => (isOpened = false)}
+                class:active={isActiveFirst(plugin.id, null)}
                 href={`/docs/${plugin.id}`}>Overview</a
               >
             {:else}
               {#each (plugin.components || []).filter((it) => it.type === "docs") as c, index}
                 <a
-                  onclick={() => {
-                    isOpened = false
-                  }}
-                  class:active={index == 0
-                    ? isActiveFirst(plugin.id, c.id)
-                    : isActive(plugin.id, c.id)}
-                  href={index == 0
+                  onclick={() => (isOpened = false)}
+                  class:active={index === 0
+                    ? isActiveFirst(plugin.id, c.id as string)
+                    : isActive(plugin.id, c.id as string)}
+                  href={index === 0
                     ? `/docs/${plugin.id}`
                     : `/docs/${plugin.id}/${c.id}`}>{c.id}</a
                 >
@@ -220,10 +311,12 @@
       </Toggle>
       <div class="divider"></div>
     {/each}
+
     {#each skippedPlugins as plugin}
       <p class="disabled">{plugin.name}</p>
     {/each}
   </nav>
+
   <div class="content">
     <HeadingsOverlay />
     <div class="main">
@@ -232,7 +325,6 @@
 
     <footer>
       <Separator />
-
       <div class="pager">
         {#if pager.prev}
           <a href={pager.prev.href}>
@@ -247,7 +339,6 @@
           </a>
         {/if}
       </div>
-
       <Credits />
     </footer>
   </div>
@@ -285,6 +376,7 @@
     justify-content: space-between;
     gap: var(--padding);
     font-weight: 700;
+    cursor: pointer;
   }
 
   a {
