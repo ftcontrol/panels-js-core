@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Arrow, Button, Toggle, type PluginConfig } from "ftc-panels"
+  import { Button, Toggle, type PluginConfig } from "ftc-panels"
   import { onMount, type Snippet } from "svelte"
   import NavbarIcon from "./icons/NavbarIcon.svelte"
   import HeadingsOverlay from "./HeadingsOverlay.svelte"
@@ -7,6 +7,7 @@
   import BackIcon from "./icons/BackIcon.svelte"
   import ForwardIcon from "./icons/ForwardIcon.svelte"
   import Credits from "./Credits.svelte"
+  import Arrow from "./icons/Arrow.svelte"
 
   let {
     plugins,

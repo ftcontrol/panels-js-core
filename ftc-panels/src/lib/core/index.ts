@@ -11,7 +11,6 @@ export { default as DynamicComponent } from "./ui/DynamicComponent.svelte"
 export { default as SimpleDynamicComponent } from "./ui/SimpleDynamicComponent.svelte"
 export { default as Overlay } from "./ui/Overlay.svelte"
 export { default as Toggle } from "./ui/Toggle.svelte"
-export { default as Arrow } from "./ui/Arrow.svelte"
 
 export { setCookie, getCookie } from "./cookies.js"
 export { importFromSource } from "./socket/source.js"
