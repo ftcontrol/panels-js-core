@@ -1,7 +1,7 @@
 import type { PluginConfig } from "$lib/core/types.js"
-import { existsSync, statSync, readFileSync, writeFileSync } from "fs"
-import { resolve } from "path"
-import { pathToFileURL } from "url"
+import { existsSync, statSync, readFileSync, writeFileSync } from "node:fs"
+import { resolve } from "node:path"
+import { pathToFileURL } from "node:url"
 
 function isNonEmptyString(val: unknown): val is string {
   return typeof val === "string" && val.trim().length > 0

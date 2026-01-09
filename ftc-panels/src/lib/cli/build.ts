@@ -1,9 +1,9 @@
 import { build } from "vite"
 import { svelte } from "@sveltejs/vite-plugin-svelte"
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 import { checkPlugin } from "./check.js"
-import zlib from "zlib"
+import zlib from "node:zlib"
 import type { PanelsWidget, PluginConfig } from "$lib/core/types.js"
 
 function clearDist(distDir: string) {

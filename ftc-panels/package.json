@@ -1,7 +1,7 @@
 {
   "name": "ftc-panels",
   "description": "Library for Panels' plugin system.",
-  "version": "1.1.43",
+  "version": "1.1.44",
   "author": {
     "name": "Lazar",
     "email": "hi@bylazar.com",
@@ -65,9 +65,7 @@
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^6.0.0",
     "chokidar": "^4.0.3",
-    "path": "^0.12.7",
     "svelte-portal": "^2.2.1",
-    "vite": "^7.0.4",
-    "zlib": "^1.0.5"
+    "vite": "^7.0.4"
   }
 }

@@ -1,11 +1,11 @@
-import fs from "fs"
-import path from "path"
-import { exec, execSync } from "child_process"
-import { promisify } from "util"
+import fs from "node:fs"
+import path from "node:path"
+import { exec, execSync } from "node:child_process"
+import { promisify } from "node:util"
 import { type PluginConfig } from "ftc-panels"
 import chokidar from "chokidar"
-import http from "http"
-import url from "url"
+import http from "node:http"
+import url from "node:url"
 
 const execAsync = promisify(exec)
 
